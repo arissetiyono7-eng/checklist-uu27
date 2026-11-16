@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<link rel="icon" href="data:," />
+<title>Checklist Kepatuhan UU 27/2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Tata letak: bilah atas tipis + panel kategori gelap di kiri + satu kategori per layar di kanan.
+   Sistem warna (satu warna, satu arti):
+   - 60% netral sejuk yang ditarik ke rona merek, 30% nila gelap (panel & teks), 10% nila terang untuk hal yang bisa diklik.
+   - Rona merek (nila, ±265°) sengaja diambil dari celah roda warna yang tidak dipakai warna status,
+     dan berseberangan dengan kuning-jingga sehingga peringatan tampil paling kontras.
+   - Hijau / kuning-jingga / merah HANYA untuk status kepatuhan. Prioritas memakai jumlah balok, bukan warna. */
+:root{
+  color-scheme: light;
+  --bg:#F2F3F9; --surface:#FFFFFF; --surface-2:#F7F7FC;
+  --ink:#171A30; --ink-2:#474C68; --ink-3:#686D88;
+  --line:#D9DBE9; --line-soft:#E8E9F2; --track:#E3E5F0;
+  --brand:#4338CA; --brand-strong:#3329A6; --brand-soft:#EAE9FC; --on-brand:#FFFFFF;
+  --side-bg:#15173A; --side-ink:#EDEEFB; --side-ink-2:#A9ADD2; --side-line:#2A2D5C; --side-active:#2B2E66; --side-track:#30346A;
+  --ok:#17794A; --ok-bg:#DDF3E5;
+  --warn:#9A5B00; --warn-bg:#FCEDCB; --warn-fill:#E2A21B;
+  --bad:#C0352B; --bad-bg:#FBE2DE;
+  --todo:#5A617F; --todo-bg:#E6E8F2;
+  --na:#6C7084; --na-bg:#EDEEF3;
+  --shadow:0 1px 2px rgba(23,26,48,.05),0 6px 20px -10px rgba(23,26,48,.18);
+  --f-display:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;
+  --f-body:"Inter","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --top-h:58px; --side-w:292px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#0E1020; --surface:#171A2D; --surface-2:#1C2036;
+    --ink:#ECEDF8; --ink-2:#B5B9D2; --ink-3:#8B90AD;
+    --line:#2D3252; --line-soft:#242843; --track:#2A2E4B;
+    --brand:#9A95FF; --brand-strong:#B4B0FF; --brand-soft:#26264F; --on-brand:#11122B;
+    --side-bg:#0A0B19; --side-ink:#ECEDF8; --side-ink-2:#9A9EC2; --side-line:#20233F; --side-active:#22254C; --side-track:#262A4C;
+    --ok:#52CC88; --ok-bg:#133424;
+    --warn:#F0B243; --warn-bg:#3A2D0E; --warn-fill:#E2A21B;
+    --bad:#FF8B7B; --bad-bg:#41211D;
+    --todo:#A0A7C8; --todo-bg:#262B46;
+    --na:#9497AB; --na-bg:#24273B;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0E1020; --surface:#171A2D; --surface-2:#1C2036;
+  --ink:#ECEDF8; --ink-2:#B5B9D2; --ink-3:#8B90AD;
+  --line:#2D3252; --line-soft:#242843; --track:#2A2E4B;
+  --brand:#9A95FF; --brand-strong:#B4B0FF; --brand-soft:#26264F; --on-brand:#11122B;
+  --side-bg:#0A0B19; --side-ink:#ECEDF8; --side-ink-2:#9A9EC2; --side-line:#20233F; --side-active:#22254C; --side-track:#262A4C;
+  --ok:#52CC88; --ok-bg:#133424;
+  --warn:#F0B243; --warn-bg:#3A2D0E; --warn-fill:#E2A21B;
+  --bad:#FF8B7B; --bad-bg:#41211D;
+  --todo:#A0A7C8; --todo-bg:#262B46;
+  --na:#9497AB; --na-bg:#24273B;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--top-h) + 16px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--f-display);line-height:1.2;margin:0;text-wrap:balance}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--brand)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--f-mono)}
+.num{font-variant-numeric:tabular-nums}
+.skip{position:absolute;left:-999px;top:0;background:var(--brand);color:var(--on-brand);padding:8px 14px;z-index:100}
+.skip:focus{left:8px;top:8px}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0}
+
+/* ---------- tombol ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:9px 15px;font-size:13.5px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.btn.primary:hover{background:var(--brand-strong);border-color:var(--brand-strong)}
+.btn.quiet{background:transparent;border-color:transparent;color:var(--brand);padding-inline:8px}
+.btn.quiet:hover{background:var(--brand-soft)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.iconbtn{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--ink-2)}
+.iconbtn:hover{background:var(--surface-2);border-color:var(--line)}
+
+/* ---------- bilah atas ---------- */
+.topbar{position:sticky;top:0;z-index:50;height:var(--top-h);display:flex;align-items:center;gap:14px;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));background:var(--surface);border-bottom:1px solid var(--line)}
+.nav-toggle{display:none}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--ink);min-width:0}
+.brand .mark{flex:none;width:34px;height:34px;border-radius:9px;background:var(--brand);color:var(--on-brand);display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:800;font-size:19px}
+.brand b{display:block;font-family:var(--f-display);font-weight:700;font-size:15px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{display:block;font-size:11.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-progress{margin-left:auto;display:flex;align-items:center;gap:12px;min-width:0;flex:0 1 330px;text-decoration:none;color:var(--ink)}
+.top-progress .sbar{flex:1}
+.top-progress .pct{font-family:var(--f-display);font-weight:700;font-size:15px}
+.top-progress small{color:var(--ink-3);font-size:12px;white-space:nowrap}
+.top-actions{display:flex;align-items:center;gap:6px;position:relative}
+.menu-pop{position:absolute;right:0;top:calc(100% + 8px);width:290px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px;z-index:60}
+.menu-pop button{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;border:0;background:transparent;border-radius:9px;padding:9px 12px;font-size:14px;font-weight:600}
+.menu-pop button small{font-weight:400;font-size:12px;color:var(--ink-3)}
+.menu-pop button:hover{background:var(--surface-2)}
+.menu-pop hr{border:0;border-top:1px solid var(--line-soft);margin:6px 4px}
+.menu-pop .dangerous{color:var(--bad)}
+
+/* ---------- bilah progres bertumpuk ---------- */
+.sbar{display:flex;gap:2px;height:8px;border-radius:99px;background:var(--track);overflow:hidden;min-width:40px}
+.sbar i{display:block;min-width:0}
+.sbar .s-ok{background:var(--ok)}
+.sbar .s-warn{background:var(--warn-fill)}
+.sbar .s-bad{background:var(--bad)}
+.sbar .s-rest{background:transparent}
+.sbar.big{height:14px}
+
+/* ---------- kerangka ---------- */
+.shell{display:grid;grid-template-columns:var(--side-w) minmax(0,1fr);align-items:start}
+.side{position:sticky;top:var(--top-h);height:calc(100vh - var(--top-h));overflow-y:auto;background:var(--side-bg);color:var(--side-ink);padding:14px 10px 30px;scrollbar-width:thin}
+.side a{display:block;color:var(--side-ink);text-decoration:none;border-radius:10px;padding:9px 12px}
+.side a:hover{background:var(--side-active)}
+.side a.on{background:var(--side-active);box-shadow:inset 0 0 0 1px var(--side-line)}
+.side a:focus-visible{outline-color:#fff}
+.side .main-link{font-weight:600;font-size:14px;display:flex;align-items:center;gap:10px}
+.side .main-link svg{flex:none;opacity:.8}
+.side-label{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--side-ink-2);padding:18px 12px 6px}
+.cat-link .row{display:flex;gap:9px;align-items:baseline}
+.cat-link .n{font-family:var(--f-mono);font-size:11.5px;color:var(--side-ink-2);flex:none;width:19px}
+.cat-link .nm{flex:1;font-size:13.5px;font-weight:500;line-height:1.35;min-width:0}
+.cat-link .ct{font-size:11.5px;color:var(--side-ink-2);flex:none}
+.cat-link .sbar{height:4px;margin:7px 0 0 28px;background:var(--side-track)}
+.cat-link.done .ct{color:var(--ok)}
+:root .side .sbar .s-ok{background:#3FBF7A}
+:root .side .sbar .s-bad{background:#F0705F}
+.scrim{position:fixed;inset:0;background:rgba(8,9,24,.55);z-index:54}
+main{min-width:0;padding:28px max(16px,env(safe-area-inset-right,0px)) 60px max(16px,env(safe-area-inset-left,0px))}
+.page{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.pagehead h1{font-size:clamp(24px,3.4vw,32px);font-weight:800;letter-spacing:-.01em;margin-top:6px}
+.pagehead .lede{margin:10px 0 0;color:var(--ink-2);max-width:68ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.sec-title{font-size:17px;font-weight:700}
+
+/* ---------- ringkasan ---------- */
+.overview{display:grid;grid-template-columns:1.25fr 1fr;gap:14px}
+.readiness{padding:24px;box-shadow:var(--shadow)}
+.readiness .bigrow{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.readiness .big{font-family:var(--f-display);font-weight:800;font-size:64px;line-height:.9;letter-spacing:-.03em}
+.readiness .big sup{font-size:26px;font-weight:700;margin-left:2px;vertical-align:top;position:relative;top:6px;color:var(--ink-2)}
+.readiness .cap{color:var(--ink-2);font-size:14px;max-width:26ch;padding-bottom:4px}
+.readiness .cap b{color:var(--ink)}
+.readiness .sbar{margin:20px 0 14px}
+.legend{display:flex;flex-wrap:wrap;gap:6px}
+.lg{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 12px 5px 8px;font-size:13px;color:var(--ink-2)}
+.lg:hover{border-color:var(--ink-3)}
+.lg b{color:var(--ink);font-variant-numeric:tabular-nums}
+.attention{padding:8px;display:flex;flex-direction:column}
+.attention h2{font-size:13px;font-family:var(--f-mono);font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:12px 14px 6px}
+.att{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:transparent;border:0;border-radius:11px;padding:11px 14px}
+.att:hover{background:var(--surface-2)}
+.att .n{font-family:var(--f-display);font-weight:800;font-size:26px;line-height:1;min-width:46px;font-variant-numeric:tabular-nums}
+.att .t{flex:1;font-size:14px;font-weight:600;line-height:1.3}
+.att .t small{display:block;font-weight:400;color:var(--ink-3);font-size:12.5px}
+.att .go{color:var(--ink-3)}
+.att.zero .n{color:var(--ink-3)}
+.att + .att{border-top:1px solid var(--line-soft);border-radius:0 0 11px 11px}
+.cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 20px;background:var(--brand-soft);border:1px solid transparent;border-radius:16px}
+.cta .tx{flex:1 1 300px;min-width:0}
+.cta .tx b{display:block;font-family:var(--f-display);font-size:15.5px}
+.cta .tx span{font-size:13.5px;color:var(--ink-2)}
+.deadlines{display:grid;grid-template-columns:repeat(3,1fr);position:relative;padding:20px 22px}
+.dl{position:relative;padding:22px 16px 0 0}
+.dl::before{content:"";position:absolute;left:0;right:0;top:6px;height:2px;background:var(--line)}
+.dl::after{content:"";position:absolute;left:0;top:0;width:14px;height:14px;border-radius:50%;background:var(--surface);border:3px solid var(--brand)}
+.dl.past::after{background:var(--brand)}
+.dl .when{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--brand);letter-spacing:.04em}
+.dl h3{font-size:15px;margin:3px 0 4px}
+.dl p{margin:0;font-size:13px;color:var(--ink-2)}
+.dl .left{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:99px;padding:2px 10px}
+.catlist{overflow:hidden}
+.catrow{display:grid;grid-template-columns:30px minmax(0,1fr) minmax(90px,220px) 96px 16px;gap:14px;align-items:center;padding:11px 18px;text-decoration:none;color:var(--ink);border-top:1px solid var(--line-soft)}
+.catrow:first-child{border-top:0}
+.catrow:hover{background:var(--surface-2)}
+.catrow .n{font-family:var(--f-mono);font-size:12px;color:var(--ink-3)}
+.catrow .nm{font-weight:600;font-size:14px}
+.catrow .ct{white-space:nowrap;font-size:12.5px;color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums}
+.catrow .go{color:var(--ink-3)}
+.guide{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+.gcard{padding:22px}
+.gcard h2{font-size:17px;margin-bottom:14px}
+.steps{margin:0;padding:0;list-style:none;counter-reset:st;display:grid;gap:12px}
+.steps li{display:flex;gap:12px;font-size:14px;color:var(--ink-2)}
+.steps li::before{counter-increment:st;content:counter(st);flex:none;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--surface);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.steps b{color:var(--ink)}
+.lrow{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);padding:5px 0}
+.lrow b{color:var(--ink)}
+.note{font-size:13px;color:var(--ink-2);border-top:1px solid var(--line-soft);margin:14px 0 0;padding-top:12px}
+.note b{color:var(--ink)}
+.pagefoot{color:var(--ink-3);font-size:12.5px;max-width:980px;margin:34px auto 0}
+
+/* ---------- lambang status ---------- */
+.glyph{flex:none;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%}
+.glyph svg{width:13px;height:13px}
+.glyph.g-belum{border:1.5px dashed var(--todo);color:transparent}
+.glyph.g-sesuai{background:var(--ok);color:var(--surface)}
+.glyph.g-sesuaikan{background:var(--warn-fill);color:#2B1B00}
+.glyph.g-belumada{background:var(--bad);color:var(--surface)}
+.glyph.g-na{background:var(--na-bg);color:var(--na);border:1px solid var(--line)}
+.glyph.sm{width:16px;height:16px}
+.glyph.sm svg{width:10px;height:10px}
+
+/* ---------- kepala daftar & saringan ---------- */
+.listhead .progress{display:flex;align-items:center;gap:14px;margin-top:14px;max-width:560px}
+.listhead .progress .sbar{flex:1}
+.listhead .progress span{font-size:13px;color:var(--ink-2);white-space:nowrap}
+.filterbar{position:sticky;top:var(--top-h);z-index:30;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);margin:0 -8px;padding:10px 8px;display:flex;flex-direction:column;gap:9px}
+.frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.search{flex:1 1 240px;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:0 12px;min-width:0}
+.search:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.search svg{flex:none;color:var(--ink-3)}
+.search input{border:0;background:transparent;font-size:14.5px;padding:10px 0;width:100%;min-width:0;outline:none}
+select.fsel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13.5px;max-width:100%}
+.chips{max-width:100%;overflow-x:auto;display:inline-flex;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:3px;gap:2px}
+.chip{white-space:nowrap;border:0;background:transparent;color:var(--ink-2);border-radius:7px;padding:6px 11px;font-size:13px;font-weight:500}
+.chip:hover{color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--surface);font-weight:600}
+.resultline{font-size:13px;color:var(--ink-2)}
+.resultline b{color:var(--ink)}
+.check{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.check input{width:16px;height:16px;accent-color:var(--brand)}
+.frow .spacer{flex:1}
+
+/* ---------- butir ---------- */
+.group-title{display:flex;align-items:baseline;gap:10px;padding:16px 20px 12px;border-bottom:1px solid var(--line-soft);background:var(--surface-2);border-radius:16px 16px 0 0}
+.group-title h2{font-size:16px}
+.group-title a{margin-left:auto;font-size:12.5px;font-weight:600;text-decoration:none;white-space:nowrap}
+.listwrap{display:flex;flex-direction:column;gap:16px}
+.items{box-shadow:var(--shadow);overflow:hidden}
+.item{display:grid;grid-template-columns:54px minmax(0,1fr) 268px;gap:6px 16px;padding:18px 20px;border-top:1px solid var(--line-soft)}
+.items>.item:first-child{border-top:0}
+.item-no{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:1px}
+.item-no .no{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);font-weight:600}
+.item h3{font-family:var(--f-body);font-size:15px;font-weight:600;line-height:1.45;text-wrap:pretty}
+.metaline{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:8px;font-size:12.5px;color:var(--ink-2)}
+.cite{font-family:var(--f-mono);font-size:12px;font-weight:500;color:var(--brand);background:var(--brand-soft);border-radius:6px;padding:2px 8px}
+.jenis{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:6px;padding:1.5px 7px;color:var(--ink-2)}
+.jenis.j-larangan{border-color:var(--ink);color:var(--ink)}
+.prio{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.prio .bars{display:inline-flex;align-items:flex-end;gap:2px;height:12px}
+.prio .bars i{width:4px;border-radius:1px;background:var(--line)}
+.prio .bars i:nth-child(1){height:5px}.prio .bars i:nth-child(2){height:8.5px}.prio .bars i:nth-child(3){height:12px}
+.prio.p3 .bars i,.prio.p2 .bars i:nth-child(-n+2),.prio.p1 .bars i:nth-child(1){background:var(--ink)}
+.prio.p3{font-weight:600;color:var(--ink)}
+.facts{margin:12px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;font-size:13px;color:var(--ink-2)}
+.facts dt{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.facts dd{margin:1px 0 0}
+.autonote{margin-top:10px;font-size:12.5px;color:var(--na);background:var(--na-bg);border-radius:8px;padding:6px 10px;display:inline-block}
+.item.is-na .item-body>h3,.item.is-na .facts,.item.is-na .metaline{opacity:.55}
+.item-status{display:flex;flex-direction:column;gap:6px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.seg button{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;padding:8px 9px;font-size:12.5px;font-weight:600;line-height:1.2;text-align:left;min-height:40px}
+.seg button svg{flex:none;width:13px;height:13px;opacity:.55}
+.seg button:hover{border-color:var(--ink-3);color:var(--ink)}
+.seg button.on svg{opacity:1}
+.seg button.on[data-s="Sesuai"]{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.seg button.on[data-s="Perlu Penyesuaian"]{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.seg button.on[data-s="Belum Ada"]{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.seg button.on[data-s="Tidak Berlaku"]{background:var(--na-bg);border-color:var(--na);color:var(--na)}
+.st-print{display:none}
+.follow{grid-column:2/-1;border:1px solid var(--line-soft);border-radius:10px;background:var(--surface-2);margin-top:6px}
+.follow summary{cursor:pointer;padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--ink-2);display:flex;align-items:center;gap:8px;flex-wrap:wrap;list-style:none;border-radius:10px}
+.follow summary::-webkit-details-marker{display:none}
+.follow summary::before{content:"+";font-family:var(--f-mono);font-size:14px;width:10px;color:var(--ink-3)}
+.follow[open] summary::before{content:"\2013"}
+.follow .sum{font-weight:500;color:var(--ink-3)}
+.late{font-size:11px;font-weight:700;background:var(--bad-bg);color:var(--bad);border-radius:99px;padding:1px 9px}
+.follow-grid{display:grid;grid-template-columns:minmax(0,1fr) 190px 160px;gap:10px;padding:2px 12px 12px}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld>span{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.fld input,.fld textarea,.fld select{font-size:14px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;min-width:0}
+.fld input:focus,.fld textarea:focus,.fld select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.fld textarea{resize:vertical;min-height:40px;line-height:1.45}
+.empty{text-align:center;padding:48px 20px;color:var(--ink-2)}
+.empty h3{font-size:18px;color:var(--ink);margin-bottom:6px}
+.pager{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.pager .btn{white-space:normal;text-align:left;max-width:48%}
+.pager .btn small{display:block;font-weight:400;font-size:11.5px;color:var(--ink-3)}
+.pager .next{margin-left:auto;text-align:right}
+.pager .btn.primary small{color:inherit;opacity:.8}
+
+/* ---------- profil ---------- */
+.form{padding:24px;display:flex;flex-direction:column;gap:22px}
+.form h2{font-size:16px}
+.form .hint{margin:4px 0 0;font-size:13px;color:var(--ink-2)}
+.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:12px}
+.topics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.topic{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);border-radius:11px;padding:11px 13px;cursor:pointer;font-size:14px;line-height:1.4}
+.topic:hover{border-color:var(--ink-3)}
+.topic input{width:17px;height:17px;margin-top:2px;flex:none;accent-color:var(--brand)}
+.topic:has(input:checked){border-color:var(--brand);background:var(--brand-soft)}
+.topic small{display:block;color:var(--ink-3);font-size:12px}
+.form-foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line-soft);padding-top:18px}
+.form-foot .preview{flex:1 1 240px;font-size:13.5px;color:var(--ink-2)}
+.form-foot .preview b{color:var(--ink)}
+
+/* ---------- dialog & toast ---------- */
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);padding:24px;max-width:min(440px,calc(100vw - 32px));box-shadow:0 24px 60px rgba(8,9,24,.35)}
+dialog::backdrop{background:rgba(8,9,24,.55)}
+dialog h2{font-size:18px;margin-bottom:8px}
+dialog p{margin:0 0 6px;color:var(--ink-2);font-size:14px;white-space:pre-line}
+dialog .row{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,90px);background:var(--ink);color:var(--surface);padding:11px 20px;border-radius:99px;font-size:13.5px;font-weight:600;box-shadow:0 12px 32px rgba(0,0,0,.3);transition:transform .3s ease;z-index:99;max-width:92vw;text-align:center}
+.toast.show{transform:translate(-50%,0)}
+#printHead{display:none}
+
+@media (max-width:1100px){
+  .item{grid-template-columns:54px minmax(0,1fr)}
+  .item-status{grid-column:2}
+  .seg{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .nav-toggle{display:inline-flex}
+  .side{position:fixed;left:0;top:0;bottom:0;height:auto;width:min(310px,86vw);z-index:55;transform:translateX(-102%);transition:transform .22s ease;padding-top:calc(14px + env(safe-area-inset-top,0px))}
+  .side.open{transform:none}
+  .overview,.guide{grid-template-columns:1fr}
+  .deadlines{grid-template-columns:1fr;gap:4px}
+  .dl{padding:0 0 18px 26px}
+  .dl::before{left:6px;right:auto;top:0;bottom:0;width:2px;height:auto}
+  .form-grid{grid-template-columns:1fr}
+  .filterbar{position:static;backdrop-filter:none;background:transparent}
+}
+@media (max-width:640px){
+  main{padding-top:20px}
+  .brand small,.top-progress small{display:none}
+  .top-progress{flex:none;gap:8px}
+  .top-progress .sbar{display:none}
+  .brand{flex:1 1 0}
+  .chip{padding:6px 9px}
+  .item{grid-template-columns:30px minmax(0,1fr);padding:16px 14px;gap:6px 10px}
+  .seg{grid-template-columns:1fr 1fr}
+  .facts,.topics,.follow-grid{grid-template-columns:1fr}
+  .catrow{grid-template-columns:24px minmax(0,1fr) 88px 14px;gap:10px;padding:11px 14px}
+  .catrow .sbar{grid-column:2/4;grid-row:2}
+  .catrow .go{grid-row:1/3;grid-column:4}
+  .readiness .big{font-size:54px}
+  .btn-label{display:none}
+  .pager .btn{max-width:100%;flex:1 1 100%}
+  .group-title{padding-inline:14px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important;scroll-behavior:auto!important}
+}
+@media print{
+  :root{--bg:#fff;--surface:#fff;--surface-2:#fff;--shadow:none}
+  body{font-size:11.5px}
+  .topbar,.side,.scrim,.filterbar,.pager,.toast,.pagefoot,.listhead,.group-title a,.seg,.skip{display:none!important}
+  .shell{display:block}
+  main{padding:0}
+  #printHead{display:block;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:6px}
+  #printHead h1{font-size:20px}
+  #printHead p{margin:4px 0 0;color:#333}
+  .page{gap:12px;max-width:none}
+  .listwrap{gap:10px}
+  .items{overflow:visible;border-radius:0;border-width:1px 0 0}
+  .group-title{border-radius:0;break-after:avoid;padding:8px 0}
+  .item{break-inside:avoid;padding:9px 0;grid-template-columns:40px minmax(0,1fr) 130px}
+  .item-status{grid-column:auto}
+  .st-print{display:inline-block;font-weight:700;font-size:11.5px;border:1px solid;border-radius:6px;padding:3px 8px;text-align:center}
+  .follow:not([open]){display:none}
+  .follow{grid-column:2/-1}
+  .glyph,.cite,.late,.st-print,.autonote{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Lompat ke isi</a>
+
+<header class="topbar">
+  <button class="iconbtn nav-toggle" id="btnNav" aria-label="Buka daftar kategori" aria-expanded="false">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <a class="brand" href="#ringkasan">
+    <span class="mark" aria-hidden="true">§</span>
+    <span style="min-width:0"><b>Checklist Kepatuhan</b><small>UU 27/2026 · Pelindungan Ketenagakerjaan</small></span>
+  </a>
+  <a class="top-progress" href="#ringkasan" id="topProgress" aria-label="Kesiapan keseluruhan"></a>
+  <div class="top-actions">
+    <button class="iconbtn" id="btnTheme" aria-label="Ganti tema"></button>
+    <button class="btn" id="btnData" aria-haspopup="true" aria-expanded="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+      <span class="btn-label">Data &amp; laporan</span>
+    </button>
+    <div class="menu-pop" id="menuData" hidden>
+      <button id="btnCsv">Unduh hasil (CSV)<small>Untuk spreadsheet, termasuk catatan, PIC, target</small></button>
+      <button id="btnPrint">Cetak / simpan PDF<small>Semua kategori, mengikuti saringan aktif</small></button>
+      <hr>
+      <button id="btnBackup">Unduh cadangan (.json)<small>Untuk pindah perangkat atau berbagi ke rekan</small></button>
+      <button id="btnRestore">Pulihkan dari cadangan…<small>Mengganti semua isian di browser ini</small></button>
+      <hr>
+      <button id="btnReset" class="dangerous">Atur ulang status<small>Catatan, PIC, target, dan profil tidak dihapus</small></button>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="side" id="side" aria-label="Navigasi">
+    <a class="main-link" href="#ringkasan" data-view="ringkasan"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4v3h6V4zM4 20h6v-3H4z"/></svg>Ringkasan</a>
+    <a class="main-link" href="#profil" data-view="profil"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6l8-3 8 3v14M9 20v-5h6v5M9 9h.01M15 9h.01"/></svg>Profil perusahaan</a>
+    <a class="main-link" href="#semua" data-view="semua"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Semua butir</a>
+    <div class="side-label">Kategori</div>
+    <div id="sideCats"></div>
+  </nav>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <main id="main" tabindex="-1">
+    <div id="printHead"></div>
+
+    <section class="page" id="viewRingkasan"></section>
+
+    <section class="page" id="viewProfil" hidden>
+      <header class="pagehead">
+        <p class="eyebrow">Profil perusahaan</p>
+        <h1>Butir mana yang berlaku untuk perusahaan ini?</h1>
+        <p class="lede">Jawab sekali. Butir yang tidak relevan otomatis ditandai “Tidak Berlaku” dan dikeluarkan dari hitungan kesiapan. Butir yang sudah Anda nilai sendiri tidak diubah, dan Anda tetap bisa menilai butir mana pun secara manual.</p>
+      </header>
+      <form class="panel form" id="formProfil" novalidate>
+        <div>
+          <h2>Identitas dan ukuran</h2>
+          <div class="form-grid">
+            <label class="fld"><span>Nama perusahaan (opsional)</span><input type="text" id="pfNama" maxlength="120" placeholder="Tampil di laporan cetak"></label>
+            <label class="fld"><span>Jumlah pekerja</span><input type="number" id="pfPekerja" min="0" max="1000000" step="1" inputmode="numeric" placeholder="mis. 85"></label>
+            <label class="fld"><span>Skala usaha</span><select id="pfSkala"><option value="">Belum dipilih</option><option value="mikro">Mikro</option><option value="kecil">Kecil</option><option value="menengah">Menengah</option><option value="besar">Besar</option></select></label>
+          </div>
+          <div class="topics" style="grid-template-columns:1fr">
+            <label class="topic"><input type="checkbox" id="pfRisiko"><span>Tempat kerja berpotensi bahaya tinggi<small>Kewajiban SMK3 (Pasal 130) berlaku untuk 100 pekerja atau lebih, atau risiko tinggi</small></span></label>
+          </div>
+        </div>
+        <div>
+          <h2>Centang yang ada di perusahaan ini</h2>
+          <p class="hint">Yang tidak dicentang dianggap tidak ada, sehingga butir terkait ditandai tidak berlaku.</p>
+          <div class="topics" id="pfTopics"></div>
+        </div>
+        <div class="form-foot">
+          <span class="preview" id="pfPreview"></span>
+          <button type="button" class="btn quiet" id="btnProfilHapus">Hapus profil</button>
+          <button type="submit" class="btn primary">Simpan profil</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="page" id="viewList" hidden>
+      <header class="pagehead listhead" id="listHead"></header>
+      <div class="filterbar">
+        <div class="frow">
+          <label class="search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.8-3.8"/></svg>
+            <input id="q" type="search" placeholder="Cari di semua butir: “ijazah”, “Pasal 82”, “PKWT”, nama PIC…" aria-label="Cari butir checklist">
+          </label>
+          <select class="fsel" id="fStatus" aria-label="Saring status">
+            <option value="">Semua status</option>
+            <option>Belum Dicek</option><option>Sesuai</option><option>Perlu Penyesuaian</option><option>Belum Ada</option><option>Tidak Berlaku</option>
+            <option value="@belumsesuai">Belum Sesuai (semua yang masih terbuka)</option>
+            <option value="@terlambat">Lewat target</option>
+          </select>
+          <select class="fsel" id="fJenis" aria-label="Saring jenis">
+            <option value="">Semua jenis</option>
+            <option>Wajib</option><option>Larangan</option><option>Hak Pekerja</option><option>Anjuran</option>
+          </select>
+        </div>
+        <div class="frow">
+          <span class="resultline">Prioritas</span>
+          <div class="chips" role="group" aria-label="Saring prioritas">
+            <button type="button" class="chip on" data-prio="" aria-pressed="true">Semua</button>
+            <button type="button" class="chip" data-prio="Tinggi" aria-pressed="false">Tinggi</button>
+            <button type="button" class="chip" data-prio="Sedang" aria-pressed="false">Sedang</button>
+            <button type="button" class="chip" data-prio="Rendah" aria-pressed="false">Rendah</button>
+          </div>
+          <label class="check" id="lblShowAuto" hidden><input type="checkbox" id="fShowAuto"><span id="txtShowAuto"></span></label>
+          <span class="spacer"></span>
+          <span class="resultline" id="resultLine" aria-live="polite"></span>
+          <button type="button" class="btn quiet" id="btnClear" hidden>Hapus saringan</button>
+        </div>
+      </div>
+      <div class="listwrap" id="list"></div>
+      <div class="empty panel" id="emptyState" hidden>
+        <h3>Tidak ada butir yang cocok</h3>
+        <p>Longgarkan kata kunci atau saringannya.</p>
+        <button type="button" class="btn" id="btnClear2">Hapus saringan</button>
+      </div>
+      <div class="pager" id="pager"></div>
+    </section>
+
+    <footer class="pagefoot">
+      Sumber data: file “Checklist_Kepatuhan_Perusahaan_UU_27_2026” (146 butir) berdasarkan UU Nomor 27 Tahun 2026 tentang Pelindungan Ketenagakerjaan. Teks sumber UU hasil OCR, jadi nomor pasal dan angka perlu dicek ke salinan resmi sebelum dijadikan dasar keputusan. Checklist ini alat bantu penelusuran, bukan nasihat hukum. Semua isian tersimpan hanya di browser ini.
+    </footer>
+  </main>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <h2 id="dlgTitle"></h2>
+  <p id="dlgBody"></p>
+  <div class="row">
+    <button type="button" class="btn" id="dlgCancel">Batal</button>
+    <button type="button" class="btn primary" id="dlgOk">Lanjutkan</button>
+  </div>
+</dialog>
+<input type="file" id="fileRestore" accept="application/json,.json" hidden>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+var DATA = [{"no": 1, "cat": "1. Umum & Nondiskriminasi", "point": "Perlakuan sama tanpa diskriminasi terhadap pekerja di semua aspek (rekrutmen, upah, jabatan, PHK).", "pasal": "Pasal 6-7", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Peraturan Perusahaan/PKB; SOP rekrutmen & promosi; kode etik", "risiko": "Administratif: peringatan tertulis, denda administratif, penghentian/pembatasan kegiatan usaha; pencabutan perizinan berusaha (Pasal 7)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 2, "cat": "1. Umum & Nondiskriminasi", "point": "Ikut meningkatkan produktivitas: kompetensi, K3, teknologi, efisiensi proses, budaya produktivitas, hubungan industrial yang harmonis (dapat dimasukkan ke PKB).", "pasal": "Pasal 12", "jenis": "Anjuran", "berlaku": "Semua perusahaan", "dok": "Program produktivitas; KPI; PKB", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Rendah", "status": "Belum Dicek"}, {"no": 3, "cat": "2. Rekrutmen & Penempatan", "point": "Rekrutmen berdasarkan keadilan, objektivitas, transparansi, nondiskriminasi, kesetaraan gender, dan pelindungan disabilitas/kelompok rentan.", "pasal": "Pasal 45", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP rekrutmen; kriteria seleksi", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 4, "cat": "2. Rekrutmen & Penempatan", "point": "Melaporkan informasi lowongan pekerjaan dan lowongan yang telah terisi kepada Kementerian Ketenagakerjaan.", "pasal": "Pasal 46 ayat (2)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP rekrutmen; prosedur pelaporan lowongan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 5, "cat": "2. Rekrutmen & Penempatan", "point": "Informasi lowongan jelas dan benar; tidak ada pemerasan, penipuan, atau pemalsuan dokumen dalam proses rekrutmen.", "pasal": "Pasal 46 ayat (4)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Iklan lowongan; SOP rekrutmen", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 6, "cat": "2. Rekrutmen & Penempatan", "point": "Jika memakai lembaga penempatan swasta atau bursa kerja khusus: pastikan berizin/terdaftar dan tidak memungut biaya ke pelamar.", "pasal": "Pasal 48, 50, 51", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Kontrak dengan agen/vendor rekrutmen", "risiko": "Pidana bagi pelaksana yang memungut biaya tidak sesuai (Pasal 270-271)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 7, "cat": "2. Rekrutmen & Penempatan", "point": "Tidak menahan ijazah atau dokumen pribadi pelamar sebagai jaminan penempatan.", "pasal": "Pasal 50 ayat (1) huruf b", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "SOP rekrutmen & onboarding", "risiko": "Administratif: peringatan tertulis, denda administratif, penghentian/pembatasan kegiatan usaha; pencabutan izin (Pasal 52)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 8, "cat": "3. Pelatihan, Kompetensi & Pemagangan", "point": "Pemberi Kerja bertanggung jawab atas peningkatan/pengembangan kompetensi pekerja melalui pelatihan kerja (wajib bagi pemberi kerja yang memenuhi persyaratan Permenaker).", "pasal": "Pasal 19", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Program & anggaran pelatihan; analisis kebutuhan pelatihan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 9, "cat": "3. Pelatihan, Kompetensi & Pemagangan", "point": "Pekerja punya kesempatan sama mengikuti pelatihan sesuai bidang tugas dan berhak atas pengakuan kompetensi (sertifikasi).", "pasal": "Pasal 18, 29", "jenis": "Hak Pekerja", "berlaku": "Semua perusahaan", "dok": "Kebijakan pelatihan; matriks kompetensi", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 10, "cat": "3. Pelatihan, Kompetensi & Pemagangan", "point": "Jika punya lembaga pelatihan kerja perusahaan: didaftarkan ke Pemerintah Daerah dan memenuhi syarat penyelenggara (instruktur tersertifikasi, kurikulum, sarana, dana).", "pasal": "Pasal 21, 25", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Tanda daftar LPK perusahaan", "risiko": "Administratif: peringatan tertulis, henti sementara pelatihan, cabut tanda daftar (Pasal 23)", "prio": "Rendah", "status": "Belum Dicek"}, {"no": 11, "cat": "3. Pelatihan, Kompetensi & Pemagangan", "point": "Pelatihan di tempat kerja: maks. 6 jam/hari dan 5 hari/minggu, siang hari, tanpa target produksi, minimal 60% praktik dan 40% teori, oleh instruktur.", "pasal": "Pasal 22", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "SOP pelatihan di tempat kerja", "risiko": "Administratif (Pasal 23)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 12, "cat": "3. Pelatihan, Kompetensi & Pemagangan", "point": "Pemagangan: tidak menjadi hubungan kerja; wajib perjanjian pemagangan tertulis memuat hak dan kewajiban kedua pihak.", "pasal": "Pasal 36-37", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Perjanjian pemagangan; SOP magang", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP). Tanpa perjanjian, peserta berubah menjadi pekerja perusahaan (Pasal 37 ayat 10)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 13, "cat": "3. Pelatihan, Kompetensi & Pemagangan", "point": "Hak peserta magang: bimbingan mentor, pelindungan K3, uang saku, jaminan kecelakaan kerja dan kematian, sertifikat/surat keterangan.", "pasal": "Pasal 37 ayat (6),(9)", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Perjanjian pemagangan; bukti kepesertaan BPJS Ketenagakerjaan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 14, "cat": "3. Pelatihan, Kompetensi & Pemagangan", "point": "Batas pemagangan: maksimal 6 bulan, 8 jam/hari, 40 jam/minggu.", "pasal": "Pasal 38", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Perjanjian pemagangan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 15, "cat": "3. Pelatihan, Kompetensi & Pemagangan", "point": "Pelatihan bagi penyandang disabilitas disesuaikan dengan jenis dan ragam disabilitas.", "pasal": "Pasal 33", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Kebijakan pelatihan inklusif", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Rendah", "status": "Belum Dicek"}, {"no": 16, "cat": "4. Perjanjian Kerja - Umum", "point": "Perjanjian kerja tertulis memuat: identitas pemberi kerja & jenis usaha, identitas pekerja, jabatan, tempat kerja, upah & cara bayar, syarat kerja (hak & kewajiban), mulai & jangka waktu, tempat & tanggal, tanda tangan.", "pasal": "Pasal 77 ayat (1)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Template PKWT/PKWTT", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 17, "cat": "4. Perjanjian Kerja - Umum", "point": "Isi perjanjian tidak boleh bertentangan dengan Peraturan Perusahaan/PKB/UU; jika bertentangan dengan PKB, yang berlaku PKB.", "pasal": "Pasal 77 ayat (2); Pasal 200-201", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Template kontrak vs PP/PKB", "risiko": "Ketentuan yang bertentangan batal demi hukum", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 18, "cat": "4. Perjanjian Kerja - Umum", "point": "Perjanjian dibuat minimal 2 rangkap dan pekerja menerima 1 rangkap.", "pasal": "Pasal 77 ayat (3)-(4)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Arsip kontrak; SOP onboarding", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 19, "cat": "4. Perjanjian Kerja - Umum", "point": "Seluruh biaya pembuatan perjanjian ditanggung pemberi kerja.", "pasal": "Pasal 76", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP onboarding", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Rendah", "status": "Belum Dicek"}, {"no": 20, "cat": "4. Perjanjian Kerja - Umum", "point": "Tidak mensyaratkan atau menahan ijazah dan dokumen pribadi pekerja. Pengecualian: pendidikan/pelatihan yang dibiayai perusahaan dengan perjanjian tertulis.", "pasal": "Pasal 78-79", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "Template kontrak; praktik penyimpanan dokumen", "risiko": "Administratif: peringatan tertulis, denda administratif, penghentian/pembatasan kegiatan usaha", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 21, "cat": "4. Perjanjian Kerja - Umum", "point": "Perubahan perjanjian kerja hanya atas persetujuan kedua pihak (addendum tertulis).", "pasal": "Pasal 80", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Template addendum; SK perubahan jabatan/upah", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 22, "cat": "4. Perjanjian Kerja - Umum", "point": "Klausul berakhirnya hubungan kerja selaras dengan Pasal 81 (meninggal, jangka waktu habis, pekerjaan selesai, kesepakatan, putusan, keadaan tertentu).", "pasal": "Pasal 81", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Template kontrak; PP/PKB", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 23, "cat": "5. PKWT (Kontrak Waktu Tertentu)", "point": "Jangka waktu PKWT maksimal 2 tahun, diperpanjang paling banyak 2 kali @ maksimal 1 tahun (lebih ketat dari aturan lama 5 tahun).", "pasal": "Pasal 82 ayat (2)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Template PKWT; daftar kontrak berjalan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP). Pelanggaran syarat dapat membuat PKWT menjadi PKWTT (Pasal 87)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 24, "cat": "5. PKWT (Kontrak Waktu Tertentu)", "point": "Pemberitahuan tertulis rencana perpanjangan PKWT kepada pekerja paling lambat 7 hari sebelum berakhir.", "pasal": "Pasal 82 ayat (3)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP perpanjangan kontrak; template surat", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 25, "cat": "5. PKWT (Kontrak Waktu Tertentu)", "point": "PKWT tertulis, berbahasa Indonesia dan huruf latin; jika ada versi asing, versi Indonesia yang berlaku.", "pasal": "Pasal 83-85", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Template PKWT", "risiko": "PKWT tidak tertulis demi hukum menjadi PKWTT; sanksi administratif (Pasal 84)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 26, "cat": "5. PKWT (Kontrak Waktu Tertentu)", "point": "PKWT hanya untuk pekerjaan: sekali selesai/sementara, maks. 2 tahun, musiman, produk/kegiatan baru percobaan, atau tidak tetap. Tidak boleh untuk pekerjaan bersifat tetap.", "pasal": "Pasal 87 ayat (1)-(2)", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "Daftar posisi & kontrak PKWT", "risiko": "Demi hukum menjadi PKWTT (Pasal 87 ayat 5)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 27, "cat": "5. PKWT (Kontrak Waktu Tertentu)", "point": "PKWT dicatatkan ke Pemerintah paling lambat 3 hari kerja sejak ditandatangani.", "pasal": "Pasal 87 ayat (3)-(5)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP pencatatan PKWT; bukti pencatatan", "risiko": "Demi hukum menjadi PKWTT jika syarat dilanggar", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 28, "cat": "5. PKWT (Kontrak Waktu Tertentu)", "point": "Tidak ada masa percobaan pada PKWT.", "pasal": "Pasal 86", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "Template PKWT", "risiko": "Masa percobaan batal demi hukum; masa kerja tetap dihitung", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 29, "cat": "5. PKWT (Kontrak Waktu Tertentu)", "point": "Uang kompensasi dibayar saat PKWT berakhir sesuai masa kerja (besaran rinci menunggu PP).", "pasal": "Pasal 88-89", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Payroll; template PKWT", "risiko": "Administratif (Pasal 89)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 30, "cat": "5. PKWT (Kontrak Waktu Tertentu)", "point": "Pengakhiran PKWT sebelum waktunya oleh salah satu pihak: membayar ganti rugi sebesar upah sampai akhir jangka waktu.", "pasal": "Pasal 90", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Template PKWT", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 31, "cat": "6. PKWTT & Masa Percobaan", "point": "Masa percobaan maksimal 3 bulan, dicantumkan tertulis di perjanjian/surat pengangkatan, dan dihitung sebagai masa kerja.", "pasal": "Pasal 92 ayat (1),(4)-(6)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Template PKWTT; surat pengangkatan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP) (jika tidak dicantumkan, dianggap tidak ada masa percobaan)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 32, "cat": "6. PKWTT & Masa Percobaan", "point": "Upah selama masa percobaan minimal 75% dari upah jabatan dan tidak di bawah upah minimum, plus jaminan sosial.", "pasal": "Pasal 92 ayat (2)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Payroll; template PKWTT; data BPJS", "risiko": "Pidana: penjara maks. 2 tahun dan/atau denda kategori III; korporasi denda kategori IV-VI (Pasal 274)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 33, "cat": "6. PKWTT & Masa Percobaan", "point": "Pekerja yang lulus masa percobaan wajib diangkat berdasarkan PKWTT.", "pasal": "Pasal 92 ayat (3)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SK pengangkatan karyawan tetap; evaluasi percobaan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 34, "cat": "6. PKWTT & Masa Percobaan", "point": "PKWTT lisan wajib dibuatkan surat pengangkatan memuat nama & alamat pekerja, tanggal mulai, jenis pekerjaan, upah, nama & tanda tangan pengusaha.", "pasal": "Pasal 93-94", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Template SK pengangkatan", "risiko": "Sanksi administratif (Pasal 94)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 35, "cat": "7. Alih Daya, Kemitraan & Sektor Informal", "point": "Alih daya hanya untuk jasa penunjang (kebersihan, katering, keamanan, angkutan pekerja); pekerja alih daya tidak dipakai di kegiatan produksi inti.", "pasal": "Pasal 95, 98", "jenis": "Larangan", "berlaku": "Jika relevan (kondisional)", "dok": "Perjanjian vendor alih daya", "risiko": "Hubungan kerja beralih demi hukum ke perusahaan pemberi pekerjaan (Pasal 98)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 36, "cat": "7. Alih Daya, Kemitraan & Sektor Informal", "point": "Perjanjian alih daya tertulis; vendor berbentuk PT berizin; upah dan hak normatif tidak dipotong; masa kerja kumulatif jika vendor diganti.", "pasal": "Pasal 99", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Perjanjian vendor; due diligence vendor", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 37, "cat": "7. Alih Daya, Kemitraan & Sektor Informal", "point": "Menyesuaikan praktik alih daya dengan UU baru paling lama 1 tahun sejak diundangkan (perjanjian lama berlaku sampai berakhir).", "pasal": "Pasal 306", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Daftar vendor & kontrak alih daya", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 38, "cat": "7. Alih Daya, Kemitraan & Sektor Informal", "point": "Pekerja/mitra berbasis kemitraan atau platform digital: penghasilan layak, K3, jaminan sosial (aturan rinci menunggu UU/Permenaker).", "pasal": "Pasal 102-103", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Perjanjian kemitraan/tenaga lepas", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 39, "cat": "7. Alih Daya, Kemitraan & Sektor Informal", "point": "Tenaga kerja sektor informal: upah/imbalan adil dan layak (pertimbangkan waktu kerja, risiko, biaya operasional) serta jaminan sosial.", "pasal": "Pasal 58-61", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Perjanjian dengan pekerja lepas/borongan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 40, "cat": "8. Tenaga Kerja Asing (jika ada)", "point": "Memiliki rencana penggunaan TKA yang disahkan Menteri dan pengesahan penggunaan TKA; pemberi kerja perorangan dilarang memakai TKA.", "pasal": "Pasal 62 ayat (1)-(2)", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "RPTKA; izin TKA", "risiko": "Administratif (Pasal 64); pidana bagi perorangan (Pasal 272)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 41, "cat": "8. Tenaga Kerja Asing (jika ada)", "point": "TKA dilarang menduduki jabatan pengelolaan personalia/SDM; hanya jabatan dan waktu tertentu yang belum dapat diisi WNI; utamakan WNI.", "pasal": "Pasal 62 ayat (3),(5)-(7)", "jenis": "Larangan", "berlaku": "Jika relevan (kondisional)", "dok": "Daftar jabatan TKA", "risiko": "Administratif: peringatan tertulis, denda administratif, penghentian/pembatasan kegiatan usaha; pencabutan perizinan (Pasal 64)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 42, "cat": "8. Tenaga Kerja Asing (jika ada)", "point": "Menunjuk WNI sebagai tenaga pendamping, melaksanakan pendidikan/pelatihan/sertifikasi bagi pendamping, memberi upah adil dan nondiskriminatif, memulangkan TKA setelah hubungan kerja berakhir.", "pasal": "Pasal 65", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Program alih teknologi; kontrak TKA", "risiko": "Administratif (Pasal 66); pidana denda untuk upah & pemulangan (Pasal 273)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 43, "cat": "8. Tenaga Kerja Asing (jika ada)", "point": "Memfasilitasi pendidikan dan pelatihan bahasa Indonesia bagi TKA, dan membayar dana kompensasi penggunaan TKA.", "pasal": "Pasal 67, 70", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Program bahasa; bukti pembayaran dana kompensasi", "risiko": "Administratif (Pasal 68)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 44, "cat": "9. Pelindungan di Tempat Kerja", "point": "Pelindungan data pribadi pekerja.", "pasal": "Pasal 46 ayat (8) huruf a", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kebijakan privasi/data pekerja; akses data HRIS", "risiko": "Pidana: penjara maks. 4 tahun dan/atau denda kategori IV (Pasal 269)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 45, "cat": "9. Pelindungan di Tempat Kerja", "point": "Pencegahan pemerasan dan/atau penipuan terhadap pekerja.", "pasal": "Pasal 46 ayat (8) huruf c", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kode etik; SOP pengaduan", "risiko": "Pidana (Pasal 269)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 46, "cat": "9. Pelindungan di Tempat Kerja", "point": "Pencegahan kekerasan dan/atau diskriminasi di tempat kerja.", "pasal": "Pasal 46 ayat (8) huruf d", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kode etik; Peraturan Perusahaan", "risiko": "Pidana (Pasal 269)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 47, "cat": "9. Pelindungan di Tempat Kerja", "point": "Pencegahan perundungan (bullying).", "pasal": "Pasal 46 ayat (8) huruf e", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kode etik; SOP penanganan perundungan", "risiko": "Pidana (Pasal 269)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 48, "cat": "9. Pelindungan di Tempat Kerja", "point": "Pengelolaan beban kerja yang wajar.", "pasal": "Pasal 46 ayat (8) huruf f", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Analisis beban kerja; kebijakan lembur", "risiko": "Administratif: peringatan tertulis, denda administratif, henti sementara kegiatan usaha (Pasal 46 ayat 9)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 49, "cat": "9. Pelindungan di Tempat Kerja", "point": "Menyediakan pelayanan konseling bagi pekerja.", "pasal": "Pasal 46 ayat (8) huruf g", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kebijakan konseling; penunjukan konselor/mitra", "risiko": "Administratif (Pasal 46 ayat 9)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 50, "cat": "9. Pelindungan di Tempat Kerja", "point": "Menyediakan mekanisme pengaduan internal yang mudah diakses pekerja.", "pasal": "Pasal 46 ayat (8) huruf h", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP pengaduan; kanal pengaduan", "risiko": "Administratif (Pasal 46 ayat 9)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 51, "cat": "9. Pelindungan di Tempat Kerja", "point": "Pekerja penyandang disabilitas: berikan pelindungan sesuai jenis dan ragam disabilitas.", "pasal": "Pasal 104", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Kebijakan inklusi; aksesibilitas tempat kerja", "risiko": "Pidana: penjara maks. 2 tahun dan/atau denda kategori III (Pasal 275)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 52, "cat": "9. Pelindungan di Tempat Kerja", "point": "Mempekerjakan penyandang disabilitas minimal 1% dari jumlah pekerja (kuota perusahaan swasta).", "pasal": "Pasal 105 ayat (2)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Data karyawan; rencana rekrutmen inklusif", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 53, "cat": "9. Pelindungan di Tempat Kerja", "point": "Dilarang mempekerjakan anak (di bawah 18 tahun), kecuali pekerjaan ringan usia 15 sampai di bawah 18 tahun dengan syarat.", "pasal": "Pasal 106-107", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "Data usia karyawan; SOP rekrutmen", "risiko": "Pidana: penjara maks. 10 tahun dan/atau denda kategori VI (Pasal 276)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 54, "cat": "9. Pelindungan di Tempat Kerja", "point": "Pekerjaan ringan anak: izin tertulis orang tua/wali, perjanjian kerja dengan orang tua/wali, maks. 3 jam/hari, siang hari, tidak ganggu sekolah, K3, hubungan kerja jelas, upah sesuai.", "pasal": "Pasal 107 ayat (2)", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Dokumen izin & perjanjian anak", "risiko": "Pidana: penjara maks. 4 tahun dan/atau denda kategori IV (Pasal 277)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 55, "cat": "9. Pelindungan di Tempat Kerja", "point": "Anak bekerja untuk mengembangkan bakat/minat: akses pengawasan orang tua, maks. 3 jam/hari dan 12 jam/minggu, lingkungan aman.", "pasal": "Pasal 109", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Perjanjian & jadwal kerja anak", "risiko": "Pidana (Pasal 278)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 56, "cat": "9. Pelindungan di Tempat Kerja", "point": "Tempat kerja anak dipisahkan dari pekerja dewasa; anak di tempat kerja dianggap bekerja.", "pasal": "Pasal 110-111", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Tata letak tempat kerja", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 57, "cat": "9. Pelindungan di Tempat Kerja", "point": "Perusahaan skala menengah dan besar wajib memastikan dan mengaudit rantai pasok bebas dari bentuk pekerjaan terburuk anak.", "pasal": "Pasal 112 ayat (3)", "jenis": "Wajib", "berlaku": "Skala menengah dan besar", "dok": "Audit rantai pasok; klausul vendor", "risiko": "Pidana bagi yang melibatkan anak pada pekerjaan terburuk: penjara maks. 15 tahun (Pasal 279)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 58, "cat": "9. Pelindungan di Tempat Kerja", "point": "Pekerja perempuan: kesempatan sama dalam pengembangan karier tanpa diskriminasi.", "pasal": "Pasal 114 ayat (1) huruf a", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Kebijakan karier & promosi", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 59, "cat": "9. Pelindungan di Tempat Kerja", "point": "Menyediakan ruang dan fasilitas laktasi serta kesempatan menyusui selama jam kerja.", "pasal": "Pasal 114 ayat (1) huruf b; Pasal 122", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Fasilitas kantor; kebijakan laktasi", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 60, "cat": "9. Pelindungan di Tempat Kerja", "point": "Menetapkan dan menerapkan kebijakan tanpa toleransi pelecehan seksual dan kekerasan seksual di tempat kerja.", "pasal": "Pasal 114 ayat (1) huruf c", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Kebijakan anti-pelecehan seksual; SOP pelaporan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 61, "cat": "9. Pelindungan di Tempat Kerja", "point": "Pemeriksaan kesehatan reproduksi berkala untuk sektor berisiko.", "pasal": "Pasal 114 ayat (1) huruf d", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Program kesehatan pekerja", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Rendah", "status": "Belum Dicek"}, {"no": 62, "cat": "9. Pelindungan di Tempat Kerja", "point": "Larangan: pekerja perempuan 15-<18 tahun pukul 21.00-07.00; membedakan hak karena status perkawinan, kehamilan, persalinan, keguguran, menyusui; hamil di pekerjaan berisiko tinggi atau kerja malam 23.00-07.00.", "pasal": "Pasal 114 ayat (2)", "jenis": "Larangan", "berlaku": "Jika relevan (kondisional)", "dok": "Jadwal kerja/shift; Peraturan Perusahaan", "risiko": "Pidana: penjara maks. 1 tahun dan/atau denda kategori II (Pasal 280)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 63, "cat": "9. Pelindungan di Tempat Kerja", "point": "Pekerja perempuan kerja malam 23.00-07.00: sediakan makanan & minuman bergizi, angkutan antar-jemput, jaga keamanan dan keselamatan.", "pasal": "Pasal 114 ayat (3)", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Kebijakan shift malam", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 64, "cat": "10. Waktu Kerja & Lembur", "point": "Melaksanakan waktu kerja: 7 jam/hari 40 jam/minggu (6 hari kerja) atau 8 jam/hari 40 jam/minggu (5 hari kerja); pelaksanaan diatur di PK/PP/PKB.", "pasal": "Pasal 115", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Peraturan Perusahaan/PKB; jadwal kerja", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 65, "cat": "10. Waktu Kerja & Lembur", "point": "Syarat lembur: persetujuan pekerja, perintah tertulis/digital, maks. 4 jam/hari dan 18 jam/minggu.", "pasal": "Pasal 116 ayat (1)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP & form lembur; rekap absensi", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 66, "cat": "10. Waktu Kerja & Lembur", "point": "Upah lembur hari kerja: jam pertama 1,5x, jam berikutnya 2x; upah per jam = (upah pokok + tunjangan tetap)/173.", "pasal": "Pasal 116 ayat (2)-(3)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Payroll (rumus lembur)", "risiko": "Pidana: penjara maks. 1 tahun dan/atau denda kategori II (Pasal 281)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 67, "cat": "10. Waktu Kerja & Lembur", "point": "Upah lembur hari istirahat mingguan/libur resmi (6 hari kerja: 2x jam 1-7, 3x jam ke-8, 4x jam 9-11; 5 hari kerja: 2x jam 1-8, 3x jam ke-9, 4x jam 10-12).", "pasal": "Pasal 125 ayat (3)-(5)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Payroll (lembur hari libur)", "risiko": "Pidana: penjara maks. 1 tahun dan/atau denda kategori II (Pasal 285)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 68, "cat": "11. Istirahat & Cuti", "point": "Istirahat antar jam kerja minimal 1/2 jam setelah 4 jam kerja terus-menerus (tidak dihitung jam kerja).", "pasal": "Pasal 118 ayat (2) huruf a", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kebijakan jam kerja", "risiko": "Pidana: penjara maks. 1 tahun dan/atau denda kategori II (Pasal 282)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 69, "cat": "11. Istirahat & Cuti", "point": "Istirahat mingguan: 1 hari (6 hari kerja) atau 2 hari (5 hari kerja).", "pasal": "Pasal 118 ayat (2) huruf b", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kebijakan jam kerja", "risiko": "Pidana (Pasal 282)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 70, "cat": "11. Istirahat & Cuti", "point": "Istirahat panjang 30 hari kalender setelah 5 tahun kerja berturut-turut atau kelipatannya (kini wajib); yang mengambilnya tidak berhak cuti tahunan pada tahun berjalan.", "pasal": "Pasal 118 ayat (2) huruf c, (4)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "PP/PKB; data masa kerja karyawan", "risiko": "Pidana (Pasal 282, untuk ayat (1),(2),(5))", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 71, "cat": "11. Istirahat & Cuti", "point": "Cuti tahunan minimal 12 hari kerja setelah bekerja 12 bulan terus-menerus; pelaksanaan diatur di PK/PP/PKB.", "pasal": "Pasal 118 ayat (5),(7)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "PP/PKB; rekap cuti", "risiko": "Pidana (Pasal 282)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 72, "cat": "11. Istirahat & Cuti", "point": "Cuti bersama pemerintah tidak boleh mengurangi cuti tahunan.", "pasal": "Pasal 118 ayat (6)", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "Kebijakan cuti; kalender kerja", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 73, "cat": "11. Istirahat & Cuti", "point": "Upah penuh saat istirahat panjang dan cuti tahunan.", "pasal": "Pasal 123 ayat (1)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Payroll", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 74, "cat": "11. Istirahat & Cuti", "point": "Memberi kesempatan melaksanakan ibadah yang diwajibkan agama.", "pasal": "Pasal 119", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kebijakan jam kerja; fasilitas ibadah", "risiko": "Pidana: penjara maks. 4 tahun dan/atau denda kategori IV (Pasal 283)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 75, "cat": "11. Istirahat & Cuti", "point": "Pekerja perempuan sakit saat haid dan memberitahu: tidak wajib bekerja maks. 2 hari, upah dibayar.", "pasal": "Pasal 120; Pasal 149 ayat (2) huruf b", "jenis": "Hak Pekerja", "berlaku": "Jika relevan (kondisional)", "dok": "PP/PKB; rekap absensi", "risiko": "Pidana jika upah tidak dibayar (Pasal 289)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 76, "cat": "11. Istirahat & Cuti", "point": "Cuti melahirkan minimal 3 bulan; perpanjangan maks. 3 bulan dengan surat dokter (kondisi khusus).", "pasal": "Pasal 121 ayat (1)-(3)", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "PP/PKB; form cuti", "risiko": "Pidana: penjara maks. 4 tahun dan/atau denda kategori IV (Pasal 284)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 77, "cat": "11. Istirahat & Cuti", "point": "Upah cuti melahirkan: 3 bulan pertama penuh; bulan ke-4 penuh; bulan ke-5 dan ke-6 75%.", "pasal": "Pasal 123 ayat (2)-(3)", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Payroll; PP/PKB", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 78, "cat": "11. Istirahat & Cuti", "point": "Istirahat keguguran 1,5 bulan atau sesuai surat dokter/bidan, upah penuh.", "pasal": "Pasal 121 ayat (4); Pasal 123 ayat (2)", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "PP/PKB; payroll", "risiko": "Pidana (Pasal 284)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 79, "cat": "11. Istirahat & Cuti", "point": "Cuti pendampingan istri melahirkan 2 hari (dapat ditambah maks. 3 hari); istri keguguran 2 hari.", "pasal": "Pasal 124", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "PP/PKB; form cuti", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 80, "cat": "11. Istirahat & Cuti", "point": "Hari libur resmi: pekerja tidak wajib bekerja; boleh dipekerjakan untuk pekerjaan terus-menerus atau atas kesepakatan dengan upah lembur.", "pasal": "Pasal 125 ayat (1)-(2)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kalender kerja; PP/PKB", "risiko": "Pidana jika lembur tidak dibayar (Pasal 285)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 81, "cat": "12. Pengupahan", "point": "Upah tidak di bawah upah minimum (UMP/UMK/UMSP/UMSK) bagi pekerja masa kerja kurang dari 1 tahun; upah pokok minimal sebesar upah minimum bila ada tunjangan tidak tetap.", "pasal": "Pasal 140", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Struktur upah; payroll; SK UMK terbaru", "risiko": "Pidana: penjara maks. 4 tahun dan/atau denda kategori IV (Pasal 288)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 82, "cat": "12. Pengupahan", "point": "Usaha mikro/kecil: upah berdasarkan kesepakatan, minimal 50% dari upah minimum.", "pasal": "Pasal 144", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Klasifikasi usaha; kontrak", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 83, "cat": "12. Pengupahan", "point": "Upah pokok minimal 75% dari jumlah upah pokok + tunjangan tetap.", "pasal": "Pasal 150", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Komposisi upah di payroll", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 84, "cat": "12. Pengupahan", "point": "Menyusun dan menerapkan struktur dan skala upah, dilampirkan di PP/PKB; pedoman upah masa kerja 1 tahun ke atas.", "pasal": "Pasal 146-147", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Struktur & skala upah; evaluasi jabatan; lampiran PP/PKB", "risiko": "Sanksi administratif jika tidak menyusun struktur dan skala upah (Pasal 147)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 85, "cat": "12. Pengupahan", "point": "Meninjau upah secara berkala dengan memperhatikan kemampuan perusahaan dan produktivitas.", "pasal": "Pasal 148", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kebijakan kenaikan upah", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 86, "cat": "12. Pengupahan", "point": "Upah sama untuk pekerjaan bernilai sama (tanpa diskriminasi).", "pasal": "Pasal 135 ayat (2)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Evaluasi jabatan; struktur upah", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 87, "cat": "12. Pengupahan", "point": "Membayar upah sesuai kesepakatan dan tepat waktu; keterlambatan karena kesengajaan/kelalaian dikenai denda.", "pasal": "Pasal 135 ayat (3),(6)", "jenis": "Wajib", "berlaku": "Semua (usaha mikro/kecil ada pengecualian)", "dok": "Jadwal gajian; payroll", "risiko": "Pidana: penjara maks. 4 tahun dan/atau denda kategori IV (Pasal 287)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 88, "cat": "12. Pengupahan", "point": "Denda terhadap pekerja hanya untuk pelanggaran sengaja/lalai; tidak boleh sanksi ganda atas pelanggaran yang sama.", "pasal": "Pasal 135 ayat (7)-(8)", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "SOP disiplin; PP/PKB", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 89, "cat": "12. Pengupahan", "point": "Upah tetap dibayar saat tidak bekerja untuk alasan Pasal 149 (sakit, haid, urusan keluarga, kewajiban negara, ibadah, siap kerja tetapi tidak dipekerjakan, cuti, tugas serikat, tugas pendidikan, mogok sah).", "pasal": "Pasal 149 ayat (2),(5)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "PP/PKB; payroll", "risiko": "Pidana: penjara maks. 4 tahun dan/atau denda kategori IV (Pasal 289)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 90, "cat": "12. Pengupahan", "point": "Upah saat sakit: 4 bulan pertama 100%, 4 bulan kedua 75%, 4 bulan ketiga 50%, selanjutnya 25%.", "pasal": "Pasal 149 ayat (3)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "PP/PKB; payroll", "risiko": "Pidana (Pasal 289)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 91, "cat": "12. Pengupahan", "point": "Izin berbayar urusan keluarga: menikah 3 hari; menikahkan/mengkhitankan/membaptiskan anak 2 hari; istri melahirkan/keguguran 2 hari; keluarga inti meninggal 2 hari; anggota keluarga serumah meninggal 1 hari.", "pasal": "Pasal 149 ayat (4)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "PP/PKB; form izin", "risiko": "Pidana (Pasal 289)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 92, "cat": "12. Pengupahan", "point": "Tunjangan Hari Raya (THR): kebijakan tetap mengikuti aturan pelaksana yang berlaku sampai PP baru terbit.", "pasal": "Pasal 134 ayat (4) huruf d; Pasal 310", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kebijakan THR; payroll", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 93, "cat": "12. Pengupahan", "point": "Hak dan ganti rugi pekerja yang belum dibayar menjadi utang yang dijamin seluruh aset pemberi kerja dan didahulukan pembayarannya.", "pasal": "Pasal 151; Pasal 299", "jenis": "Hak Pekerja", "berlaku": "Semua perusahaan", "dok": "Kebijakan keuangan; mitigasi risiko", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Rendah", "status": "Belum Dicek"}, {"no": 94, "cat": "13. Keselamatan & Kesehatan Kerja (K3)", "point": "Menerapkan K3 untuk mencegah kecelakaan kerja dan penyakit akibat kerja sesuai peraturan/standar K3; menyelenggarakan upaya K3 (fisik dan mental).", "pasal": "Pasal 128-129", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kebijakan K3; SOP K3", "risiko": "Pidana jika berakibat disabilitas total tetap/meninggal: penjara maks. 6 tahun dan/atau denda kategori V (Pasal 286)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 95, "cat": "13. Keselamatan & Kesehatan Kerja (K3)", "point": "Menerapkan SMK3 yang terintegrasi dengan sistem manajemen perusahaan: kebijakan, perencanaan, pelaksanaan, pemantauan & evaluasi, peninjauan & peningkatan.", "pasal": "Pasal 130 ayat (1),(3),(5)", "jenis": "Wajib", "berlaku": "100 pekerja atau lebih / risiko tinggi", "dok": "Dokumen SMK3; audit SMK3", "risiko": "Administratif: peringatan tertulis, pembatasan/pembekuan kegiatan usaha, henti sementara alat produksi, denda administratif, cabut izin (Pasal 132)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 96, "cat": "13. Keselamatan & Kesehatan Kerja (K3)", "point": "Identifikasi bahaya dan penilaian risiko secara berkala; tempat kerja memenuhi standar K3.", "pasal": "Pasal 130 ayat (6) huruf a-b", "jenis": "Wajib", "berlaku": "100 pekerja atau lebih / risiko tinggi", "dok": "HIRARC/JSA; inspeksi tempat kerja", "risiko": "Administratif (Pasal 132)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 97, "cat": "13. Keselamatan & Kesehatan Kerja (K3)", "point": "Menyediakan alat pelindung diri (APD) atas biaya perusahaan.", "pasal": "Pasal 130 ayat (6) huruf c", "jenis": "Wajib", "berlaku": "100 pekerja atau lebih / risiko tinggi", "dok": "Daftar & bukti distribusi APD", "risiko": "Administratif (Pasal 132)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 98, "cat": "13. Keselamatan & Kesehatan Kerja (K3)", "point": "Menyediakan fasilitas P3K, ruang kesehatan kerja, dan sarana transportasi darurat.", "pasal": "Pasal 130 ayat (6) huruf d", "jenis": "Wajib", "berlaku": "100 pekerja atau lebih / risiko tinggi", "dok": "Kotak P3K; ruang kesehatan; prosedur darurat", "risiko": "Administratif (Pasal 132)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 99, "cat": "13. Keselamatan & Kesehatan Kerja (K3)", "point": "Memberikan pelatihan K3 secara rutin.", "pasal": "Pasal 130 ayat (6) huruf e", "jenis": "Wajib", "berlaku": "100 pekerja atau lebih / risiko tinggi", "dok": "Jadwal & absensi pelatihan K3", "risiko": "Administratif (Pasal 132)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 100, "cat": "13. Keselamatan & Kesehatan Kerja (K3)", "point": "Pemeriksaan kesehatan pekerja secara berkala minimal 1 kali per tahun.", "pasal": "Pasal 130 ayat (6) huruf f", "jenis": "Wajib", "berlaku": "100 pekerja atau lebih / risiko tinggi", "dok": "Jadwal & hasil medical check-up", "risiko": "Administratif (Pasal 132)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 101, "cat": "13. Keselamatan & Kesehatan Kerja (K3)", "point": "Melaporkan kecelakaan kerja, penyakit akibat kerja, dan situasi berbahaya kepada instansi terkait.", "pasal": "Pasal 130 ayat (6) huruf g", "jenis": "Wajib", "berlaku": "100 pekerja atau lebih / risiko tinggi", "dok": "SOP pelaporan kecelakaan; arsip laporan", "risiko": "Administratif (Pasal 132)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 102, "cat": "13. Keselamatan & Kesehatan Kerja (K3)", "point": "Setiap perusahaan memiliki program pencegahan kecelakaan kerja dan penyakit akibat kerja.", "pasal": "Pasal 130 ayat (7)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Program K3 tahunan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 103, "cat": "13. Keselamatan & Kesehatan Kerja (K3)", "point": "Membentuk Komite K3 (unsur pengusaha dan pekerja); panitia pembina K3 lama otomatis menjadi Komite K3.", "pasal": "Pasal 131; Pasal 307", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SK pembentukan Komite K3; notulen rapat", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 104, "cat": "14. Jaminan Sosial & Kesejahteraan", "point": "Mengikutsertakan seluruh pekerja dalam program jaminan sosial (JKN, JKK, JKM, JHT, JP, dan/atau JKP).", "pasal": "Pasal 155 ayat (2)-(3)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Data kepesertaan BPJS Kesehatan & Ketenagakerjaan", "risiko": "Pidana: penjara maks. 4 tahun dan/atau denda kategori IV, hanya jika sanksi administratif tidak dipatuhi (Pasal 290); usaha mikro/kecil: sanksi administratif (Pasal 156)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 105, "cat": "14. Jaminan Sosial & Kesejahteraan", "point": "Mengikutsertakan pekerja dalam program jaminan kehilangan pekerjaan (JKP); iuran dibayar tiap bulan.", "pasal": "Pasal 157, 160", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Data kepesertaan JKP; payroll", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 106, "cat": "14. Jaminan Sosial & Kesejahteraan", "point": "Menyediakan fasilitas kesejahteraan sesuai kebutuhan pekerja dan kemampuan perusahaan.", "pasal": "Pasal 163", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Daftar fasilitas kesejahteraan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 107, "cat": "14. Jaminan Sosial & Kesejahteraan", "point": "Mendukung pembentukan koperasi pekerja dan usaha produktif di perusahaan.", "pasal": "Pasal 164", "jenis": "Anjuran", "berlaku": "Semua perusahaan", "dok": "Program koperasi/kesejahteraan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Rendah", "status": "Belum Dicek"}, {"no": 108, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Tidak menghalangi atau memaksa pekerja membentuk/tidak membentuk, menjadi/tidak menjadi anggota atau pengurus serikat (melalui PHK, skorsing, mutasi, pemotongan upah, intimidasi, kampanye anti-serikat).", "pasal": "Pasal 168-169", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "Kebijakan hubungan industrial; PP/PKB", "risiko": "Pidana: penjara maks. 5 tahun dan/atau denda kategori IV (Pasal 291)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 109, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Membentuk Lembaga Kerja Sama Bipartit (forum komunikasi, konsultasi, musyawarah).", "pasal": "Pasal 171", "jenis": "Wajib", "berlaku": "10 pekerja atau lebih", "dok": "SK pembentukan LKS Bipartit; notulen", "risiko": "Administratif: peringatan tertulis, denda administratif, pembatasan kegiatan usaha (Pasal 172)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 110, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Membuat Peraturan Perusahaan (tidak berlaku jika sudah punya PKB).", "pasal": "Pasal 175", "jenis": "Wajib", "berlaku": "10 pekerja atau lebih", "dok": "Peraturan Perusahaan; bukti pengesahan", "risiko": "Administratif: peringatan tertulis, denda administratif, pembatasan kegiatan usaha (Pasal 176)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 111, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Meminta pendapat dan masukan perwakilan pekerja (pengurus SP, atau wakil dipilih demokratis) dalam menyusun Peraturan Perusahaan.", "pasal": "Pasal 178", "jenis": "Wajib", "berlaku": "10 pekerja atau lebih", "dok": "Notulen konsultasi PP", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 112, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Isi Peraturan Perusahaan memuat hak & kewajiban pengusaha, hak & kewajiban pekerja, syarat kerja, tata tertib, jangka waktu; tidak bertentangan dengan peraturan.", "pasal": "Pasal 179 ayat (1)-(2)", "jenis": "Wajib", "berlaku": "10 pekerja atau lebih", "dok": "Peraturan Perusahaan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 113, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Masa berlaku Peraturan Perusahaan maks. 2 tahun dan wajib diperbarui setelah habis.", "pasal": "Pasal 179 ayat (3)", "jenis": "Wajib", "berlaku": "10 pekerja atau lebih", "dok": "Tanggal pengesahan & jadwal perpanjangan PP", "risiko": "Administratif (Pasal 180)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 114, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Mengajukan pengesahan PP (dianggap disahkan jika lewat 30 hari kerja sejak lengkap); perubahan PP sebelum berakhir dengan kesepakatan dan disahkan.", "pasal": "Pasal 181-182", "jenis": "Wajib", "berlaku": "10 pekerja atau lebih", "dok": "Bukti pengajuan/pengesahan PP", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 115, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Memberitahukan, menjelaskan isi, dan membagikan salinan PP serta perubahannya kepada pekerja (cetak/elektronik mudah diakses).", "pasal": "Pasal 183", "jenis": "Wajib", "berlaku": "10 pekerja atau lebih", "dok": "Bukti sosialisasi & distribusi PP", "risiko": "Administratif (Pasal 184)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 116, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Jika SP meminta perundingan PKB: menerima, menindaklanjuti, dan melaksanakan perundingan.", "pasal": "Pasal 179 ayat (4); Pasal 187 ayat (2)", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Surat permintaan perundingan; notulen", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 117, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "PKB tertulis, huruf latin, bahasa Indonesia; isi memuat hak & kewajiban para pihak, syarat kerja, jangka waktu, tanda tangan; 1 PKB per perusahaan.", "pasal": "Pasal 187 ayat (4); Pasal 189; Pasal 195", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Naskah PKB", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP) (ketentuan bertentangan UU batal demi hukum)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 118, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Masa berlaku PKB maks. 2 tahun (perpanjangan maks. 1 tahun); perundingan berikutnya mulai paling lambat 3 bulan sebelum berakhir.", "pasal": "Pasal 194", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Jadwal masa berlaku PKB", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 119, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Mendaftarkan PKB yang ditandatangani ke Kementerian/Pemerintah Daerah.", "pasal": "Pasal 206 ayat (2)", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Bukti pendaftaran PKB", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 120, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Membagikan salinan PKB ke setiap pekerja dan menanggung seluruh biaya pembuatan dan pembagian PKB.", "pasal": "Pasal 198", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Bukti distribusi PKB", "risiko": "Administratif: peringatan tertulis, pembatasan kegiatan usaha (Pasal 199)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 121, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Dilarang mengganti PKB dengan Peraturan Perusahaan selama masih ada serikat pekerja.", "pasal": "Pasal 202", "jenis": "Larangan", "berlaku": "Jika relevan (kondisional)", "dok": "Dokumen PKB/PP", "risiko": "Administratif (Pasal 203)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 122, "cat": "15. Hubungan Industrial (SP/SB, Bipartit, PP, PKB)", "point": "Menyelesaikan perselisihan hubungan industrial lebih dulu secara musyawarah untuk mufakat.", "pasal": "Pasal 210", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP penyelesaian perselisihan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 123, "cat": "16. Mogok Kerja & Penutupan Perusahaan", "point": "Tidak mengganti pekerja yang mogok sah dengan pekerja luar, dan tidak memberi sanksi/tindakan balasan selama maupun sesudah mogok.", "pasal": "Pasal 218", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "SOP menghadapi mogok", "risiko": "Administratif: peringatan tertulis, denda administratif, pembatasan kegiatan usaha, cabut izin (Pasal 219)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 124, "cat": "16. Mogok Kerja & Penutupan Perusahaan", "point": "Mogok sah karena menuntut hak normatif yang dilanggar: pekerja berhak mendapat upah.", "pasal": "Pasal 220", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Payroll; SOP mogok", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 125, "cat": "16. Mogok Kerja & Penutupan Perusahaan", "point": "Tidak menghalangi hak mogok sah, dan tidak menangkap/menahan pekerja yang mogok sah.", "pasal": "Pasal 217", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "SOP menghadapi mogok", "risiko": "Pidana: penjara maks. 4 tahun dan/atau denda kategori IV (Pasal 292-293)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 126, "cat": "16. Mogok Kerja & Penutupan Perusahaan", "point": "Penutupan perusahaan (lock out): hanya akibat gagal berunding; tidak sebagai balasan tuntutan normatif; wajib pemberitahuan tertulis 7 hari kerja sebelumnya; wajib bayar upah selama penutupan.", "pasal": "Pasal 221-225", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "SOP penutupan perusahaan", "risiko": "Penutupan tidak sah (Pasal 226)", "prio": "Rendah", "status": "Belum Dicek"}, {"no": 127, "cat": "17. PHK & Hak Akibat PHK", "point": "Berupaya sekuat tenaga mencegah PHK (kurangi lembur, shift, jam kerja; tidak perpanjang PKWT berakhir; rumahkan bergiliran; pensiun dini sukarela, dll.).", "pasal": "Pasal 228 ayat (1)-(2)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP pencegahan PHK; kebijakan efisiensi", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 128, "cat": "17. PHK & Hak Akibat PHK", "point": "Jika PHK tak terhindarkan: wajib perundingan bipartit (maks. 30 hari kerja); PHK tanpa kesepakatan/putusan lembaga PHI batal demi hukum dan pekerja wajib dipekerjakan kembali.", "pasal": "Pasal 228 ayat (3)-(7)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP PHK; template undangan bipartit", "risiko": "Pidana jika tidak mempekerjakan kembali: penjara maks. 2 tahun dan/atau denda kategori III (Pasal 294)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 129, "cat": "17. PHK & Hak Akibat PHK", "point": "Larangan PHK karena sakit (maks. 12 bulan), kewajiban negara, ibadah, menikah, hamil/melahirkan/keguguran/menyusui, hubungan keluarga sesama pekerja, kegiatan serikat, mengadukan pidana pemberi kerja, perbedaan paham/agama/suku/jenis kelamin, disabilitas tetap/sakit akibat kerja.", "pasal": "Pasal 230", "jenis": "Larangan", "berlaku": "Semua perusahaan", "dok": "PP/PKB; SOP PHK", "risiko": "PHK batal demi hukum; pidana jika tidak mempekerjakan kembali (Pasal 294)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 130, "cat": "17. PHK & Hak Akibat PHK", "point": "Pengunduran diri: permohonan tertulis paling lambat 30 hari sebelumnya, tidak terikat ikatan dinas, tetap bekerja sampai tanggal efektif (hak: uang penggantian hak dan uang pisah).", "pasal": "Pasal 231 huruf i; Pasal 242", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP pengunduran diri; template surat", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 131, "cat": "17. PHK & Hak Akibat PHK", "point": "Mangkir 5 hari kerja berturut-turut tanpa keterangan tertulis bukti sah, setelah dipanggil 2 kali patut dan tertulis, dikualifikasikan mengundurkan diri (hak: uang penggantian hak dan uang pisah).", "pasal": "Pasal 231 huruf j; Pasal 243", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP panggilan mangkir; template surat panggilan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 132, "cat": "17. PHK & Hak Akibat PHK", "point": "PHK karena pelanggaran: harus didahului SP1, SP2, SP3 berturut-turut masing-masing berlaku maks. 6 bulan (kecuali diatur lain di PK/PP/PKB).", "pasal": "Pasal 231 huruf k; Pasal 244", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP disiplin; template SP", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 133, "cat": "17. PHK & Hak Akibat PHK", "point": "Membayar uang pesangon, uang penghargaan masa kerja, dan uang penggantian hak sesuai alasan PHK (pesangon 1-9 bulan upah, UPMK 2-10 bulan upah menurut masa kerja).", "pasal": "Pasal 232, 236-249", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Kalkulator pesangon di payroll; PP/PKB", "risiko": "Pidana: sengaja tidak membayar: penjara maks. 4 tahun dan/atau denda kategori IV (Pasal 295)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 134, "cat": "17. PHK & Hak Akibat PHK", "point": "Uang penggantian hak: cuti tahunan yang belum diambil dan belum gugur; ongkos pulang; hal lain di PK/PP/PKB.", "pasal": "Pasal 232 ayat (4)", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP offboarding; payroll", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 135, "cat": "17. PHK & Hak Akibat PHK", "point": "Uang pisah sesuai PK/PP/PKB; jika tidak diatur, minimal 1 bulan upah.", "pasal": "Pasal 233", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "PP/PKB", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 136, "cat": "17. PHK & Hak Akibat PHK", "point": "Dasar hitung pesangon dan UPMK: upah pokok + tunjangan tetap; harian = 30 x upah sehari; satuan hasil = rata-rata 12 bulan terakhir; tidak di bawah upah minimum.", "pasal": "Pasal 234", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Payroll", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 137, "cat": "17. PHK & Hak Akibat PHK", "point": "Selama proses penyelesaian perselisihan PHK: tetap laksanakan kewajiban; skorsing wajib dengan membayar upah dan hak lain.", "pasal": "Pasal 235", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP skorsing", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 138, "cat": "17. PHK & Hak Akibat PHK", "point": "Pekerja ditahan: tidak wajib bayar upah tetapi wajib beri bantuan keluarga tanggungan (1 orang 25%, 2 orang 35%, 3 orang 45%, 4 orang atau lebih 50% dari upah), maks. 6 bulan.", "pasal": "Pasal 245", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "PP/PKB; SOP kasus pekerja ditahan", "risiko": "Administratif: peringatan tertulis, denda administratif (Pasal 245 ayat 8)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 139, "cat": "17. PHK & Hak Akibat PHK", "point": "Hak pekerja pensiun (pesangon 2x, UPMK 1x, UPH), sakit berkepanjangan/disabilitas akibat kerja >12 bulan (pesangon 2x, UPMK 2x, UPH 1x), dan ahli waris pekerja meninggal (pesangon 2x, UPMK 1x, UPH); iuran pensiun yang dibayar penuh perusahaan dapat diperhitungkan.", "pasal": "Pasal 246-249", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Program pensiun; PP/PKB", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Sedang", "status": "Belum Dicek"}, {"no": 140, "cat": "17. PHK & Hak Akibat PHK", "point": "Usaha mikro/kecil: pesangon dan hak lain berdasarkan kesepakatan dengan pekerja.", "pasal": "Pasal 250", "jenis": "Wajib", "berlaku": "Jika relevan (kondisional)", "dok": "Perjanjian kesepakatan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Rendah", "status": "Belum Dicek"}, {"no": 141, "cat": "18. Dana Cadangan Pesangon", "point": "Menyediakan dana cadangan pesangon (dikelola lembaga pemerintah); dikecualikan untuk usaha mikro dan kecil; rincian menunggu PP.", "pasal": "Pasal 253", "jenis": "Wajib", "berlaku": "Semua (usaha mikro/kecil ada pengecualian)", "dok": "Perencanaan keuangan; kebijakan dana pesangon", "risiko": "Administratif: peringatan tertulis, pembatasan/penghentian sementara kegiatan usaha, pencabutan izin (Pasal 253 ayat 6)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 142, "cat": "19. Pengawasan & Pelaporan", "point": "Memberi akses dan data yang diperlukan kepada pengawas ketenagakerjaan.", "pasal": "Pasal 259", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "SOP pemeriksaan pengawas; arsip data HRGA", "risiko": "Pidana: penjara maks. 2 tahun dan/atau denda kategori III (Pasal 296)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 143, "cat": "19. Pengawasan & Pelaporan", "point": "Melaporkan kondisi ketenagakerjaan di perusahaan/tempat kerja dan menindaklanjuti rekomendasi hasil pemeriksaan pengawas.", "pasal": "Pasal 264", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Laporan ketenagakerjaan; tindak lanjut rekomendasi", "risiko": "Pidana (Pasal 296)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 144, "cat": "19. Pengawasan & Pelaporan", "point": "Sanksi pidana tidak menghapus kewajiban membayar hak dan ganti kerugian kepada pekerja.", "pasal": "Pasal 298", "jenis": "Hak Pekerja", "berlaku": "Semua perusahaan", "dok": "Kebijakan kepatuhan", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Rendah", "status": "Belum Dicek"}, {"no": 145, "cat": "20. Transisi & Pemantauan", "point": "Memantau terbitnya Peraturan Pemerintah pelaksana (paling lambat 1 tahun sejak diundangkan) dan memperbarui kebijakan serta angka rincian.", "pasal": "Pasal 312", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Daftar pemantauan regulasi HRGA", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}, {"no": 146, "cat": "20. Transisi & Pemantauan", "point": "Meninjau semua dokumen kebijakan yang masih mengacu aturan lama: aturan pelaksana lama hanya berlaku sepanjang tidak bertentangan; UU 13/2003 dicabut.", "pasal": "Pasal 310-311", "jenis": "Wajib", "berlaku": "Semua perusahaan", "dok": "Seluruh dokumen kebijakan HRGA", "risiko": "Tidak ada sanksi khusus di pasal ini (rinci menunggu PP)", "prio": "Tinggi", "status": "Belum Dicek"}];
+
+/* =====================================================================
+   Konstanta
+   ===================================================================== */
+var STATUSES = ["Belum Dicek","Sesuai","Perlu Penyesuaian","Belum Ada","Tidak Berlaku"];
+var STKEY = {"Belum Dicek":"belum","Sesuai":"sesuai","Perlu Penyesuaian":"sesuaikan","Belum Ada":"belumada","Tidak Berlaku":"na"};
+var SEG = [["Sesuai","Sesuai"],["Perlu Penyesuaian","Perlu penyesuaian"],["Belum Ada","Belum ada"],["Tidak Berlaku","Tidak berlaku"]];
+var ICON = {
+  sesuai:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>',
+  sesuaikan:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M8 3.5v5.5M8 12.3v.2"/></svg>',
+  belumada:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2l-7.6 7.6"/></svg>',
+  na:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 8h8"/></svg>',
+  belum:''
+};
+var CHEV = '<svg class="go" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+var STORAGE_KEY = 'uu27-checklist-v1';
+var META_KEY = 'uu27-checklist-meta-v1';
+var PROFIL_KEY = 'uu27-checklist-profil-v1';
+var UI_KEY = 'uu27-checklist-ui-v1';
+var FIELDS = ['catatan','pic','target'];
+var SKALA = ['mikro','kecil','menengah','besar'];
+
+/* Hal yang hanya relevan bila ada di perusahaan. "na" = alasan yang ditampilkan bila tidak dicentang. */
+var TOPICS = [
+  {id:'perempuan', label:'Mempekerjakan pekerja perempuan', sub:'Laktasi, haid, melahirkan, kerja malam', na:'tidak ada pekerja perempuan', items:[58,59,61,62,63,75,76,77,78]},
+  {id:'disabilitas', label:'Mempekerjakan penyandang disabilitas', sub:'Pelindungan dan pelatihan sesuai ragam disabilitas', na:'tidak ada pekerja penyandang disabilitas', items:[15,51]},
+  {id:'anak', label:'Mempekerjakan anak (di bawah 18 tahun)', sub:'Pekerjaan ringan atau pengembangan bakat/minat', na:'tidak mempekerjakan anak', items:[54,55,56]},
+  {id:'tka', label:'Memakai tenaga kerja asing (TKA)', sub:'RPTKA, tenaga pendamping, dana kompensasi', na:'tidak memakai TKA', items:[40,41,42,43]},
+  {id:'alihdaya', label:'Memakai jasa alih daya', sub:'Kebersihan, katering, keamanan, angkutan pekerja', na:'tidak memakai alih daya', items:[35,36,37]},
+  {id:'kemitraan', label:'Memakai mitra, pekerja platform, pekerja lepas, atau borongan', sub:'Kemitraan dan sektor informal', na:'tidak memakai mitra atau pekerja lepas', items:[38,39]},
+  {id:'magang', label:'Menerima peserta pemagangan', sub:'Perjanjian, uang saku, batas waktu magang', na:'tidak ada program pemagangan', items:[12,13,14]},
+  {id:'pelatihan', label:'Punya lembaga pelatihan kerja sendiri atau melatih di tempat kerja', sub:'LPK perusahaan, pelatihan di tempat kerja', na:'tidak menyelenggarakan pelatihan kerja sendiri', items:[10,11]},
+  {id:'agen', label:'Merekrut lewat lembaga penempatan swasta atau bursa kerja khusus', sub:'Agen atau vendor rekrutmen', na:'tidak memakai lembaga penempatan', items:[6]},
+  {id:'serikat', label:'Ada serikat pekerja atau PKB', sub:'Perundingan, pendaftaran, dan pembagian PKB', na:'tidak ada serikat pekerja atau PKB', items:[116,117,118,119,120,121]}
+];
+var TOPIC_OF = {};
+TOPICS.forEach(function(t){ t.items.forEach(function(no){ TOPIC_OF[no] = t; }); });
+
+/* =====================================================================
+   Penyimpanan
+   ===================================================================== */
+function load(key){ try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { return null; } }
+function save(key, val){ try { if (val == null) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+
+function cleanState(src){
+  var out = {};
+  DATA.forEach(function(d){
+    var v = src && typeof src === 'object' ? src[d.no] : null;
+    out[d.no] = STATUSES.indexOf(v) !== -1 ? v : 'Belum Dicek';
+  });
+  return out;
+}
+function cleanMeta(src){
+  var out = {};
+  if (!src || typeof src !== 'object' || Array.isArray(src)) return out;
+  DATA.forEach(function(d){
+    var m = src[d.no]; if (!m || typeof m !== 'object') return;
+    var o = {};
+    if (typeof m.catatan === 'string' && m.catatan) o.catatan = m.catatan.slice(0, 4000);
+    if (typeof m.pic === 'string' && m.pic) o.pic = m.pic.slice(0, 200);
+    if (typeof m.target === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(m.target)) o.target = m.target;
+    if (o.catatan || o.pic || o.target) out[d.no] = o;
+  });
+  return out;
+}
+function cleanProfil(src){
+  if (!src || typeof src !== 'object' || Array.isArray(src)) return null;
+  var p = { nama:'', pekerja:null, skala:'', risiko:!!src.risiko, topik:{} };
+  if (typeof src.nama === 'string') p.nama = src.nama.slice(0, 120);
+  var n = Number(src.pekerja);
+  if (src.pekerja !== null && src.pekerja !== '' && isFinite(n) && n >= 0) p.pekerja = Math.floor(n);
+  if (SKALA.indexOf(src.skala) !== -1) p.skala = src.skala;
+  TOPICS.forEach(function(t){ p.topik[t.id] = !!(src.topik && src.topik[t.id]); });
+  return p;
+}
+var state = cleanState(load(STORAGE_KEY));
+var meta = cleanMeta(load(META_KEY));
+var profil = cleanProfil(load(PROFIL_KEY));
+var ui = load(UI_KEY) || {};
+function saveState(){ save(STORAGE_KEY, state); }
+function saveMeta(){ save(META_KEY, meta); }
+
+/* =====================================================================
+   Aturan profil -> butir tidak berlaku
+   ===================================================================== */
+function autoReasonFor(d, p){
+  if (!p) return '';
+  var kecil = p.skala === 'mikro' || p.skala === 'kecil';
+  var besar = p.skala === 'menengah' || p.skala === 'besar';
+  if (d.berlaku === '10 pekerja atau lebih' && p.pekerja !== null && p.pekerja < 10) return 'kurang dari 10 pekerja';
+  if (d.berlaku === '100 pekerja atau lebih / risiko tinggi' && p.pekerja !== null && p.pekerja < 100 && !p.risiko) return 'di bawah 100 pekerja dan bukan risiko tinggi';
+  if (d.berlaku === 'Skala menengah dan besar' && kecil) return 'usaha ' + p.skala;
+  if ((d.no === 82 || d.no === 140) && besar) return 'hanya untuk usaha mikro/kecil';
+  if (d.no === 141 && kecil) return 'usaha mikro/kecil dikecualikan';
+  var t = TOPIC_OF[d.no];
+  if (t && !p.topik[t.id]) return t.na;
+  return '';
+}
+var auto = {};
+function computeAuto(){ auto = {}; DATA.forEach(function(d){ var r = autoReasonFor(d, profil); if (r) auto[d.no] = r; }); }
+computeAuto();
+/* Butir di luar profil = aturan profil berlaku DAN pengguna belum menilai sendiri. Penilaian manual selalu menang. */
+function isAuto(no){ return !!auto[no] && state[no] === 'Belum Dicek'; }
+function eff(no){ return isAuto(no) ? 'Tidak Berlaku' : state[no]; }
+
+/* =====================================================================
+   Util
+   ===================================================================== */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function $(id){ return document.getElementById(id); }
+function pad2(n){ return (n < 10 ? '0' : '') + n; }
+function todayStr(){ var t = new Date(); return t.getFullYear() + '-' + pad2(t.getMonth()+1) + '-' + pad2(t.getDate()); }
+var BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+function fmtDate(s){ var p = s.split('-'); return parseInt(p[2],10) + ' ' + BULAN[parseInt(p[1],10)-1] + ' ' + p[0]; }
+function getMeta(no, f){ return (meta[no] && meta[no][f]) || ''; }
+function hasMeta(no){ return !!(meta[no] && (meta[no].catatan || meta[no].pic || meta[no].target)); }
+function isOpen(no){ var s = eff(no); return s !== 'Sesuai' && s !== 'Tidak Berlaku'; }
+function isLate(no){ var t = getMeta(no,'target'); return !!t && t < todayStr() && isOpen(no); }
+function glyph(status, sm){ var k = STKEY[status]; return '<span class="glyph g-'+k+(sm?' sm':'')+'" title="'+esc(status)+'">'+ICON[k]+'</span>'; }
+function catName(c){ return c.replace(/^\d+\.\s*/, ''); }
+
+var cats = [], catMap = {};
+DATA.forEach(function(d){ if(!catMap[d.cat]){ catMap[d.cat]=[]; cats.push(d.cat);} catMap[d.cat].push(d); });
+var BYNO = {}; DATA.forEach(function(d){ BYNO[d.no] = d; });
+var SEARCH = {}; DATA.forEach(function(d){ SEARCH[d.no] = (d.point+' '+d.pasal+' '+d.dok+' '+d.cat+' '+d.risiko+' '+d.jenis).toLowerCase(); });
+
+function tally(items){
+  var c = {"Sesuai":0,"Perlu Penyesuaian":0,"Belum Ada":0,"Belum Dicek":0,"Tidak Berlaku":0, total:items.length, auto:0};
+  items.forEach(function(d){ c[eff(d.no)]++; if (isAuto(d.no)) c.auto++; });
+  c.berlaku = c.total - c["Tidak Berlaku"];
+  c.pct = c.berlaku ? Math.round(c["Sesuai"] / c.berlaku * 100) : 0;
+  return c;
+}
+function sbar(c, cls){
+  if (!c.berlaku) return '<span class="sbar '+(cls||'')+'"></span>';
+  return '<span class="sbar '+(cls||'')+'" role="img" aria-label="'+c["Sesuai"]+' sesuai, '+c["Perlu Penyesuaian"]+' perlu penyesuaian, '+c["Belum Ada"]+' belum ada, '+c["Belum Dicek"]+' belum dicek">'+
+    (c["Sesuai"] ? '<i class="s-ok" style="flex:'+c["Sesuai"]+'"></i>' : '')+
+    (c["Perlu Penyesuaian"] ? '<i class="s-warn" style="flex:'+c["Perlu Penyesuaian"]+'"></i>' : '')+
+    (c["Belum Ada"] ? '<i class="s-bad" style="flex:'+c["Belum Ada"]+'"></i>' : '')+
+    (c["Belum Dicek"] ? '<i class="s-rest" style="flex:'+c["Belum Dicek"]+'"></i>' : '')+'</span>';
+}
+
+/* =====================================================================
+   Dialog konfirmasi & toast
+   ===================================================================== */
+var toastTimer;
+function toast(msg){
+  var t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 3600);
+}
+function ask(title, body, okLabel, danger){
+  return new Promise(function(resolve){
+    var dlg = $('dlg'), ok = $('dlgOk');
+    $('dlgTitle').textContent = title; $('dlgBody').textContent = body;
+    ok.textContent = okLabel || 'Lanjutkan';
+    ok.className = 'btn ' + (danger ? 'danger' : 'primary');
+    var done = false;
+    function finish(v){ if (done) return; done = true; ok.onclick = null; $('dlgCancel').onclick = null; dlg.onclose = null; if (dlg.open) dlg.close(); resolve(v); }
+    ok.onclick = function(){ finish(true); };
+    $('dlgCancel').onclick = function(){ finish(false); };
+    dlg.onclose = function(){ finish(false); };
+    if (dlg.showModal) dlg.showModal(); else finish(window.confirm(title + '\n\n' + body));
+  });
+}
+
+/* =====================================================================
+   Navigasi samping & bilah atas
+   ===================================================================== */
+$('sideCats').innerHTML = cats.map(function(c, i){
+  return '<a class="cat-link" href="#k'+(i+1)+'" data-view="k'+(i+1)+'"><span class="row"><span class="n">'+pad2(i+1)+'</span><span class="nm">'+esc(catName(c))+'</span><span class="ct num" data-ct="'+i+'"></span></span><span data-bar="'+i+'"></span></a>';
+}).join('');
+
+function refreshChrome(){
+  var all = tally(DATA);
+  $('topProgress').innerHTML = sbar(all) + '<span class="pct num">'+all.pct+'%</span><small>'+all["Sesuai"]+' dari '+all.berlaku+' Sesuai</small>';
+  cats.forEach(function(c, i){
+    var t = tally(catMap[c]);
+    document.querySelector('[data-ct="'+i+'"]').textContent = t.berlaku ? t["Sesuai"]+'/'+t.berlaku : '–';
+    document.querySelector('[data-bar="'+i+'"]').innerHTML = sbar(t);
+    document.querySelector('[data-view="k'+(i+1)+'"]').classList.toggle('done', t.berlaku > 0 && t["Sesuai"] === t.berlaku);
+  });
+}
+
+/* =====================================================================
+   Ringkasan
+   ===================================================================== */
+function deadlineLeft(iso){
+  var days = Math.ceil((new Date(iso + 'T00:00:00') - new Date()) / 86400000);
+  return days > 0 ? days + ' hari lagi' : days === 0 ? 'Jatuh tempo hari ini' : 'Sudah lewat ' + (-days) + ' hari';
+}
+function nextCat(){
+  for (var i = 0; i < cats.length; i++) { if (catMap[cats[i]].some(function(d){ return eff(d.no) === 'Belum Dicek'; })) return i; }
+  return -1;
+}
+function renderRingkasan(){
+  var all = tally(DATA);
+  var prioOpen = DATA.filter(function(d){ return d.prio === 'Tinggi' && isOpen(d.no); }).length;
+  var late = DATA.filter(function(d){ return isLate(d.no); }).length;
+  var nx = nextCat();
+  var started = all["Belum Dicek"] < all.berlaku;
+  function lg(status, label){ return '<button type="button" class="lg" data-go-status="'+esc(status)+'">'+glyph(status, true)+esc(label)+' <b>'+all[status]+'</b></button>'; }
+  function att(n, title, sub, attr){ return '<button type="button" class="att'+(n?'':' zero')+'" '+attr+'><span class="n">'+n+'</span><span class="t">'+title+'<small>'+sub+'</small></span>'+CHEV+'</button>'; }
+
+  var profilBlock;
+  if (!profil) {
+    profilBlock = '<div class="cta"><span class="tx"><b>Mulai dari profil perusahaan</b><span>Jawab beberapa pertanyaan singkat agar butir yang tidak relevan (misalnya TKA atau alih daya) otomatis disisihkan.</span></span><a class="btn primary" href="#profil">Isi profil</a></div>';
+  } else {
+    var bits = [];
+    if (profil.pekerja !== null) bits.push(profil.pekerja + ' pekerja');
+    if (profil.skala) bits.push('usaha ' + profil.skala);
+    if (profil.risiko) bits.push('risiko tinggi');
+    profilBlock = '<div class="cta"><span class="tx"><b>'+esc(profil.nama || 'Profil perusahaan')+(bits.length ? ' · ' + esc(bits.join(', ')) : '')+'</b><span>'+all.auto+' butir disisihkan sebagai tidak berlaku menurut profil. '+all.berlaku+' butir perlu dinilai.</span></span><a class="btn" href="#profil">Ubah profil</a></div>';
+  }
+
+  $('viewRingkasan').innerHTML =
+    '<header class="pagehead"><p class="eyebrow">UU No. 27 Tahun 2026 · Pelindungan Ketenagakerjaan</p>'+
+    '<h1>Kesiapan kepatuhan'+(profil && profil.nama ? ' ' + esc(profil.nama) : ' perusahaan')+'</h1>'+
+    '<p class="lede">'+DATA.length+' butir kewajiban, larangan, dan hak pekerja, dari rekrutmen sampai PHK, untuk dicocokkan dengan Peraturan Perusahaan, PKB, dan SOP yang berlaku.</p></header>'+
+
+    '<div class="overview">'+
+      '<div class="panel readiness">'+
+        '<div class="bigrow"><span class="big num">'+all.pct+'<sup>%</sup></span><span class="cap"><b>'+all["Sesuai"]+' dari '+all.berlaku+'</b> butir yang berlaku sudah Sesuai</span>'+
+        (nx >= 0 ? '<a class="btn primary" style="margin-left:auto" href="#k'+(nx+1)+'">'+(started ? 'Lanjutkan pengecekan' : 'Mulai pengecekan')+'</a>' : '')+'</div>'+
+        sbar(all, 'big')+
+        '<div class="legend">'+lg('Sesuai','Sesuai')+lg('Perlu Penyesuaian','Perlu penyesuaian')+lg('Belum Ada','Belum ada')+lg('Belum Dicek','Belum dicek')+lg('Tidak Berlaku','Tidak berlaku')+'</div>'+
+      '</div>'+
+      '<div class="panel attention"><h2>Perlu perhatian</h2>'+
+        att(prioOpen, 'Prioritas tinggi belum Sesuai', 'Risiko sanksi terbesar ada di sini', 'data-go-status="@belumsesuai" data-go-prio="Tinggi"')+
+        att(all["Belum Ada"], 'Kebijakan belum ada', 'Perlu dibuat dari nol', 'data-go-status="Belum Ada"')+
+        att(late, 'Lewat target selesai', 'Target terlewat dan belum Sesuai', 'data-go-status="@terlambat"')+
+      '</div>'+
+    '</div>'+
+
+    profilBlock+
+
+    '<h2 class="sec-title">Tenggat</h2>'+
+    '<div class="panel deadlines">'+
+      '<div class="dl past"><span class="when">28 OKT 2026</span><h3>UU mulai berlaku</h3><p>Diundangkan dan berlaku sejak tanggal ini (Pasal 313).</p><span class="left">Sudah berlaku</span></div>'+
+      '<div class="dl"><span class="when">28 OKT 2027</span><h3>PP pelaksana terbit</h3><p>Batas akhir Peraturan Pemerintah pelaksana (Pasal 312). Banyak rincian teknis menunggu PP ini.</p><span class="left">'+deadlineLeft('2027-10-28')+'</span></div>'+
+      '<div class="dl"><span class="when">28 OKT 2027</span><h3>Penyesuaian alih daya</h3><p>Batas penyesuaian praktik alih daya yang sudah berjalan (Pasal 306).</p><span class="left">'+deadlineLeft('2027-10-28')+'</span></div>'+
+    '</div>'+
+
+    '<h2 class="sec-title">Kesiapan per kategori</h2>'+
+    '<div class="panel catlist">'+cats.map(function(c, i){
+      var t = tally(catMap[c]);
+      return '<a class="catrow" href="#k'+(i+1)+'"><span class="n">'+pad2(i+1)+'</span><span class="nm">'+esc(catName(c))+'</span>'+sbar(t)+'<span class="ct">'+(t.berlaku ? t["Sesuai"]+' / '+t.berlaku : 'tidak berlaku')+'</span>'+CHEV+'</a>';
+    }).join('')+'</div>'+
+
+    '<div class="guide">'+
+      '<div class="panel gcard"><h2>Cara memakai</h2><ol class="steps">'+
+        '<li><span><b>Isi profil perusahaan.</b> Butir yang tidak relevan disisihkan otomatis, sehingga daftar yang dikerjakan lebih pendek.</span></li>'+
+        '<li><span><b>Kerjakan per kategori.</b> Cocokkan tiap butir dengan dokumen yang disebut: Peraturan Perusahaan/PKB, SOP, kontrak, atau bukti pencatatan.</span></li>'+
+        '<li><span><b>Tetapkan status dengan satu klik,</b> lalu catat temuan, PIC, dan target selesai di “Catatan &amp; tindak lanjut”.</span></li>'+
+        '<li><span><b>Bagikan hasilnya.</b> Lewat tombol “Data &amp; laporan”: CSV untuk spreadsheet, cetak untuk laporan, cadangan untuk pindah perangkat atau bergantian dengan rekan.</span></li>'+
+      '</ol><p class="note"><b>Catatan batasan:</b> banyak ketentuan rinci masih menunggu PP/Permenaker, antara lain besaran kompensasi PKWT, tata cara pencatatan PKWT, dana cadangan pesangon, denda keterlambatan upah, THR, dan tata cara sanksi administratif.</p></div>'+
+      '<div class="panel gcard"><h2>Arti warna</h2>'+
+        '<div class="lrow">'+glyph('Sesuai')+'<span><b>Sesuai.</b> Kebijakan sudah selaras dengan UU.</span></div>'+
+        '<div class="lrow">'+glyph('Perlu Penyesuaian')+'<span><b>Perlu penyesuaian.</b> Sudah ada, tetapi perlu diubah atau dilengkapi.</span></div>'+
+        '<div class="lrow">'+glyph('Belum Ada')+'<span><b>Belum ada.</b> Kebijakan belum ada sama sekali. Ini yang paling berisiko.</span></div>'+
+        '<div class="lrow">'+glyph('Belum Dicek')+'<span><b>Belum dicek.</b> Belum dibandingkan dengan dokumen perusahaan.</span></div>'+
+        '<div class="lrow">'+glyph('Tidak Berlaku')+'<span><b>Tidak berlaku.</b> Tidak relevan, dikeluarkan dari hitungan kesiapan.</span></div>'+
+        '<p class="note"><b>Satu warna, satu arti.</b> Hijau, kuning, dan merah hanya dipakai untuk status, dan selalu disertai lambang agar tetap terbaca tanpa warna. Nila menandai hal yang bisa diklik. Prioritas ditunjukkan dengan jumlah balok, bukan warna, supaya tidak tertukar dengan status.</p></div>'+
+    '</div>';
+}
+$('viewRingkasan').addEventListener('click', function(e){
+  var b = e.target.closest('[data-go-status]'); if (!b) return;
+  filters.q = ''; filters.jenis = ''; filters.status = b.dataset.goStatus; filters.prio = b.dataset.goPrio || '';
+  filters.showAuto = filters.status === 'Tidak Berlaku';
+  syncFilterUI();
+  if (location.hash === '#semua') route(); else location.hash = '#semua';
+});
+
+/* =====================================================================
+   Daftar butir
+   ===================================================================== */
+var filters = { q:"", prio:"", status:"", jenis:"", showAuto:false };
+var view = 'ringkasan';
+
+function matches(d){
+  var no = d.no, s = eff(no);
+  if (isAuto(no) && !filters.showAuto && filters.status !== 'Tidak Berlaku') return false;
+  if (filters.q && (SEARCH[no] + ' ' + getMeta(no,'catatan').toLowerCase() + ' ' + getMeta(no,'pic').toLowerCase()).indexOf(filters.q) === -1) return false;
+  if (filters.prio && d.prio !== filters.prio) return false;
+  if (filters.jenis && d.jenis !== filters.jenis) return false;
+  if (filters.status === '@terlambat') { if (!isLate(no)) return false; }
+  else if (filters.status === '@belumsesuai') { if (!isOpen(no)) return false; }
+  else if (filters.status && s !== filters.status) return false;
+  return true;
+}
+function sumHTML(no){
+  var parts = [];
+  if (getMeta(no,'pic')) parts.push('PIC: ' + esc(getMeta(no,'pic')));
+  if (getMeta(no,'target')) parts.push('target ' + fmtDate(getMeta(no,'target')));
+  if (getMeta(no,'catatan')) parts.push('ada catatan');
+  return (parts.length ? '· ' + parts.join(' · ') : '') + (isLate(no) ? ' <span class="late">Lewat target</span>' : '');
+}
+function statusHTML(no){
+  var s = eff(no), a = isAuto(no);
+  return '<div class="seg" role="group" aria-label="Status butir '+no+'">'+SEG.map(function(x){
+    var on = !a && state[no] === x[0];
+    return '<button type="button" data-s="'+x[0]+'" class="'+(on?'on':'')+'" aria-pressed="'+(on?'true':'false')+'">'+ICON[STKEY[x[0]]]+'<span>'+x[1]+'</span></button>';
+  }).join('')+'</div><span class="st-print">'+esc(s)+'</span>';
+}
+function itemHTML(d){
+  var no = d.no, s = eff(no);
+  var p = d.prio === 'Tinggi' ? 3 : d.prio === 'Sedang' ? 2 : 1;
+  return '<article class="item'+(s==='Tidak Berlaku'?' is-na':'')+'" id="item-'+no+'" data-no="'+no+'">'+
+    '<div class="item-no"><span data-glyph>'+glyph(s)+'</span><span class="no">'+pad2(no)+'</span></div>'+
+    '<div class="item-body"><h3>'+esc(d.point)+'</h3>'+
+      '<div class="metaline"><span class="cite">'+esc(d.pasal)+'</span><span class="jenis'+(d.jenis==='Larangan'?' j-larangan':'')+'">'+esc(d.jenis)+'</span>'+
+      '<span class="prio p'+p+'"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>Prioritas '+esc(d.prio.toLowerCase())+'</span>'+
+      '<span>'+esc(d.berlaku)+'</span></div>'+
+      '<dl class="facts"><div><dt>Dokumen yang dicek</dt><dd>'+esc(d.dok)+'</dd></div><div><dt>Risiko sanksi</dt><dd>'+esc(d.risiko)+'</dd></div></dl>'+
+      '<div data-auto>'+(isAuto(no) ? '<span class="autonote">Tidak berlaku menurut profil: '+esc(auto[no])+'. Pilih status untuk tetap menilainya.</span>' : '')+'</div>'+
+    '</div>'+
+    '<div class="item-status" data-status>'+statusHTML(no)+'</div>'+
+    '<details class="follow"'+(hasMeta(no)?' open':'')+'><summary>Catatan &amp; tindak lanjut <span class="sum" data-sum>'+sumHTML(no)+'</span></summary>'+
+      '<div class="follow-grid">'+
+      '<label class="fld"><span>Catatan / temuan</span><textarea rows="2" maxlength="4000" id="f-catatan-'+no+'" data-f="catatan" placeholder="Apa yang ditemukan, apa yang perlu diubah…">'+esc(getMeta(no,'catatan'))+'</textarea></label>'+
+      '<label class="fld"><span>PIC</span><input type="text" maxlength="200" id="f-pic-'+no+'" data-f="pic" placeholder="Nama / bagian" value="'+esc(getMeta(no,'pic'))+'"></label>'+
+      '<label class="fld"><span>Target selesai</span><input type="date" id="f-target-'+no+'" data-f="target" value="'+esc(getMeta(no,'target'))+'"></label>'+
+      '</div></details>'+
+  '</article>';
+}
+function filtersActive(){ return !!(filters.q || filters.prio || filters.status || filters.jenis); }
+function renderList(){
+  var ci = view === 'semua' ? -1 : parseInt(view.slice(1), 10) - 1;
+  var scope = ci >= 0 ? catMap[cats[ci]] : DATA;
+  var shown = scope.filter(matches);
+  var html = '';
+  if (ci >= 0) {
+    if (shown.length) html = '<div class="panel items">'+shown.map(itemHTML).join('')+'</div>';
+  } else {
+    cats.forEach(function(c, i){
+      var its = catMap[c].filter(matches); if (!its.length) return;
+      html += '<div class="panel items"><div class="group-title"><h2>'+esc(c)+'</h2><a href="#k'+(i+1)+'">Buka kategori</a></div>'+its.map(itemHTML).join('')+'</div>';
+    });
+  }
+  $('list').innerHTML = html;
+  $('emptyState').hidden = shown.length > 0;
+  var nAuto = scope.filter(function(d){ return isAuto(d.no); }).length;
+  $('lblShowAuto').hidden = nAuto === 0;
+  $('txtShowAuto').textContent = 'Tampilkan ' + nAuto + ' butir di luar profil';
+  $('resultLine').innerHTML = '<b>'+shown.length+'</b> dari '+scope.length+' butir';
+  $('btnClear').hidden = !filtersActive();
+  $('btnClear2').hidden = !filtersActive();
+  renderListHead(ci);
+  var pg = '';
+  if (ci >= 0) {
+    if (ci > 0) pg += '<a class="btn prev" href="#k'+ci+'"><span><small>Sebelumnya</small>'+esc(cats[ci-1])+'</span></a>';
+    if (ci < cats.length - 1) pg += '<a class="btn primary next" href="#k'+(ci+2)+'"><span><small>Berikutnya</small>'+esc(cats[ci+1])+'</span></a>';
+    else pg += '<a class="btn primary next" href="#ringkasan"><span><small>Selesai</small>Lihat ringkasan</span></a>';
+  }
+  $('pager').innerHTML = pg;
+}
+function renderListHead(ci){
+  var h;
+  if (ci >= 0) {
+    var t = tally(catMap[cats[ci]]);
+    h = '<p class="eyebrow">Kategori '+(ci+1)+' dari '+cats.length+'</p><h1>'+esc(catName(cats[ci]))+'</h1>'+
+      '<div class="progress">'+sbar(t)+'<span class="num">'+(t.berlaku ? t["Sesuai"]+' dari '+t.berlaku+' Sesuai' : 'Semua butir tidak berlaku')+'</span></div>';
+  } else {
+    var a = tally(DATA);
+    h = '<p class="eyebrow">Semua kategori</p><h1>Semua butir</h1>'+
+      '<div class="progress">'+sbar(a)+'<span class="num">'+a["Sesuai"]+' dari '+a.berlaku+' Sesuai</span></div>';
+  }
+  $('listHead').innerHTML = h;
+}
+function patchItem(no){
+  var el = $('item-'+no); if (!el) return;
+  var s = eff(no);
+  el.classList.toggle('is-na', s === 'Tidak Berlaku');
+  el.querySelector('[data-glyph]').innerHTML = glyph(s);
+  el.querySelector('[data-status]').innerHTML = statusHTML(no);
+  el.querySelector('[data-auto]').innerHTML = isAuto(no) ? '<span class="autonote">Tidak berlaku menurut profil: '+esc(auto[no])+'. Pilih status untuk tetap menilainya.</span>' : '';
+  el.querySelector('[data-sum]').innerHTML = sumHTML(no);
+}
+
+$('list').addEventListener('click', function(e){
+  var b = e.target.closest('.seg button'); if (!b) return;
+  var no = b.closest('.item').dataset.no;
+  state[no] = state[no] === b.dataset.s && !isAuto(no) ? 'Belum Dicek' : b.dataset.s;
+  saveState();
+  patchItem(no);
+  var nb = $('item-'+no).querySelector('.seg button[data-s="'+b.dataset.s+'"]'); if (nb) nb.focus();
+  refreshChrome();
+  renderListHead(view === 'semua' ? -1 : parseInt(view.slice(1), 10) - 1);
+});
+var metaTimer;
+$('list').addEventListener('input', function(e){
+  var f = e.target.dataset && e.target.dataset.f; if (!f) return;
+  var no = e.target.closest('.item').dataset.no;
+  if (!meta[no]) meta[no] = {};
+  meta[no][f] = e.target.value;
+  if (!hasMeta(no)) delete meta[no];
+  $('item-'+no).querySelector('[data-sum]').innerHTML = sumHTML(no);
+  clearTimeout(metaTimer); metaTimer = setTimeout(function(){ metaTimer = null; saveMeta(); }, 250);
+});
+function flushMeta(){ if (metaTimer) { clearTimeout(metaTimer); metaTimer = null; saveMeta(); } }
+window.addEventListener('pagehide', flushMeta);
+
+/* ---- saringan ---- */
+function syncFilterUI(){
+  $('q').value = filters.q; $('fStatus').value = filters.status; $('fJenis').value = filters.jenis; $('fShowAuto').checked = filters.showAuto;
+  document.querySelectorAll('.chip[data-prio]').forEach(function(ch){
+    var on = ch.dataset.prio === filters.prio; ch.classList.toggle('on', on); ch.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+var qTimer;
+$('q').addEventListener('input', function(e){
+  filters.q = e.target.value.trim().toLowerCase();
+  clearTimeout(qTimer);
+  qTimer = setTimeout(function(){
+    if (filters.q && view !== 'semua') { location.hash = '#semua'; return; }  /* pencarian selalu menjangkau semua kategori */
+    renderList();
+  }, 140);
+});
+$('fStatus').addEventListener('change', function(e){ filters.status = e.target.value; renderList(); });
+$('fJenis').addEventListener('change', function(e){ filters.jenis = e.target.value; renderList(); });
+$('fShowAuto').addEventListener('change', function(e){ filters.showAuto = e.target.checked; renderList(); });
+document.querySelectorAll('.chip[data-prio]').forEach(function(ch){
+  ch.textContent = ch.dataset.prio ? ch.dataset.prio + ' · ' + DATA.filter(function(d){ return d.prio === ch.dataset.prio; }).length : ch.textContent;
+  ch.addEventListener('click', function(){ filters.prio = ch.dataset.prio; syncFilterUI(); renderList(); });
+});
+function clearFilters(){ filters.q = ''; filters.prio = ''; filters.status = ''; filters.jenis = ''; syncFilterUI(); renderList(); }
+$('btnClear').addEventListener('click', clearFilters);
+$('btnClear2').addEventListener('click', clearFilters);
+
+/* =====================================================================
+   Profil perusahaan
+   ===================================================================== */
+$('pfTopics').innerHTML = TOPICS.map(function(t){
+  return '<label class="topic"><input type="checkbox" id="pf-'+t.id+'" data-topic="'+t.id+'"><span>'+esc(t.label)+'<small>'+esc(t.sub)+' · '+t.items.length+' butir</small></span></label>';
+}).join('');
+function readProfilForm(){
+  var p = { nama:$('pfNama').value.trim(), pekerja:$('pfPekerja').value, skala:$('pfSkala').value, risiko:$('pfRisiko').checked, topik:{} };
+  TOPICS.forEach(function(t){ p.topik[t.id] = $('pf-'+t.id).checked; });
+  return cleanProfil(p);
+}
+function fillProfilForm(){
+  var p = profil || cleanProfil({});
+  $('pfNama').value = p.nama; $('pfPekerja').value = p.pekerja === null ? '' : p.pekerja; $('pfSkala').value = p.skala; $('pfRisiko').checked = p.risiko;
+  TOPICS.forEach(function(t){ $('pf-'+t.id).checked = !!p.topik[t.id]; });
+  $('btnProfilHapus').hidden = !profil;
+  previewProfil();
+}
+function previewProfil(){
+  var p = readProfilForm();
+  var n = DATA.filter(function(d){ return autoReasonFor(d, p) && state[d.no] === 'Belum Dicek'; }).length;
+  $('pfPreview').innerHTML = 'Dengan jawaban ini, <b>'+n+' butir</b> ditandai tidak berlaku dan <b>'+(DATA.length - n - DATA.filter(function(d){ return state[d.no] === 'Tidak Berlaku'; }).length)+' butir</b> perlu dinilai.';
+}
+$('formProfil').addEventListener('input', previewProfil);
+$('formProfil').addEventListener('change', previewProfil);
+$('formProfil').addEventListener('submit', function(e){
+  e.preventDefault();
+  profil = readProfilForm(); save(PROFIL_KEY, profil); computeAuto(); refreshChrome();
+  var n = DATA.filter(function(d){ return isAuto(d.no); }).length;
+  toast('Profil disimpan. ' + n + ' butir ditandai tidak berlaku.');
+  location.hash = '#ringkasan';
+});
+$('btnProfilHapus').addEventListener('click', function(){
+  ask('Hapus profil perusahaan?', 'Semua butir yang disisihkan oleh profil kembali ke “Belum Dicek”. Status yang Anda tetapkan sendiri tidak berubah.', 'Hapus profil', true).then(function(ok){
+    if (!ok) return;
+    profil = null; save(PROFIL_KEY, null); computeAuto(); refreshChrome(); fillProfilForm();
+    toast('Profil dihapus.');
+  });
+});
+
+/* =====================================================================
+   Rute (hash) — tombol Kembali di browser ikut bekerja
+   ===================================================================== */
+function closeNav(){ $('side').classList.remove('open'); $('scrim').hidden = true; $('btnNav').setAttribute('aria-expanded','false'); }
+function route(){
+  var h = (location.hash || '#ringkasan').slice(1);
+  var m = /^k(\d+)$/.exec(h);
+  if (m && +m[1] >= 1 && +m[1] <= cats.length) view = 'k' + (+m[1]);
+  else if (h === 'semua' || h === 'profil') view = h;
+  else view = 'ringkasan';
+  $('viewRingkasan').hidden = view !== 'ringkasan';
+  $('viewProfil').hidden = view !== 'profil';
+  $('viewList').hidden = view === 'ringkasan' || view === 'profil';
+  document.querySelectorAll('.side a[data-view]').forEach(function(a){
+    var on = a.dataset.view === view; a.classList.toggle('on', on);
+    if (on) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
+  });
+  if (view === 'ringkasan') renderRingkasan();
+  else if (view === 'profil') fillProfilForm();
+  else renderList();
+  closeNav();
+  if (document.activeElement !== $('q')) window.scrollTo(0, 0);
+  var act = document.querySelector('.side a.on'); if (act && act.scrollIntoView) act.scrollIntoView({block:'nearest'});
+}
+window.addEventListener('hashchange', route);
+$('btnNav').addEventListener('click', function(){
+  var open = $('side').classList.toggle('open'); $('scrim').hidden = !open; this.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+$('scrim').addEventListener('click', closeNav);
+
+/* =====================================================================
+   Tema
+   ===================================================================== */
+var THEME_ICON = {
+  auto:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 4v16" /><path d="M12 4a8 8 0 010 16z" fill="currentColor"/></svg>',
+  light:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/></svg>',
+  dark:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/></svg>'
+};
+var THEME_NAME = {auto:'mengikuti perangkat', light:'terang', dark:'gelap'};
+function applyTheme(){
+  var t = ui.theme === 'light' || ui.theme === 'dark' ? ui.theme : 'auto';
+  if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
+  $('btnTheme').innerHTML = THEME_ICON[t];
+  $('btnTheme').title = 'Tema: ' + THEME_NAME[t];
+}
+$('btnTheme').addEventListener('click', function(){
+  var order = ['auto','light','dark'], cur = order.indexOf(ui.theme); ui.theme = order[(cur < 0 ? 0 : cur) + 1] || 'auto';
+  save(UI_KEY, ui); applyTheme(); toast('Tema: ' + THEME_NAME[ui.theme]);
+});
+applyTheme();
+
+/* =====================================================================
+   Menu data: CSV, cetak, cadangan, pulihkan, atur ulang
+   ===================================================================== */
+function closeMenu(){ $('menuData').hidden = true; $('btnData').setAttribute('aria-expanded','false'); }
+$('btnData').addEventListener('click', function(e){
+  e.stopPropagation();
+  var open = $('menuData').hidden; $('menuData').hidden = !open; this.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+document.addEventListener('click', function(e){ if (!e.target.closest('#menuData')) closeMenu(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') { closeMenu(); closeNav(); } });
+$('menuData').addEventListener('click', closeMenu);
+
+function download(name, text, type){
+  var blob = new Blob([text], {type:type});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+}
+$('btnCsv').addEventListener('click', function(){
+  /* awalan ' mencegah spreadsheet menjalankan isian bebas sebagai rumus */
+  function cell(v){ v = String(v==null?'':v); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g,'""') + '"'; }
+  var lines = [['No','Kategori','Poin yang Dicek','Pasal','Jenis','Berlaku untuk','Dokumen yang Dicek','Risiko Sanksi','Prioritas','Status','Keterangan Status','Catatan','PIC','Target Selesai'].join(',')];
+  DATA.forEach(function(d){
+    lines.push([d.no,d.cat,d.point,d.pasal,d.jenis,d.berlaku,d.dok,d.risiko,d.prio,eff(d.no),isAuto(d.no)?'Menurut profil: '+auto[d.no]:'',getMeta(d.no,'catatan'),getMeta(d.no,'pic'),getMeta(d.no,'target')].map(cell).join(','));
+  });
+  download('Checklist_Kepatuhan_UU_27_2026_hasil.csv', '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+  toast('CSV terunduh.');
+});
+
+/* cetak: selalu semua kategori (mengikuti saringan), lalu kembali ke layar semula */
+var printing = false;
+function preparePrint(){
+  if (printing) return; printing = true;
+  var all = tally(DATA);
+  $('printHead').innerHTML = '<h1>Checklist Kepatuhan UU 27/2026'+(profil && profil.nama ? ' · ' + esc(profil.nama) : '')+'</h1>'+
+    '<p>Dicetak '+fmtDate(todayStr())+' · Kesiapan '+all.pct+'% ('+all["Sesuai"]+' dari '+all.berlaku+' butir yang berlaku Sesuai) · Perlu penyesuaian '+all["Perlu Penyesuaian"]+' · Belum ada '+all["Belum Ada"]+' · Belum dicek '+all["Belum Dicek"]+' · Tidak berlaku '+all["Tidak Berlaku"]+
+    (filtersActive() ? ' · Saringan aktif' : '')+'</p>';
+  view = 'semua';
+  $('viewRingkasan').hidden = true; $('viewProfil').hidden = true; $('viewList').hidden = false;
+  renderList();
+  document.querySelectorAll('.follow').forEach(function(f){ f.open = hasMeta(f.closest('.item').dataset.no); });
+}
+function endPrint(){ if (!printing) return; printing = false; route(); }
+window.addEventListener('beforeprint', preparePrint);
+window.addEventListener('afterprint', endPrint);
+$('btnPrint').addEventListener('click', function(){ preparePrint(); window.print(); });
+
+$('btnBackup').addEventListener('click', function(){
+  flushMeta();
+  var payload = { app:'uu27-checklist', versi:2, dibuat:new Date().toISOString(), jumlahButir:DATA.length, state:state, meta:meta, profil:profil };
+  download('Checklist_UU_27_2026_cadangan_' + todayStr() + '.json', JSON.stringify(payload, null, 1), 'application/json');
+  toast('Cadangan terunduh. Simpan file ini di tempat yang aman.');
+});
+$('btnRestore').addEventListener('click', function(){ $('fileRestore').click(); });
+$('fileRestore').addEventListener('change', function(e){
+  var file = e.target.files && e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  var rd = new FileReader();
+  rd.onerror = function(){ toast('File tidak bisa dibaca.'); };
+  rd.onload = function(){
+    var p;
+    try { p = JSON.parse(rd.result); } catch (err) { p = null; }
+    if (!p || p.app !== 'uu27-checklist' || !p.state || typeof p.state !== 'object') { toast('Ini bukan file cadangan checklist yang valid.'); return; }
+    var newState = cleanState(p.state), newMeta = cleanMeta(p.meta), newProfil = cleanProfil(p.profil);
+    var n = DATA.filter(function(d){ return newState[d.no] !== 'Belum Dicek'; }).length;
+    var tgl = typeof p.dibuat === 'string' && /^\d{4}-\d{2}-\d{2}/.test(p.dibuat) ? ' (dibuat ' + fmtDate(p.dibuat.slice(0,10)) + ')' : '';
+    ask('Pulihkan cadangan' + tgl + '?', n + ' butir sudah dinilai, ' + Object.keys(newMeta).length + ' butir punya catatan/PIC/target' + (newProfil ? ', dengan profil perusahaan' : ', tanpa profil perusahaan') + '.\n\nSemua isian yang ada di browser ini akan diganti.', 'Pulihkan').then(function(ok){
+      if (!ok) return;
+      state = newState; meta = newMeta; profil = newProfil;
+      saveState(); saveMeta(); save(PROFIL_KEY, profil);
+      computeAuto(); refreshChrome(); route();
+      toast('Cadangan dipulihkan: ' + n + ' butir sudah dinilai.');
+    });
+  };
+  rd.readAsText(file);
+});
+$('btnReset').addEventListener('click', function(){
+  var filled = DATA.filter(function(d){ return state[d.no] !== 'Belum Dicek'; }).length;
+  if (!filled) { toast('Belum ada butir yang dinilai.'); return; }
+  ask('Atur ulang ' + filled + ' status?', filled + ' butir yang sudah dinilai kembali ke “Belum Dicek”. Catatan, PIC, target, dan profil tidak dihapus.\n\nSebaiknya unduh cadangan dulu.', 'Atur ulang', true).then(function(ok){
+    if (!ok) return;
+    state = cleanState(null); save(STORAGE_KEY, null);
+    refreshChrome(); route();
+    toast('Semua status dikembalikan ke “Belum Dicek”.');
+  });
+});
+
+/* =====================================================================
+   Mulai
+   ===================================================================== */
+refreshChrome();
+route();
+</script>
+</body>
+</html>
