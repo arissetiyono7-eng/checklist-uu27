@@ -3,283 +3,332 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#12875d">
-<meta name="description" content="KerjaKu — To Do, Tugas, dan Notes yang tetap jalan tanpa internet.">
+<meta name="theme-color" content="#ffffff" id="theme-color">
+<meta name="description" content="KerjaKu — To Do, Tugas, dan Notes bergaya Notion yang tetap jalan tanpa internet.">
 <title>KerjaKu</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+/* =====================================================================
+   SISTEM WARNA (color theory)
+   - 60-30-10: 60% netral hangat (latar & teks, hue ±45°), 30% permukaan
+     abu-abu lembut (blok, tag, hover), 10% aksen biru untuk interaksi.
+   - Skema split-complementary untuk tiga jenis konten:
+       To Do  = biru   (sejuk, "aksi"; satu keluarga dengan aksen)
+       Tugas  = ungu   (analog dengan biru → masih "kerja")
+       Notes  = oranye (komplementer biru/ungu → hangat, "ide")
+   - Warna semantik konsisten: merah = Tinggi/terlambat, kuning = Sedang,
+     abu-abu = Rendah (diredam agar tidak bersaing), hijau = selesai.
+   - Palet 9 warna mengikuti Notion: setiap warna punya 3 varian
+     (teks, latar blok, tag) untuk mode terang & gelap.
+   ===================================================================== */
+const PALETTE = {
+  light: {
+    base: { bg:'#ffffff', bg2:'#f7f7f5', hover:'rgba(55,53,47,.06)', press:'rgba(55,53,47,.10)',
+            text:'#37352f', text2:'#73726e', text3:'#a5a49f', line:'#e9e9e7', line2:'#dcdcd9',
+            accent:'#2383e2', accentSoft:'rgba(35,131,226,.12)',
+            today:'#eb5757', shadow:'rgba(15,15,15,.05) 0 0 0 1px, rgba(15,15,15,.08) 0 3px 6px, rgba(15,15,15,.14) 0 9px 24px',
+            scrim:'rgba(15,15,15,.4)', coverFilter:'none' },
+    tx:  { gray:'#787774', brown:'#9f6b53', orange:'#d9730d', yellow:'#cb912f', green:'#448361', blue:'#337ea9', purple:'#9065b0', pink:'#c14c8a', red:'#d44c47' },
+    bgc: { gray:'#f1f1ef', brown:'#f4eeee', orange:'#fbecdd', yellow:'#fbf3db', green:'#edf3ec', blue:'#e7f3f8', purple:'#f6f3f9', pink:'#faf1f5', red:'#fdebec', default:'#f7f7f5' },
+    tagB:{ default:'rgba(227,226,224,.5)', gray:'#e3e2e0', brown:'#eee0da', orange:'#fadec9', yellow:'#fdecc8', green:'#dbeddb', blue:'#d3e5ef', purple:'#e8deee', pink:'#f5e0e9', red:'#ffe2dd' },
+    tagF:{ default:'#32302c', gray:'#32302c', brown:'#442a1e', orange:'#49290e', yellow:'#402c1b', green:'#1c3829', blue:'#183347', purple:'#412454', pink:'#4c2337', red:'#5d1715' },
+  },
+  dark: {
+    base: { bg:'#191919', bg2:'#202020', hover:'rgba(255,255,255,.055)', press:'rgba(255,255,255,.09)',
+            text:'#d4d4d4', text2:'#9b9b9b', text3:'#6b6b6b', line:'#2f2f2f', line2:'#3a3a3a',
+            accent:'#2383e2', accentSoft:'rgba(35,131,226,.22)',
+            today:'#eb5757', shadow:'rgba(0,0,0,.3) 0 0 0 1px, rgba(0,0,0,.35) 0 3px 6px, rgba(0,0,0,.45) 0 9px 24px',
+            scrim:'rgba(0,0,0,.6)', coverFilter:'brightness(.72) saturate(.9)' },
+    tx:  { gray:'#9b9b9b', brown:'#ba856f', orange:'#c77d48', yellow:'#ca9849', green:'#529e72', blue:'#379ad3', purple:'#9d68d3', pink:'#d15796', red:'#e65b58' },
+    bgc: { gray:'#2f2f2f', brown:'#4a3228', orange:'#5c3b23', yellow:'#564328', green:'#243d30', blue:'#143a4e', purple:'#3c2d49', pink:'#4e2c3c', red:'#522e2a', default:'#252525' },
+    tagB:{ default:'#373737', gray:'#5a5a5a', brown:'#603b2c', orange:'#854c1d', yellow:'#89632a', green:'#2b593f', blue:'#28456c', purple:'#492f64', pink:'#69314c', red:'#6e3630' },
+    tagF:{ default:'#e6e6e6', gray:'#e6e6e6', brown:'#e6e6e6', orange:'#e6e6e6', yellow:'#e6e6e6', green:'#e6e6e6', blue:'#e6e6e6', purple:'#e6e6e6', pink:'#e6e6e6', red:'#e6e6e6' },
+  },
+};
+(function injectTokens(){
+  const kebab = s => s.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
+  const vars = p => {
+    let out = Object.entries(p.base).map(([k,v]) => `--${kebab(k)}:${v};`).join('');
+    for (const [k,v] of Object.entries(p.tx))   out += `--tx-${k}:${v};`;
+    for (const [k,v] of Object.entries(p.bgc))  out += `--bg-${k}:${v};`;
+    for (const [k,v] of Object.entries(p.tagB)) out += `--tag-${k}-b:${v};`;
+    for (const [k,v] of Object.entries(p.tagF)) out += `--tag-${k}-f:${v};`;
+    return out;
+  };
+  let css = `:root{${vars(PALETTE.light)}color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){${vars(PALETTE.dark)}color-scheme:dark}}
+:root[data-theme="dark"]{${vars(PALETTE.dark)}color-scheme:dark}`;
+  for (const n of Object.keys(PALETTE.light.tagB)) css += `.tag.c-${n}{background:var(--tag-${n}-b);color:var(--tag-${n}-f)}.bg-${n}{background:var(--bg-${n})}`;
+  for (const n of Object.keys(PALETTE.light.tx)) css += `.tx-${n}{color:var(--tx-${n})}.dot-${n}{background:var(--tx-${n})}`;
+  const s = document.createElement('style'); s.id = 'tokens'; s.textContent = css; document.head.appendChild(s);
+})();
+</script>
 <style>
-:root{
-  --bg:#f6f5f1; --card:#ffffff; --line:#ebe8e0; --text:#151c2c; --muted:#6b7280; --faint:#9ca3af;
-  --green:#12875d; --green-strong:#0e7a53; --green-soft:#e7f4ee; --green-line:#c5e6d6;
-  --blue:#2563eb; --blue-soft:#eaf0fe;
-  --orange:#d2830a; --orange-soft:#fdf3e2;
-  --red:#d61f3c; --red-soft:#fdecef; --red-line:#f8cdd5;
-  --yellow:#a87406; --yellow-soft:#fff7d6; --yellow-line:#f6e39a;
-  --mint:#e6f6ef; --mint-line:#bfe5d2;
-  --chip:#f3f3ef; --item:#fbfaf7;
-  --shadow:0 1px 2px rgba(16,24,40,.04), 0 2px 8px rgba(16,24,40,.03);
-  --n-yellow:#fff6d5; --n-blue:#e7effe; --n-green:#e4f5ec; --n-pink:#fde8ef; --n-purple:#efe9fd; --n-white:#ffffff;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0e1311; --card:#161c1a; --line:#25302b; --text:#eef2f0; --muted:#9aa6a0; --faint:#6f7b75;
-    --green:#2bb07f; --green-strong:#22a173; --green-soft:#16302a; --green-line:#24503f;
-    --blue:#6b9bff; --blue-soft:#1a2440;
-    --orange:#f0a83a; --orange-soft:#33280f;
-    --red:#ff6b82; --red-soft:#3a1820; --red-line:#5a2430;
-    --yellow:#f2c94c; --yellow-soft:#332a10; --yellow-line:#4f4214;
-    --mint:#15302a; --mint-line:#24503f;
-    --chip:#1d2522; --item:#1a211f;
-    --shadow:none;
-    --n-yellow:#33301a; --n-blue:#1b2640; --n-green:#17302a; --n-pink:#3a1d29; --n-purple:#291f40; --n-white:#1d2522;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0e1311; --card:#161c1a; --line:#25302b; --text:#eef2f0; --muted:#9aa6a0; --faint:#6f7b75;
-  --green:#2bb07f; --green-strong:#22a173; --green-soft:#16302a; --green-line:#24503f;
-  --blue:#6b9bff; --blue-soft:#1a2440;
-  --orange:#f0a83a; --orange-soft:#33280f;
-  --red:#ff6b82; --red-soft:#3a1820; --red-line:#5a2430;
-  --yellow:#f2c94c; --yellow-soft:#332a10; --yellow-line:#4f4214;
-  --mint:#15302a; --mint-line:#24503f;
-  --chip:#1d2522; --item:#1a211f;
-  --shadow:none;
-  --n-yellow:#33301a; --n-blue:#1b2640; --n-green:#17302a; --n-pink:#3a1d29; --n-purple:#291f40; --n-white:#1d2522;
-  color-scheme: dark;
-}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%}
-body{background:var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI",Roboto,Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer;background:none;border:0;padding:0}
-svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.app{max-width:520px;margin:0 auto;min-height:100%;position:relative;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button{cursor:pointer;background:none;border:0;padding:0;text-align:inherit}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{max-width:680px;margin:0 auto}
 
-/* Top bar */
-.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.logo{width:46px;height:46px;border-radius:14px;background:var(--green);color:#fff;display:grid;place-items:center;flex:none}
-.logo svg.i{width:24px;height:24px}
-.brand{flex:1;min-width:0}
-.brand b{display:block;font-size:19px;white-space:nowrap;font-weight:700;letter-spacing:-.2px}
-.status{display:flex;white-space:nowrap;align-items:center;gap:6px;font-size:13px;color:var(--green);font-weight:500}
-.status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
-.status.off{color:var(--orange)}
-.icon-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;position:relative;flex:none}
-.icon-btn:active{transform:scale(.95)}
-.icon-btn .dot{position:absolute;top:8px;right:9px;width:9px;height:9px;border-radius:50%;background:#ef4060;border:2px solid var(--card);display:none}
-.icon-btn .dot.on{display:block}
-.actions{display:flex;gap:8px}
+/* ---------- Top bar (breadcrumb ala Notion) ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:var(--bg);padding-top:env(safe-area-inset-top)}
+.topbar .wrap{display:flex;align-items:center;gap:2px;height:48px;padding:0 8px 0 12px}
+.crumb{display:flex;align-items:center;gap:6px;min-width:0;flex:1;font-size:14px}
+.crumb .ws{display:flex;align-items:center;gap:7px;padding:4px 4px;border-radius:4px;font-weight:600;white-space:nowrap}
+.mark{width:22px;height:22px;border-radius:5px;background:var(--tag-green-b);color:var(--tx-green);display:grid;place-items:center;flex:none}
+.mark svg.i{width:15px;height:15px;stroke-width:2.1}
+.crumb .sep{color:var(--text3)}
+.crumb .cur{color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{width:36px;height:36px;border-radius:6px;display:grid;place-items:center;color:var(--text2);position:relative;flex:none}
+.ib:hover,.ib:active{background:var(--hover)}
+.ib .badge-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--today);display:none}
+.ib .badge-dot.on{display:block}
 
-main{padding:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
-.eyebrow{font-size:13px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;color:var(--green)}
-.hello{font-size:30px;font-weight:800;letter-spacing:-.6px;margin:6px 0 4px;line-height:1.15}
-.sub{color:var(--muted);font-size:14px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
-.stat{display:block;width:100%;background:var(--chip);border:1px solid var(--line);border-radius:18px;padding:14px 4px;text-align:center}
-.stat b{display:block;font-size:26px;font-weight:800;line-height:1.1}
-.stat span{font-size:13px;color:var(--text);opacity:.85}
-.stat.s-todo b{color:var(--green)} .stat.s-task b{color:var(--blue)} .stat.s-note b{color:var(--orange)}
-.stat.done{background:var(--mint);border-color:var(--mint-line)} .stat.done b,.stat.done span{color:var(--green)}
+/* ---------- Halaman ---------- */
+main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+.cover{height:120px;position:relative;overflow:hidden}
+.cover i{position:absolute;inset:0;filter:var(--cover-filter)}
+.page{padding:0 20px}
+.page-icon{font-size:56px;line-height:1;margin:-34px 0 6px;position:relative;z-index:1;width:max-content}
+.page-icon.solo{margin-top:22px;font-size:44px}
+h1.title{font-size:32px;font-weight:700;letter-spacing:-.4px;line-height:1.2;margin:0 0 6px}
+.desc{color:var(--text2);font-size:14.5px;margin:0 0 10px}
 
-.section-label{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:0 0 10px 6px}
-.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.qa{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:18px;background:var(--card);border:1px solid var(--line);font-weight:600;box-shadow:var(--shadow)}
-.qa svg.i{width:20px;height:20px}
-.qa.s-todo{color:var(--green)} .qa.s-task{color:var(--blue)} .qa.s-note{color:var(--orange)}
-.qa:active{transform:scale(.97)}
+/* Properti halaman */
+.props{margin:6px 0 14px}
+.prop{display:flex;align-items:center;min-height:34px;gap:6px}
+.pk{display:flex;align-items:center;gap:7px;width:124px;flex:none;color:var(--text2);font-size:14px;padding:4px 6px 4px 0}
+.pk svg.i{width:16px;height:16px}
+.pv{flex:1;min-width:0;font-size:14px;padding:4px 6px;border-radius:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pv input{border:0;background:none;outline:none;padding:0;width:100%;font-size:14px;min-height:24px}
+.pv input[type=date],.pv input[type=time]{width:auto;color:var(--text)}
+.pv input::placeholder{color:var(--text3)}
+.pv.edit:hover,.pv.edit:focus-within{background:var(--hover)}
+.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--tx-green)}
+.live.off{background:var(--tx-orange)}
+.bar{flex:1;max-width:160px;height:6px;border-radius:3px;background:var(--hover);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--tx-green);border-radius:3px}
 
-.card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.card-head h2{font-size:19px;font-weight:700;margin:0;flex:1;letter-spacing:-.2px}
-.card-head .count{color:var(--muted);font-size:14px}
-.card-head .live{width:10px;height:10px;border-radius:50%;background:var(--green)}
-.card-head .pin{color:var(--green)}
-.card-head .pin svg.i{width:18px;height:18px;fill:currentColor}
-.link{color:var(--green);font-weight:600;font-size:14px}
+.callout{display:flex;gap:10px;padding:14px 16px;border-radius:6px;margin:4px 0 18px;font-size:14.5px}
+.callout .emo{font-size:19px;line-height:1.3;width:auto}
 
-/* To Do item */
-.list{display:flex;flex-direction:column;gap:10px}
-.item{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);background:var(--item);border-radius:18px;width:100%;text-align:left}
-.check{width:26px;height:26px;border-radius:6px;border:2px solid var(--faint);flex:none;display:grid;place-items:center;color:#fff}
-.check svg.i{width:16px;height:16px;stroke-width:3;opacity:0}
-.item.done .check{background:var(--green);border-color:var(--green)}
-.item.done .check svg.i{opacity:1}
-.item.done .t{text-decoration:line-through;color:var(--muted)}
-.item .body{flex:1;min-width:0}
-.item .t{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.meta{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13.5px;margin-top:3px;flex-wrap:wrap}
-.meta .sep{width:3px;height:3px;border-radius:50%;background:currentColor}
-.meta.late{color:var(--red)}
-.badge{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:5px 10px;border-radius:9px;border:1px solid;white-space:nowrap;flex:none}
-.badge::before{content:"";width:13px;height:13px;border-radius:50%;background:currentColor}
-.badge.tinggi{color:var(--red);background:var(--red-soft);border-color:var(--red-line)}
-.badge.sedang{color:var(--yellow);background:var(--yellow-soft);border-color:var(--yellow-line)}
-.badge.rendah{color:var(--green);background:var(--green-soft);border-color:var(--green-line)}
-.badge.tinggi::before{background:#e5243f} .badge.sedang::before{background:#f2c11d} .badge.rendah::before{background:#1fae74}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:6px;margin-bottom:14px;overflow:hidden}
+.stat{padding:12px 10px;display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--line)}
+.stat:first-child{border-left:0}
+.stat:active,.stat:hover{background:var(--hover)}
+.stat b{font-size:24px;font-weight:700;line-height:1.2}
+.stat span{font-size:12.5px;color:var(--text2);display:flex;align-items:center;gap:5px}
+.stat span::before{content:"";width:8px;height:8px;border-radius:2px}
+.stat.k-todo span::before{background:var(--tx-blue)} .stat.k-task span::before{background:var(--tx-purple)}
+.stat.k-note span::before{background:var(--tx-orange)} .stat.k-done span::before{background:var(--tx-green)}
 
-/* Tugas */
-.task{display:block;width:100%;text-align:left;padding:16px;border:1px solid var(--line);background:var(--item);border-radius:18px}
-.task-top{display:flex;align-items:flex-start;gap:10px}
-.task-top .t{flex:1;font-weight:600;font-size:16px}
-.task.done .t{text-decoration:line-through;color:var(--muted)}
-.task .desc{color:var(--muted);font-size:13.5px;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.task .row{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:4px 9px;border-radius:8px;background:var(--chip);color:var(--muted)}
-.chip svg.i{width:14px;height:14px}
-.chip.blue{background:var(--blue-soft);color:var(--blue)}
-.chip.red{background:var(--red-soft);color:var(--red)}
-.chip.green{background:var(--green-soft);color:var(--green)}
-.progress{height:6px;border-radius:6px;background:var(--chip);overflow:hidden;margin-top:12px}
-.progress i{display:block;height:100%;background:var(--blue);border-radius:6px}
-.task.done .progress i{background:var(--green)}
-.pin-btn{color:var(--faint);padding:2px}
-.pin-btn.on{color:var(--green)}
-.pin-btn.on svg.i{fill:currentColor}
-.pin-btn svg.i{width:20px;height:20px}
+.newrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.newbtn{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:6px;font-size:14px;font-weight:500;color:var(--text2);border:1px solid var(--line)}
+.newbtn:hover,.newbtn:active{background:var(--hover)}
+.newbtn svg.i{width:16px;height:16px;stroke-width:2}
+.newbtn.k-todo svg.i{color:var(--tx-blue)} .newbtn.k-task svg.i{color:var(--tx-purple)} .newbtn.k-note svg.i{color:var(--tx-orange)}
 
-/* Notes */
-.notes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.note{text-align:left;border-radius:18px;padding:14px;border:1px solid var(--line);min-height:120px;display:flex;flex-direction:column;gap:6px;position:relative}
-.note b{font-size:15px;font-weight:700;padding-right:18px}
-.note p{margin:0;font-size:13.5px;color:var(--muted);white-space:pre-line;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;flex:1}
-.note small{color:var(--faint);font-size:12px}
-.note .pinmark{position:absolute;top:12px;right:12px;color:var(--green)}
-.note .pinmark svg.i{width:15px;height:15px;fill:currentColor}
-.c-yellow{background:var(--n-yellow)} .c-blue{background:var(--n-blue)} .c-green{background:var(--n-green)} .c-pink{background:var(--n-pink)} .c-purple{background:var(--n-purple)} .c-white{background:var(--n-white)}
+.h2{display:flex;align-items:center;gap:6px;margin:22px 0 6px -4px;font-size:20px;font-weight:650;letter-spacing:-.2px;width:calc(100% + 4px)}
+.h2 .caret{width:22px;height:22px;border-radius:4px;display:grid;place-items:center;color:var(--text2);transition:transform .15s}
+.h2 .caret svg.i{width:14px;height:14px;fill:currentColor;stroke:none}
+.h2.closed .caret{transform:rotate(-90deg)}
+.h2 .cnt{color:var(--text3);font-size:14px;font-weight:500;margin-left:2px}
+.h2 .more{margin-left:auto;color:var(--text2);font-size:13.5px;font-weight:500;padding:3px 6px;border-radius:4px}
+.h2 .more:hover{background:var(--hover)}
+.sec.closed{display:none}
 
-.empty{text-align:center;color:var(--muted);padding:22px 10px;font-size:14px}
-.empty b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
-.page-title{font-size:26px;font-weight:800;letter-spacing:-.5px;margin:4px 4px 14px}
-.seg{display:flex;gap:6px;background:var(--chip);padding:4px;border-radius:14px;margin-bottom:16px}
-.seg button{flex:1;padding:9px 6px;border-radius:10px;font-weight:600;font-size:14px;color:var(--muted)}
-.seg button.on{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
-.group-label{font-size:13px;font-weight:700;color:var(--muted);margin:18px 6px 8px;text-transform:uppercase;letter-spacing:.6px}
-.group-label.late{color:var(--red)}
-.group-label:first-child{margin-top:0}
+.tag{display:inline-flex;align-items:center;height:21px;padding:0 7px;border-radius:3px;font-size:12.5px;font-weight:500;white-space:nowrap;line-height:1;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.tag.dot::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:5px;opacity:.7;flex:none}
 
-/* FAB & nav */
-.fab{position:fixed;z-index:25;right:max(16px,calc(50% - 260px + 16px));bottom:calc(96px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:20px;background:var(--green);color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px rgba(18,135,93,.35)}
-.fab svg.i{width:30px;height:30px;stroke-width:2.2}
-.fab:active{transform:scale(.95)}
-.nav{position:fixed;z-index:24;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
-.nav-in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
-.nav button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0 14px;color:var(--faint);font-size:13px;font-weight:600}
-.nav button.on{color:var(--green)}
-.nav button.on svg.i{fill:currentColor;fill-opacity:.95}
-.nav button.on[data-tab="todo"] svg.i,.nav button.on[data-tab="notes"] svg.i{fill:var(--green-soft)}
+/* Blok to-do */
+.blk{display:flex;align-items:flex-start;gap:10px;padding:7px 6px;border-radius:5px;width:100%;cursor:pointer}
+.blk:hover,.blk:active{background:var(--hover)}
+.cb{width:18px;height:18px;border:1.5px solid var(--text2);border-radius:3px;flex:none;display:grid;place-items:center;margin-top:3px;color:#fff;background:var(--bg)}
+.cb svg.i{width:13px;height:13px;stroke-width:3;opacity:0}
+.done>.cb,.cb.on{background:var(--accent);border-color:var(--accent)}
+.done>.cb svg.i,.cb.on svg.i{opacity:1}
+.blk-main{flex:1;min-width:0}
+.blk-title{font-size:15.5px;word-break:break-word}
+.done .blk-title{text-decoration:line-through;text-decoration-color:var(--text3);color:var(--text3)}
+.pline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px;font-size:12.5px;color:var(--text2)}
+.pi{display:inline-flex;align-items:center;gap:4px}
+.pi svg.i{width:13px;height:13px}
+.late{color:var(--tx-red);font-weight:500}
+.blk>.tag{margin-top:2px}
 
-/* Overlays */
-.scrim{position:fixed;inset:0;z-index:50;background:rgba(10,15,13,.45);display:flex;align-items:flex-end;justify-content:center;animation:fade .18s ease}
-.sheet{background:var(--card);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:26px 26px 0 0;padding:10px 18px calc(20px + env(safe-area-inset-bottom));animation:up .22s ease}
-.sheet.full{height:100%;max-height:none;border-radius:0;padding-top:calc(10px + env(safe-area-inset-top))}
-.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
-.sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.sheet-head h3{flex:1;margin:0;font-size:19px;font-weight:700}
-@keyframes up{from{transform:translateY(30px);opacity:.4}}
-@keyframes fade{from{opacity:0}}
-.field{display:block;margin-bottom:14px}
-.field>span{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
-.input{width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--item);outline:none;font-size:15px}
-.input:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
-textarea.input{min-height:120px;resize:vertical}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.opts{display:flex;gap:8px;flex-wrap:wrap}
-.opt{padding:9px 14px;border-radius:12px;border:1px solid var(--line);background:var(--item);font-weight:600;font-size:14px}
-.opt.on{border-color:var(--green);background:var(--green-soft);color:var(--green)}
-.swatch{width:36px;height:36px;border-radius:50%;border:2px solid var(--line)}
-.swatch.on{border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
-.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--item);margin-bottom:14px;width:100%;text-align:left}
-.sw{width:44px;height:26px;border-radius:13px;background:var(--line);position:relative;flex:none;transition:.2s}
-.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
-.toggle.on .sw{background:var(--green)} .toggle.on .sw::after{left:21px}
-.btns{display:flex;gap:10px;margin-top:6px}
-.btn{flex:1;height:50px;border-radius:16px;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn.primary{background:var(--green);color:#fff}
-.btn.ghost{border:1px solid var(--line);background:var(--card)}
-.btn.danger{color:var(--red);border:1px solid var(--red-line);background:var(--red-soft);flex:0 0 50px}
-.btn svg.i{width:20px;height:20px}
-.subs{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
-.sub-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--item)}
-.sub-row .check{width:22px;height:22px}
-.sub-row.done .check{background:var(--green);border-color:var(--green)}
-.sub-row.done .check svg.i{opacity:1}
-.sub-row input{flex:1;border:0;background:none;outline:none;min-width:0}
-.sub-row.done input{text-decoration:line-through;color:var(--muted)}
-.sub-row .x{color:var(--faint)}
-.sub-row .x svg.i{width:18px;height:18px}
-.add-sub{display:flex;gap:8px}
-.add-sub .input{flex:1}
-.add-sub button{width:48px;border-radius:14px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center}
+/* Baris database */
+.dbrow{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:5px;border-bottom:1px solid var(--line);width:100%;cursor:pointer}
+.dbrow:last-child{border-bottom:0}
+.dbrow:hover,.dbrow:active{background:var(--hover)}
+.emo{font-size:18px;line-height:1;width:22px;text-align:center;flex:none}
+.dbrow .blk-title{font-weight:500}
+.pinbtn{width:30px;height:30px;border-radius:4px;display:grid;place-items:center;color:var(--text3);flex:none}
+.pinbtn:hover{background:var(--hover)}
+.pinbtn.on{color:var(--text)}
+.pinbtn.on svg.i{fill:currentColor}
+.pinbtn svg.i{width:17px;height:17px}
+.mini{display:inline-flex;align-items:center;gap:5px}
+.mini .bar{width:44px;height:4px;flex:none}
+.mini .bar i{background:var(--tx-purple)}
 
-.chooser{display:grid;gap:10px}
-.chooser button{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;border:1px solid var(--line);background:var(--item);text-align:left}
-.chooser .ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center}
-.chooser b{display:block;font-size:16px} .chooser small{color:var(--muted)}
+.views{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:4px 0 12px;overflow-x:auto;scrollbar-width:none}
+.views::-webkit-scrollbar{display:none}
+.views button{display:flex;align-items:center;gap:6px;padding:7px 8px 9px;font-size:14px;color:var(--text2);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.views button svg.i{width:16px;height:16px}
+.views button.on{color:var(--text);border-bottom-color:var(--text);font-weight:500}
 
-.search-box{display:flex;align-items:center;gap:10px;padding:0 14px;border-radius:16px;border:1px solid var(--line);background:var(--item);margin-bottom:16px}
-.search-box input{flex:1;border:0;background:none;outline:none;padding:14px 0;font-size:16px}
-.search-box svg.i{color:var(--muted)}
+.grp{display:flex;align-items:center;gap:8px;margin:16px 0 4px;padding:0 6px}
+.grp:first-child{margin-top:4px}
+.grp .n{color:var(--text3);font-size:13px}
 
-.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.cal-head b{font-size:17px}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
-.cal-grid .dow{font-size:12px;font-weight:700;color:var(--muted);padding:6px 0}
-.day{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-weight:600;font-size:14px;position:relative}
-.day.out{color:var(--faint);opacity:.5}
-.day.today{color:var(--green);background:var(--green-soft)}
-.day.sel{background:var(--green);color:#fff}
-.day .dots{display:flex;gap:3px;height:5px}
-.day .dots i{width:5px;height:5px;border-radius:50%;background:var(--green)}
-.day .dots i.b{background:var(--blue)}
-.day.sel .dots i{background:#fff}
+/* Board */
+.board{display:flex;gap:10px;overflow-x:auto;padding:2px 20px 12px;margin:0 -20px;scroll-snap-type:x mandatory;scroll-padding:0 20px}
+.col{flex:0 0 76%;max-width:280px;scroll-snap-align:start;border-radius:8px;padding:8px;min-height:120px}
+.col-h{display:flex;align-items:center;gap:8px;padding:2px 4px 8px}
+.col-h .n{color:var(--text3);font-size:13px}
+.bcard{display:block;width:100%;background:var(--bg);border-radius:6px;box-shadow:rgba(15,15,15,.08) 0 0 0 1px,rgba(15,15,15,.06) 0 2px 4px;padding:10px 10px 9px;margin-bottom:8px;cursor:pointer}
+.bcard .t{display:flex;gap:6px;font-weight:500;font-size:14.5px;line-height:1.35}
+.bcard .pline{margin-top:7px}
+.add-in-col{display:flex;align-items:center;gap:6px;color:var(--text3);font-size:14px;padding:6px;border-radius:4px;width:100%}
+.add-in-col:hover{background:var(--hover)}
+.add-in-col svg.i{width:16px;height:16px}
 
-.notif{display:flex;gap:12px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--item);text-align:left;width:100%}
-.notif .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none}
-.notif .ic svg.i{width:20px;height:20px}
-.notif b{display:block;font-size:15px} .notif small{color:var(--muted);font-size:13px}
+/* Gallery */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
+.gcard{display:flex;flex-direction:column;border-radius:6px;overflow:hidden;box-shadow:rgba(15,15,15,.1) 0 0 0 1px;background:var(--bg);text-align:left;cursor:pointer}
+.gcard:active{opacity:.85}
+.gprev{height:108px;padding:10px 12px;font-size:11.5px;line-height:1.45;color:var(--text2);overflow:hidden;white-space:pre-line;position:relative}
+.gprev::after{content:"";position:absolute;left:0;right:0;bottom:0;height:28px;background:linear-gradient(transparent,var(--fade))}
+.gfoot{padding:8px 12px 10px;border-top:1px solid var(--line)}
+.gfoot .t{display:flex;align-items:center;gap:6px;font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gfoot .t .emo{font-size:15px;width:auto}
+.gfoot small{color:var(--text3);font-size:12px;display:flex;align-items:center;gap:5px}
+.gfoot small svg.i{width:12px;height:12px}
 
-.set-row{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--item);margin-bottom:10px;text-align:left;font-weight:600}
-.set-row svg.i{color:var(--muted)}
-.set-row.red{color:var(--red)} .set-row.red svg.i{color:var(--red)}
-.about{color:var(--muted);font-size:13px;text-align:center;margin-top:16px}
-
-.toast{position:fixed;z-index:80;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:#1d2622;color:#fff;padding:12px 16px;border-radius:14px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:14px;opacity:0;pointer-events:none;transition:.2s;max-width:calc(100% - 32px)}
-.toast.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
-.toast button{color:#6ee7b7;font-weight:700}
-
-@media (max-width:400px){
-  .actions{gap:6px} .icon-btn{width:40px;height:40px} .logo{width:42px;height:42px} .brand b{font-size:18px}
-  .hello{font-size:26px} .stat b{font-size:22px} .qa{font-size:14px;gap:6px}
+/* Kartu di mode gelap: garis, bukan bayangan */
+:root[data-theme="dark"] :is(.bcard,.gcard){box-shadow:none;border:1px solid var(--line)}
+:root[data-theme="dark"] .bcard,:root[data-theme="dark"] .compose{background:var(--bg2)}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) :is(.bcard,.gcard){box-shadow:none;border:1px solid var(--line)}
+  :root:not([data-theme="light"]) .bcard,:root:not([data-theme="light"]) .compose{background:var(--bg2)}
 }
+
+.empty{color:var(--text3);font-size:14px;padding:8px 6px}
+.empty-big{text-align:center;color:var(--text2);padding:40px 16px;font-size:14px}
+.empty-big .e{font-size:40px;display:block;margin-bottom:8px}
+.empty-big b{display:block;color:var(--text);font-size:15px;margin-bottom:2px}
+
+/* ---------- Nav bawah & tombol tulis ---------- */
+.nav{position:fixed;z-index:24;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.nav .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 10px;color:var(--text3);font-size:11.5px;font-weight:500}
+.nav button svg.i{width:23px;height:23px}
+.nav button.on{color:var(--text)}
+.nav button.on svg.i{stroke-width:2.2}
+.compose{position:fixed;z-index:25;right:max(16px,calc(50% - 340px + 16px));bottom:calc(80px + env(safe-area-inset-bottom));width:54px;height:54px;border-radius:50%;background:var(--bg);color:var(--text);display:grid;place-items:center;box-shadow:var(--shadow)}
+.compose svg.i{width:23px;height:23px}
+.compose:active{transform:scale(.95)}
+
+/* ---------- Sheet / page peek ---------- */
+.scrim{position:fixed;inset:0;z-index:50;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;animation:fade .15s ease}
+.sheet{background:var(--bg);width:100%;max-width:680px;max-height:90vh;overflow:auto;border-radius:12px 12px 0 0;padding:8px 0 calc(16px + env(safe-area-inset-bottom));animation:up .2s ease}
+.sheet.full{height:100%;max-height:none;border-radius:0;padding-top:env(safe-area-inset-top)}
+@media (min-width:700px){.scrim{align-items:center}.sheet.full{height:92vh;border-radius:12px}.sheet{border-radius:12px}}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 8px}
+.sbar{position:sticky;top:0;z-index:2;background:var(--bg);display:flex;align-items:center;gap:4px;height:48px;padding:0 8px}
+.sbar .crumb{padding-left:2px}
+.saved{color:var(--text3);font-size:12.5px;margin-right:4px;opacity:0;transition:opacity .2s}
+.saved.on{opacity:1}
+.txtbtn{padding:6px 10px;border-radius:6px;font-size:14.5px;font-weight:600;color:var(--accent)}
+.txtbtn:hover{background:var(--accent-soft)}
+.sbody{padding:0 20px}
+@keyframes up{from{transform:translateY(24px);opacity:.5}}
+@keyframes fade{from{opacity:0}}
+
+.icon-pick{font-size:44px;line-height:1;padding:4px;border-radius:6px;margin:10px 0 2px -4px}
+.icon-pick:hover{background:var(--hover)}
+.emoji-row{display:flex;gap:2px;flex-wrap:wrap;margin:0 0 8px;padding:6px;border-radius:6px;box-shadow:var(--shadow);background:var(--bg)}
+.emoji-row[hidden]{display:none}
+.emoji-row button{font-size:22px;width:38px;height:38px;border-radius:5px;text-align:center}
+.emoji-row button:hover{background:var(--hover)}
+.title-in{width:100%;border:0;outline:none;background:none;font-size:30px;font-weight:700;letter-spacing:-.3px;line-height:1.2;resize:none;padding:8px 0 4px;overflow:hidden;display:block}
+.title-in::placeholder{color:var(--text3)}
+.opts{display:flex;gap:4px;flex-wrap:wrap}
+.opt{opacity:.5}
+.opt:hover{opacity:.8}
+.opt.on{opacity:1;box-shadow:0 0 0 1.5px var(--text2)}
+.swatch{width:24px;height:24px;border-radius:5px;border:1px solid var(--line2)}
+.swatch.on{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--accent)}
+.divider{height:1px;background:var(--line);margin:10px 0 12px}
+.body-in{width:100%;border:0;outline:none;background:none;font-size:15.5px;line-height:1.6;resize:none;min-height:200px;padding:0;display:block}
+.body-in::placeholder{color:var(--text3)}
+.label{color:var(--text2);font-size:13px;font-weight:600;margin:14px 0 4px}
+.sub{display:flex;align-items:flex-start;gap:10px;padding:4px 6px;border-radius:4px}
+.sub:hover{background:var(--hover)}
+.sub input{flex:1;border:0;outline:none;background:none;font-size:15px;padding:1px 0;min-width:0}
+.sub.done input{text-decoration:line-through;color:var(--text3)}
+.sub .x{color:var(--text3);width:24px;height:24px;display:grid;place-items:center;border-radius:4px}
+.sub .x svg.i{width:15px;height:15px}
+.add-row{display:flex;align-items:center;gap:10px;padding:5px 6px;color:var(--text3);border-radius:4px}
+.add-row svg.i{width:18px;height:18px}
+.add-row input{flex:1;border:0;outline:none;background:none;font-size:15px}
+.add-row input::placeholder{color:var(--text3)}
+
+/* Menu daftar */
+.menu-h{color:var(--text2);font-size:12.5px;font-weight:600;padding:12px 20px 4px}
+.mrow{display:flex;align-items:center;gap:12px;width:100%;padding:9px 20px;font-size:15px;cursor:pointer}
+.mrow:hover,.mrow:active{background:var(--hover)}
+.mrow .ico{width:32px;height:32px;border-radius:6px;display:grid;place-items:center;flex:none;font-size:17px}
+.mrow .ico svg.i{width:18px;height:18px}
+.mrow .tx{flex:1;min-width:0}
+.mrow .tx small{display:block;color:var(--text2);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow .tx b{font-weight:500;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow.red{color:var(--tx-red)}
+.search-in{display:flex;align-items:center;gap:10px;margin:0 16px 6px;padding:0 12px;border-radius:8px;background:var(--hover)}
+.search-in input{flex:1;border:0;background:none;outline:none;padding:11px 0;font-size:16px}
+.search-in svg.i{color:var(--text2)}
+
+/* Kalender */
+.cal{padding:0 12px}
+.cal-h{display:flex;align-items:center;gap:4px;padding:4px 4px 8px 8px}
+.cal-h b{flex:1;font-size:17px;font-weight:650}
+.chip-btn{padding:4px 8px;border-radius:5px;font-size:13.5px;color:var(--text2);border:1px solid var(--line)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.cal-grid .dow{font-size:12px;color:var(--text2);padding:6px 0;text-align:center;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.day{height:54px;padding:4px 5px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:13px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.day.out{background:var(--bg2);color:var(--text3)}
+.day .num{width:24px;height:24px;display:grid;place-items:center;border-radius:50%}
+.day.today .num{background:var(--today);color:#fff;font-weight:600}
+.day.sel{background:var(--accent-soft)}
+.day .dots{display:flex;gap:3px;align-self:flex-start;margin-top:auto}
+.day .dots i{width:6px;height:6px;border-radius:50%}
+
+.toast{position:fixed;z-index:80;left:50%;bottom:calc(146px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:#2f2f2f;color:#fff;padding:10px 14px;border-radius:6px;font-size:14px;display:flex;align-items:center;gap:14px;opacity:0;pointer-events:none;transition:.18s;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
+.toast button{color:#62aef0;font-weight:600}
+
+@media (max-width:360px){ .pk{width:112px} h1.title{font-size:28px} .stat b{font-size:21px} }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="topbar">
-    <div class="logo" aria-hidden="true"></div>
-    <div class="brand"><b>KerjaKu</b><span class="status" id="status">Offline Ready</span></div>
-    <div class="actions">
-      <button class="icon-btn" data-act="search" aria-label="Cari"></button>
-      <button class="icon-btn" data-act="calendar" aria-label="Kalender"></button>
-      <button class="icon-btn" data-act="notif" aria-label="Notifikasi"><span class="dot" id="bell-dot"></span></button>
-      <button class="icon-btn" data-act="settings" aria-label="Pengaturan"></button>
-    </div>
-  </header>
-  <main id="view"></main>
-</div>
-<button class="fab" data-act="fab" aria-label="Tambah"></button>
-<nav class="nav"><div class="nav-in">
+<header class="topbar"><div class="wrap">
+  <div class="crumb"><span class="ws"><span class="mark" id="mark"></span>KerjaKu</span><span class="sep">/</span><span class="cur" id="crumb-cur">Home</span></div>
+  <button class="ib" data-act="search" aria-label="Cari"></button>
+  <button class="ib" data-act="calendar" aria-label="Kalender"></button>
+  <button class="ib" data-act="notif" aria-label="Inbox"><span class="badge-dot" id="bell-dot"></span></button>
+  <button class="ib" data-act="settings" aria-label="Pengaturan"></button>
+</div></header>
+<main id="view"></main>
+<button class="compose" data-act="fab" aria-label="Buat baru"></button>
+<nav class="nav"><div class="wrap">
   <button data-tab="home"><span data-ic="home"></span>Home</button>
   <button data-tab="todo"><span data-ic="checksq"></span>To Do</button>
-  <button data-tab="tugas"><span data-ic="pin"></span>Tugas</button>
+  <button data-tab="tugas"><span data-ic="board"></span>Tugas</button>
   <button data-tab="notes"><span data-ic="notes"></span>Notes</button>
 </div></nav>
 <div class="toast" id="toast" role="status"></div>
@@ -289,30 +338,37 @@ textarea.input{min-height:120px;resize:vertical}
 (() => {
 'use strict';
 
-/* ---------- Ikon ---------- */
+/* ---------- Ikon (garis tipis, monokrom) ---------- */
 const P = {
   leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
   search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
   calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
-  bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
   gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
   home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
   checksq:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="m8 12 3 3 5-6"/>',
+  board:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
   pin:'<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
-  notes:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  notes:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
-  pluscircle:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+  compose:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',
   x:'<path d="M18 6 6 18M6 6l12 12"/>',
   check:'<path d="m5 12 5 5L20 7"/>',
-  chevL:'<path d="m15 18-6-6 6-6"/>',
-  chevR:'<path d="m9 18 6-6-6-6"/>',
+  chevL:'<path d="m15 18-6-6 6-6"/>', chevR:'<path d="m9 18 6-6-6-6"/>',
+  caret:'<path d="M6 9l6 6 6-6z"/>',
   download:'<path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/>',
   upload:'<path d="M12 21V9m0 0-4 4m4-4 4 4M5 3h14"/>',
-  moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  tag:'<path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/>',
+  flag:'<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/>',
+  status:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
+  wifi:'<path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/>',
+  palette:'<circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.56-2.5 5.56-5.55C21.97 6.01 17.46 2 12 2z"/>',
   user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
-  alert:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>',
+  bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  progress:'<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',
 };
 const I = n => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
 
@@ -330,11 +386,18 @@ const nowHM = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d
 const fmtLong = d => d.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 const fmtShort = s => parseD(s).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
 const fmtDay = s => parseD(s).toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long'});
-const PRIO = {tinggi:'Tinggi', sedang:'Sedang', rendah:'Rendah'};
-const PRIO_RANK = {tinggi:0, sedang:1, rendah:2};
-const COLORS = ['yellow','blue','green','pink','purple','white'];
-const CATS = ['Kerja','Pribadi','Belanja','Kuliah','Lainnya'];
 const isAndroid = typeof window.AndroidBridge !== 'undefined';
+
+/* Pemetaan semantik → warna palet (lihat komentar color theory di <head>) */
+const PRIO = {tinggi:{l:'Tinggi', c:'red'}, sedang:{l:'Sedang', c:'yellow'}, rendah:{l:'Rendah', c:'gray'}};
+const PRIO_RANK = {tinggi:0, sedang:1, rendah:2};
+const STATUS = {belum:{l:'Belum mulai', c:'gray'}, proses:{l:'Dikerjakan', c:'blue'}, selesai:{l:'Selesai', c:'green'}};
+const NOTE_COLORS = ['default','gray','brown','orange','yellow','green','blue','purple','pink','red'];
+const CAT_COLORS = ['blue','purple','orange','green','pink','brown','yellow','red','gray'];
+const CATS = ['Kerja','Pribadi','Belanja','Kuliah','Lainnya'];
+const EMOJIS = ['📝','💡','📌','📋','🎯','📊','🛒','📞','💰','📅','⭐','🚀','📦','🧾','🗂️','✏️','📚','❤️'];
+const catColor = name => { if (!name) return 'default'; let h = 0; for (const ch of name.toLowerCase()) h = (h*31 + ch.charCodeAt(0)) >>> 0; return CAT_COLORS[h % CAT_COLORS.length]; };
+const tag = (label, color, dot) => `<span class="tag c-${color}${dot?' dot':''}">${esc(label)}</span>`;
 
 /* ---------- Data ---------- */
 const KEY = 'kerjaku.v1';
@@ -350,23 +413,37 @@ function seed() {
       {id:uid(), title:'Rapat mingguan tim', date:t, time:'09:00', cat:'Kerja', prio:'sedang', done:true, created:now},
     ],
     tasks: [
-      {id:uid(), title:'Rekap penjualan bulanan', desc:'Gabungkan data kasir semua cabang lalu kirim ke manajer.', date:addDays(t,3), time:'17:00', prio:'tinggi', pinned:true, done:false,
+      {id:uid(), icon:'📊', title:'Rekap penjualan bulanan', desc:'Gabungkan data kasir semua cabang lalu kirim ke manajer.', date:addDays(t,3), time:'17:00', prio:'tinggi', pinned:true, status:'proses', done:false,
         subs:[{id:uid(),t:'Ambil data cabang A',done:true},{id:uid(),t:'Ambil data cabang B',done:true},{id:uid(),t:'Susun tabel rekap',done:false},{id:uid(),t:'Kirim ke manajer',done:false}], created:now},
-      {id:uid(), title:'Presentasi klien baru', desc:'Siapkan slide penawaran dan simulasi harga.', date:addDays(t,5), time:'10:00', prio:'sedang', pinned:true, done:false,
+      {id:uid(), icon:'🚀', title:'Presentasi klien baru', desc:'Siapkan slide penawaran dan simulasi harga.', date:addDays(t,5), time:'10:00', prio:'sedang', pinned:true, status:'belum', done:false,
         subs:[{id:uid(),t:'Draft slide',done:false},{id:uid(),t:'Simulasi harga',done:false}], created:now},
     ],
     notes: [
-      {id:uid(), title:'Ide promo akhir tahun', body:'• Diskon 20% member\n• Bundling produk terlaris\n• Voucher belanja berikutnya', color:'yellow', pinned:true, updated:now},
-      {id:uid(), title:'Catatan rapat', body:'Target bulan depan naik 10%. Follow up vendor kemasan hari Kamis.', color:'blue', pinned:false, updated:now},
+      {id:uid(), icon:'💡', title:'Ide promo akhir tahun', body:'• Diskon 20% member\n• Bundling produk terlaris\n• Voucher belanja berikutnya', color:'yellow', pinned:true, updated:now},
+      {id:uid(), icon:'📝', title:'Catatan rapat', body:'Target bulan depan naik 10%.\nFollow up vendor kemasan hari Kamis.', color:'blue', pinned:false, updated:now},
     ],
-    settings: {theme:'system', name:'', remind:false, seenNotif:''},
+    settings: {theme:'system', name:'', remind:false, seenNotif:'', collapsed:{}, taskView:'board'},
     fired: {},
   };
+}
+/* Menyesuaikan data versi 1 (dan cadangan lama) ke model versi 2 */
+function migrate(d) {
+  for (const t of d.tasks) {
+    t.subs ||= []; t.icon ||= '📋'; t.desc ||= ''; t.title ||= '';
+    if (!STATUS[t.status]) t.status = t.done ? 'selesai' : t.subs.some(s => s.done) ? 'proses' : 'belum';
+    t.done = t.status === 'selesai';
+  }
+  for (const n of d.notes) { n.icon ||= '📝'; n.title ||= ''; n.body ||= ''; if (!NOTE_COLORS.includes(n.color)) n.color = 'default'; n.updated ||= new Date().toISOString(); }
+  for (const t of d.todos) { t.title ||= ''; if (!PRIO[t.prio]) t.prio = 'sedang'; }
+  return d;
 }
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) { const d = JSON.parse(raw); return Object.assign(seed(), {todos:[],tasks:[],notes:[]}, d, {settings:Object.assign(seed().settings, d.settings||{})}); }
+    if (raw) {
+      const d = JSON.parse(raw), base = seed();
+      return migrate(Object.assign(base, {todos:[],tasks:[],notes:[],fired:{}}, d, {settings:Object.assign(base.settings, d.settings||{})}));
+    }
   } catch (e) {}
   return seed();
 }
@@ -374,16 +451,22 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e
 S = load();
 
 /* ---------- Tema ---------- */
+const mq = matchMedia('(prefers-color-scheme: dark)');
+const isDark = () => S.settings.theme === 'dark' || (S.settings.theme === 'system' && mq.matches);
 function applyTheme() {
   const t = S.settings.theme;
   if (t === 'system') document.documentElement.removeAttribute('data-theme');
   else document.documentElement.setAttribute('data-theme', t);
+  const dark = isDark();
+  $('#theme-color').setAttribute('content', dark ? PALETTE.dark.base.bg : PALETTE.light.base.bg);
+  if (isAndroid) { try { window.AndroidBridge.setTheme(dark); } catch (e) {} }
 }
+mq.addEventListener?.('change', applyTheme);
 applyTheme();
 
 /* ---------- State tampilan ---------- */
 let tab = 'home';
-const view = { todoFilter:'aktif', taskFilter:'aktif' };
+const view = { todoFilter:'aktif' };
 try { const t = sessionStorage.getItem('kerjaku.tab'); if (t) tab = t; } catch (e) {}
 
 /* ---------- Komponen ---------- */
@@ -391,148 +474,173 @@ const sortTodos = arr => arr.slice().sort((a,b) => (a.date||'9999').localeCompar
 const sortTasks = arr => arr.slice().sort((a,b) => (a.done-b.done) || (b.pinned-a.pinned) || (a.date||'9999').localeCompare(b.date||'9999') || PRIO_RANK[a.prio]-PRIO_RANK[b.prio]);
 const sortNotes = arr => arr.slice().sort((a,b) => (b.pinned-a.pinned) || b.updated.localeCompare(a.updated));
 const isLateTodo = x => !x.done && x.date && (x.date < today() || (x.date === today() && x.time && x.time < nowHM()));
+const prioTag = p => tag(PRIO[p].l, PRIO[p].c, true);
 
-function todoItem(x, showDate) {
-  const late = isLateTodo(x);
-  const when = [];
-  if (showDate && x.date && x.date !== today()) when.push(fmtShort(x.date));
-  if (x.time) when.push(x.time);
-  return `<div class="item ${x.done?'done':''}" data-act="edit-todo" data-id="${x.id}" role="button" tabindex="0">
-    <button class="check" data-act="toggle-todo" data-id="${x.id}" aria-label="${x.done?'Tandai belum selesai':'Tandai selesai'}">${I('check')}</button>
-    <div class="body"><div class="t">${esc(x.title)}</div>
-      <div class="meta ${late?'late':''}">${when.length?`⏰ ${esc(when.join(' · '))}`:''}${when.length&&x.cat?'<span class="sep"></span>':''}${esc(x.cat||'')}${late?'<span class="sep"></span>Terlambat':''}</div></div>
-    <span class="badge ${x.prio}">${PRIO[x.prio]}</span></div>`;
+function todoBlock(x, showDate) {
+  const late = isLateTodo(x), bits = [];
+  if (showDate && x.date && x.date !== today()) bits.push(`<span class="pi">${I('calendar')}${esc(fmtShort(x.date))}</span>`);
+  if (x.time) bits.push(`<span class="pi">${I('clock')}${esc(x.time)}</span>`);
+  if (x.cat) bits.push(tag(x.cat, catColor(x.cat)));
+  if (late) bits.push('<span class="late">Terlambat</span>');
+  return `<div class="blk ${x.done?'done':''}" data-act="edit-todo" data-id="${x.id}" role="button" tabindex="0">
+    <button class="cb" data-act="toggle-todo" data-id="${x.id}" aria-label="${x.done?'Tandai belum selesai':'Tandai selesai'}">${I('check')}</button>
+    <div class="blk-main"><div class="blk-title">${esc(x.title || 'Tanpa judul')}</div>${bits.length?`<div class="pline">${bits.join('')}</div>`:''}</div>
+    ${x.done ? '' : prioTag(x.prio)}</div>`;
 }
-function dueChip(x) {
+function dueText(x) {
   if (!x.date) return '';
-  if (x.done) return `<span class="chip green">${I('check')} Selesai</span>`;
+  if (x.done) return `<span class="pi">${I('calendar')}${esc(fmtShort(x.date))}</span>`;
   const d = diffDays(x.date, today());
-  const label = d < 0 ? `Lewat ${-d} hari` : d === 0 ? 'Hari ini' : d === 1 ? 'Besok' : `${d} hari lagi`;
-  const cls = d < 0 ? 'red' : d <= 1 ? 'red' : 'blue';
-  return `<span class="chip ${cls}">${I('calendar')} ${fmtShort(x.date)} · ${label}</span>`;
+  const label = d < 0 ? `lewat ${-d} hari` : d === 0 ? 'hari ini' : d === 1 ? 'besok' : `${d} hari lagi`;
+  return `<span class="pi ${d<=1?'late':''}">${I('calendar')}${esc(fmtShort(x.date))} · ${label}</span>`;
+}
+function progressMini(x) {
+  const total = x.subs.length; if (!total) return '';
+  const done = x.subs.filter(s => s.done).length;
+  return `<span class="mini"><span class="bar"><i style="width:${Math.round(done/total*100)}%"></i></span>${done}/${total}</span>`;
+}
+function taskRow(x) {
+  return `<div class="dbrow ${x.done?'done':''}" data-act="edit-task" data-id="${x.id}" role="button" tabindex="0">
+    <span class="emo">${esc(x.icon)}</span>
+    <div class="blk-main"><div class="blk-title">${esc(x.title || 'Tanpa judul')}</div>
+      <div class="pline">${tag(STATUS[x.status].l, STATUS[x.status].c, true)}${x.done?'':prioTag(x.prio)}${dueText(x)}${progressMini(x)}</div></div>
+    <button class="pinbtn ${x.pinned?'on':''}" data-act="pin-task" data-id="${x.id}" aria-label="${x.pinned?'Lepas pin':'Pin ke Home'}">${I('pin')}</button></div>`;
 }
 function taskCard(x) {
-  const total = x.subs.length, done = x.subs.filter(s=>s.done).length;
-  const pct = x.done ? 100 : total ? Math.round(done/total*100) : 0;
-  return `<div class="task ${x.done?'done':''}" data-act="edit-task" data-id="${x.id}" role="button" tabindex="0">
-    <div class="task-top"><div class="t">${esc(x.title)}</div>
-      <button class="pin-btn ${x.pinned?'on':''}" data-act="pin-task" data-id="${x.id}" aria-label="${x.pinned?'Lepas pin':'Pin'}">${I('pin')}</button></div>
-    ${x.desc?`<div class="desc">${esc(x.desc)}</div>`:''}
-    <div class="row">${dueChip(x)}<span class="badge ${x.prio}">${PRIO[x.prio]}</span>${total?`<span class="chip">${done}/${total} langkah</span>`:''}</div>
-    ${total||x.done?`<div class="progress"><i style="width:${pct}%"></i></div>`:''}</div>`;
+  return `<div class="bcard" data-act="edit-task" data-id="${x.id}" role="button" tabindex="0">
+    <div class="t"><span>${esc(x.icon)}</span><span>${esc(x.title || 'Tanpa judul')}</span></div>
+    <div class="pline">${x.done?'':prioTag(x.prio)}${dueText(x)}${progressMini(x)}${x.pinned?`<span class="pi">${I('pin')}</span>`:''}</div></div>`;
 }
 function noteCard(x) {
-  return `<button class="note c-${x.color}" data-act="edit-note" data-id="${x.id}">
-    ${x.pinned?`<span class="pinmark">${I('pin')}</span>`:''}
-    <b>${esc(x.title||'Tanpa judul')}</b><p>${esc(x.body)}</p>
-    <small>${new Date(x.updated).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</small></button>`;
+  return `<button class="gcard" data-act="edit-note" data-id="${x.id}">
+    <div class="gprev bg-${x.color}" style="--fade:var(--bg-${x.color})">${esc(x.body)}</div>
+    <div class="gfoot"><div class="t"><span class="emo">${esc(x.icon)}</span>${esc(x.title || 'Tanpa judul')}</div>
+    <small>${x.pinned?I('pin'):''}${new Date(x.updated).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</small></div></button>`;
 }
-const empty = (title, sub) => `<div class="empty"><b>${title}</b>${sub}</div>`;
+const emptyBig = (e, title, sub) => `<div class="empty-big"><span class="e">${e}</span><b>${title}</b>${sub}</div>`;
+function h2(key, emoji, title, count, more) {
+  const closed = S.settings.collapsed[key];
+  return `<button class="h2 ${closed?'closed':''}" data-act="collapse" data-k="${key}" aria-expanded="${!closed}"><span class="caret">${I('caret')}</span>${emoji} ${esc(title)}${count!=null?`<span class="cnt">${count}</span>`:''}${more?`<span class="more" data-tab="${more}">Lihat semua</span>`:''}</button>`;
+}
+const sec = (key, html) => `<div class="sec ${S.settings.collapsed[key]?'closed':''}">${html}</div>`;
 
 /* ---------- Halaman ---------- */
-function greeting() {
+/* Cover memakai gradasi warna analog sesuai waktu: pagi kuning→oranye, siang biru→toska,
+   sore oranye→merah muda, malam indigo→ungu. */
+function timeOfDay() {
   const h = new Date().getHours();
-  if (h >= 4 && h < 11) return 'Good Morning ☀️';
-  if (h < 15 && h >= 11) return 'Good Afternoon 🌤️';
-  if (h < 18 && h >= 15) return 'Good Evening 🌇';
-  return 'Good Night 🌙';
+  if (h >= 4 && h < 11) return {g:'Good Morning', e:'☀️', cover:'linear-gradient(120deg,#fde9b5 0%,#f9c98a 55%,#f4a97a 100%)'};
+  if (h >= 11 && h < 15) return {g:'Good Afternoon', e:'🌤️', cover:'linear-gradient(120deg,#d6ecf7 0%,#a9d6e8 55%,#8cc9c4 100%)'};
+  if (h >= 15 && h < 18) return {g:'Good Evening', e:'🌇', cover:'linear-gradient(120deg,#fbd5b3 0%,#f1aa9b 55%,#d98aa6 100%)'};
+  return {g:'Good Night', e:'🌙', cover:'linear-gradient(120deg,#25284d 0%,#3e3a72 50%,#6a4f93 100%)'};
 }
 function renderHome() {
-  const t = today();
+  const t = today(), tod = timeOfDay();
   const focus = sortTodos(S.todos.filter(x => !x.done && x.date && x.date <= t));
   const pinned = sortTasks(S.tasks.filter(x => x.pinned && !x.done));
   const notes = sortNotes(S.notes).slice(0, 4);
   const doneCount = S.todos.filter(x=>x.done).length + S.tasks.filter(x=>x.done).length;
-  const name = S.settings.name.trim();
-  return `
-  <section class="card">
-    <div class="eyebrow">${esc(fmtLong(new Date()))}</div>
-    <div class="hello">${greeting().replace(/ (\S+)$/, name?`, ${esc(name)} $1`:' $1')}</div>
-    <div class="sub">Siap menyelesaikan target pekerjaanmu hari ini?</div>
-    <div class="stats">
-      <button class="stat s-todo" data-tab="todo"><b>${S.todos.filter(x=>!x.done).length}</b><span>To Do</span></button>
-      <button class="stat s-task" data-tab="tugas"><b>${S.tasks.filter(x=>!x.done).length}</b><span>Tugas</span></button>
-      <button class="stat s-note" data-tab="notes"><b>${S.notes.length}</b><span>Notes</span></button>
-      <button class="stat done" data-act="show-done"><b>${doneCount}</b><span>Selesai</span></button>
+  const todays = S.todos.filter(x => x.date === t), todaysDone = todays.filter(x => x.done).length;
+  const pct = todays.length ? Math.round(todaysDone / todays.length * 100) : 0;
+  const name = S.settings.name.trim(), on = navigator.onLine;
+  return `<div class="cover"><i style="background:${tod.cover}"></i></div>
+  <div class="page">
+    <div class="page-icon">${tod.e}</div>
+    <h1 class="title">${tod.g}${name?`, ${esc(name)}`:''}</h1>
+    <div class="props">
+      <div class="prop"><span class="pk">${I('calendar')}Tanggal</span><span class="pv">${esc(fmtLong(new Date()))}</span></div>
+      <div class="prop"><span class="pk">${I('progress')}Progres hari ini</span><span class="pv"><span class="bar"><i style="width:${pct}%"></i></span>${todaysDone}/${todays.length} selesai</span></div>
+      <div class="prop"><span class="pk">${I('wifi')}Status</span><span class="pv"><span class="live ${on?'':'off'}"></span>${on?'Offline Ready':'Mode Offline'}</span></div>
     </div>
-  </section>
-  <div class="section-label">Quick Action</div>
-  <div class="quick">
-    <button class="qa s-todo" data-act="new-todo">${I('pluscircle')}To Do</button>
-    <button class="qa s-task" data-act="new-task">${I('pluscircle')}Tugas</button>
-    <button class="qa s-note" data-act="new-note">${I('pluscircle')}Notes</button>
-  </div>
-  <section class="card">
-    <div class="card-head"><span class="live"></span><h2>Today's Focus</h2><span class="count">${focus.length} item</span></div>
-    <div class="list">${focus.length ? focus.map(x=>todoItem(x, true)).join('') : empty('Semua beres 🎉','Tidak ada To Do untuk hari ini.')}</div>
-  </section>
-  <section class="card">
-    <div class="card-head"><span class="pin">${I('pin')}</span><h2>Tugas Penting (Pinned)</h2><button class="link" data-tab="tugas">Lihat semua</button></div>
-    <div class="list">${pinned.length ? pinned.map(taskCard).join('') : empty('Belum ada tugas yang di-pin','Tekan ikon pin pada tugas untuk menampilkannya di sini.')}</div>
-  </section>
-  <section class="card">
-    <div class="card-head"><h2>Notes Terbaru</h2><button class="link" data-tab="notes">Lihat semua</button></div>
-    ${notes.length ? `<div class="notes">${notes.map(noteCard).join('')}</div>` : empty('Belum ada catatan','Tulis ide atau catatan rapat di sini.')}
-  </section>`;
+    <div class="callout bg-gray"><span class="emo">💡</span><div>Siap menyelesaikan target pekerjaanmu hari ini?</div></div>
+    <div class="stats">
+      <button class="stat k-todo" data-tab="todo"><b class="tx-blue">${S.todos.filter(x=>!x.done).length}</b><span>To Do</span></button>
+      <button class="stat k-task" data-tab="tugas"><b class="tx-purple">${S.tasks.filter(x=>!x.done).length}</b><span>Tugas</span></button>
+      <button class="stat k-note" data-tab="notes"><b class="tx-orange">${S.notes.length}</b><span>Notes</span></button>
+      <button class="stat k-done" data-act="show-done"><b class="tx-green">${doneCount}</b><span>Selesai</span></button>
+    </div>
+    <div class="newrow">
+      <button class="newbtn k-todo" data-act="new-todo">${I('plus')}To Do</button>
+      <button class="newbtn k-task" data-act="new-task">${I('plus')}Tugas</button>
+      <button class="newbtn k-note" data-act="new-note">${I('plus')}Notes</button>
+    </div>
+    ${h2('focus','🎯',"Today's Focus",focus.length)}
+    ${sec('focus', focus.length ? focus.map(x=>todoBlock(x, true)).join('') : '<div class="empty">Semua beres 🎉 Tidak ada To Do untuk hari ini.</div>')}
+    ${h2('pinned','📌','Tugas Penting',pinned.length,'tugas')}
+    ${sec('pinned', pinned.length ? pinned.map(taskRow).join('') : '<div class="empty">Belum ada tugas yang di-pin. Ketuk ikon pin pada tugas.</div>')}
+    ${h2('notes','📝','Notes Terbaru',null,'notes')}
+    ${sec('notes', notes.length ? `<div class="gallery">${notes.map(noteCard).join('')}</div>` : '<div class="empty">Belum ada catatan.</div>')}
+  </div>`;
 }
+const pageHead = (icon, title, desc) => `<div class="page"><div class="page-icon solo">${icon}</div><h1 class="title">${title}</h1><p class="desc">${desc}</p>`;
 function renderTodo() {
   const f = view.todoFilter, t = today();
-  let items = S.todos.filter(x => f === 'selesai' ? x.done : f === 'hari' ? !x.done && x.date && x.date <= t : !x.done);
-  items = sortTodos(items);
-  const groups = {};
+  const items = sortTodos(S.todos.filter(x => f === 'selesai' ? x.done : f === 'hari' ? !x.done && x.date && x.date <= t : !x.done));
+  const groups = new Map();
   for (const x of items) {
-    let g;
-    if (f === 'selesai') g = 'Selesai';
-    else if (!x.date) g = 'Tanpa tanggal';
-    else if (x.date < t) g = 'Terlambat';
-    else if (x.date === t) g = 'Hari ini';
-    else if (x.date === addDays(t,1)) g = 'Besok';
-    else g = fmtDay(x.date);
-    (groups[g] ||= []).push(x);
+    let g, c;
+    if (f === 'selesai') { g = 'Selesai'; c = 'green'; }
+    else if (!x.date) { g = 'Tanpa tanggal'; c = 'default'; }
+    else if (x.date < t) { g = 'Terlambat'; c = 'red'; }
+    else if (x.date === t) { g = 'Hari ini'; c = 'blue'; }
+    else if (x.date === addDays(t,1)) { g = 'Besok'; c = 'purple'; }
+    else { g = fmtDay(x.date); c = 'gray'; }
+    if (!groups.has(g)) groups.set(g, {c, arr:[]});
+    groups.get(g).arr.push(x);
   }
   const body = items.length
-    ? Object.entries(groups).map(([g, arr]) => `<div class="group-label ${g==='Terlambat'?'late':''}">${esc(g)} · ${arr.length}</div><div class="list">${arr.map(x=>todoItem(x, f==='selesai')).join('')}</div>`).join('')
-    : `<div class="card">${empty(f==='selesai'?'Belum ada yang selesai':'Tidak ada To Do', f==='selesai'?'Centang To Do untuk menandainya selesai.':'Tekan tombol + untuk menambah To Do.')}</div>`;
-  return `<h1 class="page-title">To Do</h1>
-  <div class="seg">${[['hari','Hari ini'],['aktif','Semua aktif'],['selesai','Selesai']].map(([k,l])=>`<button class="${f===k?'on':''}" data-act="todo-filter" data-v="${k}">${l}</button>`).join('')}</div>
-  ${body}`;
+    ? [...groups].map(([g, {c, arr}]) => `<div class="grp">${tag(g, c)}<span class="n">${arr.length}</span></div>${arr.map(x=>todoBlock(x, f==='selesai')).join('')}`).join('')
+    : emptyBig(f==='selesai'?'🗒️':'✨', f==='selesai'?'Belum ada yang selesai':'Tidak ada To Do', f==='selesai'?'Centang To Do untuk menandainya selesai.':'Ketuk tombol pena untuk menambah.');
+  return pageHead('✅', 'To Do', 'Pekerjaan singkat dengan jam. Centang saat selesai.') + `
+    <div class="views">${[['hari','Hari ini','calendar'],['aktif','Semua aktif','list'],['selesai','Selesai','checksq']].map(([k,l,ic])=>`<button class="${f===k?'on':''}" data-act="todo-filter" data-v="${k}">${I(ic)}${l}</button>`).join('')}</div>
+    ${body}</div>`;
 }
 function renderTugas() {
-  const f = view.taskFilter;
-  const items = sortTasks(S.tasks.filter(x => f === 'semua' ? true : f === 'selesai' ? x.done : !x.done));
-  return `<h1 class="page-title">Tugas</h1>
-  <div class="seg">${[['aktif','Aktif'],['semua','Semua'],['selesai','Selesai']].map(([k,l])=>`<button class="${f===k?'on':''}" data-act="task-filter" data-v="${k}">${l}</button>`).join('')}</div>
-  ${items.length ? `<div class="list">${items.map(taskCard).join('')}</div>` : `<div class="card">${empty('Belum ada tugas','Tugas cocok untuk pekerjaan dengan deadline dan beberapa langkah.')}</div>`}`;
+  const v = S.settings.taskView;
+  const views = `<div class="views">${[['board','Board','board'],['list','List','list']].map(([k,l,ic])=>`<button class="${v===k?'on':''}" data-act="task-view" data-v="${k}">${I(ic)}${l}</button>`).join('')}</div>`;
+  let body;
+  if (!S.tasks.length) body = emptyBig('📋','Belum ada tugas','Tugas cocok untuk pekerjaan dengan deadline dan beberapa langkah.');
+  else if (v === 'board') {
+    body = `<div class="board">${Object.entries(STATUS).map(([k, st]) => {
+      const arr = sortTasks(S.tasks.filter(x => x.status === k));
+      return `<div class="col bg-${st.c==='gray'?'default':st.c}"><div class="col-h">${tag(st.l, st.c, true)}<span class="n">${arr.length}</span></div>
+        ${arr.map(taskCard).join('')}<button class="add-in-col" data-act="new-task" data-status="${k}">${I('plus')}Baru</button></div>`;
+    }).join('')}</div>`;
+  } else body = sortTasks(S.tasks).map(taskRow).join('');
+  return pageHead('📌', 'Tugas', 'Deadline, status, dan langkah-langkah. Pin yang penting ke Home.') + views + body + '</div>';
 }
 function renderNotes() {
   const items = sortNotes(S.notes);
-  return `<h1 class="page-title">Notes</h1>
-  ${items.length ? `<div class="notes">${items.map(noteCard).join('')}</div>` : `<div class="card">${empty('Belum ada catatan','Tekan tombol + untuk menulis catatan.')}</div>`}`;
+  return pageHead('📝', 'Notes', 'Catatan bebas, ide, dan hasil rapat.') + `
+    <div class="views"><button class="on">${I('board')}Gallery</button></div>
+    ${items.length ? `<div class="gallery">${items.map(noteCard).join('')}</div>` : emptyBig('💭','Belum ada catatan','Ketuk tombol pena untuk menulis.')}</div>`;
 }
+const TAB_NAME = {home:'Home', todo:'To Do', tugas:'Tugas', notes:'Notes'};
 function render() {
-  const v = $('#view');
-  v.innerHTML = tab === 'todo' ? renderTodo() : tab === 'tugas' ? renderTugas() : tab === 'notes' ? renderNotes() : renderHome();
+  $('#view').innerHTML = tab === 'todo' ? renderTodo() : tab === 'tugas' ? renderTugas() : tab === 'notes' ? renderNotes() : renderHome();
+  $('#crumb-cur').textContent = TAB_NAME[tab];
   document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  $('#bell-dot').classList.toggle('on', notifSignature() !== '' && notifSignature() !== S.settings.seenNotif);
+  const sig = notifSignature();
+  $('#bell-dot').classList.toggle('on', sig !== '' && sig !== S.settings.seenNotif);
 }
 function setTab(t) {
   tab = t;
   try { sessionStorage.setItem('kerjaku.tab', t); } catch (e) {}
-  render();
-  window.scrollTo(0, 0);
+  render(); window.scrollTo(0, 0);
 }
 
-/* ---------- Overlay (sheet) ---------- */
+/* ---------- Overlay ---------- */
 const stack = [];
 let replaceNext = false;
-function openSheet(html, {full=false, onMount}={}) {
+function openSheet(html, {full=false, onMount, onClose}={}) {
   const scrim = document.createElement('div');
   scrim.className = 'scrim';
   scrim.innerHTML = `<div class="sheet ${full?'full':''}" role="dialog" aria-modal="true">${full?'':'<div class="grab"></div>'}${html}</div>`;
   scrim.addEventListener('click', e => { if (e.target === scrim) closeTop(); });
+  scrim._onClose = onClose;
   document.body.appendChild(scrim);
   document.body.style.overflow = 'hidden';
-  if (replaceNext && stack.length) { stack.pop().remove(); stack.push(scrim); history.replaceState({sheet: stack.length}, ''); }
+  if (replaceNext && stack.length) { const old = stack.pop(); old._onClose && old._onClose(); old.remove(); stack.push(scrim); history.replaceState({sheet: stack.length}, ''); }
   else { stack.push(scrim); history.pushState({sheet: stack.length}, ''); }
   replaceNext = false;
   onMount && onMount(scrim.firstElementChild);
@@ -540,129 +648,139 @@ function openSheet(html, {full=false, onMount}={}) {
 }
 function removeTop() {
   const el = stack.pop();
-  if (el) el.remove();
+  if (el) { el._onClose && el._onClose(); el.remove(); }
   if (!stack.length) document.body.style.overflow = '';
 }
 function closeTop() { if (stack.length) history.back(); }
 window.addEventListener('popstate', e => { const want = (e.state && e.state.sheet) || 0; while (stack.length > want) removeTop(); });
 function closeAll() { const n = stack.length; if (n) history.go(-n); }
-const head = title => `<div class="sheet-head"><h3>${title}</h3><button class="icon-btn" data-act="close" aria-label="Tutup">${I('x')}</button></div>`;
+const sbar = (crumb, right='') => `<div class="sbar"><button class="ib" data-act="close" aria-label="Tutup">${I('x')}</button><div class="crumb"><span class="cur">${crumb}</span></div><span class="saved">Tersimpan</span>${right}</div>`;
 
-/* ---------- Form ---------- */
-function prioPicker(cur) {
-  return `<div class="field"><span>Prioritas</span><div class="opts" data-group="prio">${Object.entries(PRIO).map(([k,l])=>`<button type="button" class="opt ${cur===k?'on':''}" data-v="${k}">${l}</button>`).join('')}</div></div>`;
+/* ---------- Editor halaman (autosave, seperti Notion) ---------- */
+function autosize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+function selectRow(icon, label, group, opts, cur) {
+  return `<div class="prop"><span class="pk">${I(icon)}${label}</span><span class="pv"><span class="opts" data-group="${group}">${
+    Object.entries(opts).map(([k,o]) => `<button type="button" class="tag dot c-${o.c} opt ${cur===k?'on':''}" data-v="${k}">${o.l}</button>`).join('')}</span></span></div>`;
 }
-function bindOpts(root) {
-  root.querySelectorAll('[data-group]').forEach(g => g.addEventListener('click', e => {
-    const b = e.target.closest('[data-v]'); if (!b) return;
-    g.querySelectorAll('[data-v]').forEach(x => x.classList.toggle('on', x === b));
-  }));
-  root.querySelectorAll('.toggle').forEach(t => t.addEventListener('click', () => t.classList.toggle('on')));
-}
-const groupVal = (root, name) => root.querySelector(`[data-group="${name}"] .on`)?.dataset.v;
+/* kind: todos | tasks | notes. Tanpa tombol Simpan: setiap perubahan langsung tersimpan. */
+function editor(kind, id, preset={}) {
+  const arr = S[kind];
+  const existing = arr.find(x => x.id === id);
+  const defaults = {
+    todos: {title:'', date:today(), time:'', cat:'Kerja', prio:'sedang', done:false},
+    tasks: {icon:'📋', title:'', desc:'', date:addDays(today(),1), time:'', prio:'sedang', pinned:false, status:'belum', done:false, subs:[]},
+    notes: {icon:'📝', title:'', body:'', color:'default', pinned:false},
+  }[kind];
+  const x = existing || Object.assign({id:uid(), created:new Date().toISOString(), updated:new Date().toISOString()}, JSON.parse(JSON.stringify(defaults)), preset);
+  if (kind === 'tasks') x.done = x.status === 'selesai';
+  let inserted = !!existing;
+  const label = {todos:'To Do', tasks:'Tugas', notes:'Notes'}[kind];
+  const hasContent = () => x.title.trim() || (kind === 'notes' && x.body.trim());
+  let savedTimer;
 
-function todoForm(id, preset={}) {
-  const x = S.todos.find(t => t.id === id) || Object.assign({title:'', date:today(), time:'', cat:'Kerja', prio:'sedang', done:false}, preset);
-  const cats = [...new Set([...CATS, ...S.todos.map(t=>t.cat).filter(Boolean)])];
-  openSheet(`${head(id?'Edit To Do':'To Do Baru')}
-    <form id="f">
-      <label class="field"><span>Judul</span><input class="input" name="title" required maxlength="120" value="${esc(x.title)}" placeholder="Mis. Kirim dokumen"></label>
-      <div class="row2">
-        <label class="field"><span>Tanggal</span><input class="input" type="date" name="date" value="${esc(x.date)}"></label>
-        <label class="field"><span>Jam</span><input class="input" type="time" name="time" value="${esc(x.time)}"></label>
-      </div>
-      <label class="field"><span>Kategori</span><input class="input" name="cat" list="cats" value="${esc(x.cat)}" maxlength="30"><datalist id="cats">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label>
-      ${prioPicker(x.prio)}
-      <div class="btns">${id?`<button type="button" class="btn danger" data-act="del-todo" data-id="${id}" aria-label="Hapus">${I('trash')}</button>`:''}<button class="btn primary">${I('check')}Simpan</button></div>
-    </form>`, {onMount: root => {
-      bindOpts(root);
-      const f = root.querySelector('#f');
-      if (!id) setTimeout(() => f.title.focus(), 150);
-      f.addEventListener('submit', e => {
-        e.preventDefault();
-        const data = {title:f.title.value.trim(), date:f.date.value, time:f.time.value, cat:f.cat.value.trim(), prio:groupVal(root,'prio')||'sedang'};
-        if (!data.title) return f.title.focus();
-        if (id) Object.assign(x, data); else S.todos.push(Object.assign({id:uid(), done:false, created:new Date().toISOString()}, data));
-        commit(id ? 'To Do diperbarui' : 'To Do ditambahkan'); closeTop();
+  const persist = root => {
+    if (kind === 'notes') x.updated = new Date().toISOString();
+    if (!inserted) { if (!hasContent()) return; arr.push(x); inserted = true; root.querySelector('[data-act="del"]').hidden = false; }
+    save(); render();
+    stack.slice(0, -1).forEach(s => s.firstElementChild._refresh && s.firstElementChild._refresh());
+    const sv = root.querySelector('.saved'); sv.classList.add('on'); clearTimeout(savedTimer); savedTimer = setTimeout(() => sv.classList.remove('on'), 1200);
+  };
+
+  let props;
+  if (kind === 'todos') {
+    const cats = [...new Set([...CATS, ...S.todos.map(t=>t.cat).filter(Boolean)])];
+    props = `
+      <div class="prop"><span class="pk">${I('checksq')}Selesai</span><span class="pv"><button type="button" class="cb ${x.done?'on':''}" data-f="done" aria-label="Selesai">${I('check')}</button></span></div>
+      <div class="prop"><span class="pk">${I('calendar')}Tanggal</span><span class="pv edit"><input type="date" data-f="date" value="${esc(x.date)}"></span></div>
+      <div class="prop"><span class="pk">${I('clock')}Jam</span><span class="pv edit"><input type="time" data-f="time" value="${esc(x.time)}"></span></div>
+      <div class="prop"><span class="pk">${I('tag')}Kategori</span><span class="pv edit"><span id="cat-tag"></span><input data-f="cat" list="cats" value="${esc(x.cat)}" maxlength="30" placeholder="Kosong" style="width:auto;flex:1;min-width:60px"><datalist id="cats">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></span></div>
+      ${selectRow('flag','Prioritas','prio',PRIO,x.prio)}`;
+  } else if (kind === 'tasks') {
+    props = `
+      ${selectRow('status','Status','status',STATUS,x.status)}
+      ${selectRow('flag','Prioritas','prio',PRIO,x.prio)}
+      <div class="prop"><span class="pk">${I('calendar')}Deadline</span><span class="pv edit"><input type="date" data-f="date" value="${esc(x.date)}"></span></div>
+      <div class="prop"><span class="pk">${I('clock')}Jam</span><span class="pv edit"><input type="time" data-f="time" value="${esc(x.time)}"></span></div>
+      <div class="prop"><span class="pk">${I('pin')}Pin ke Home</span><span class="pv"><button type="button" class="cb ${x.pinned?'on':''}" data-f="pinned" aria-label="Pin ke Home">${I('check')}</button></span></div>`;
+  } else {
+    props = `
+      <div class="prop"><span class="pk">${I('palette')}Warna</span><span class="pv"><span class="opts" data-group="color">${NOTE_COLORS.map(c=>`<button type="button" class="swatch bg-${c} ${x.color===c?'on':''}" data-v="${c}" aria-label="${c}"></button>`).join('')}</span></span></div>
+      <div class="prop"><span class="pk">${I('pin')}Sematkan</span><span class="pv"><button type="button" class="cb ${x.pinned?'on':''}" data-f="pinned" aria-label="Sematkan">${I('check')}</button></span></div>`;
+  }
+  const subsHtml = () => x.subs.map(s => `<div class="sub ${s.done?'done':''}" data-sid="${s.id}"><button type="button" class="cb ${s.done?'on':''}" data-sub="toggle" aria-label="Centang langkah">${I('check')}</button><input value="${esc(s.t)}" data-sub="text" maxlength="100" aria-label="Langkah"><button type="button" class="x" data-sub="del" aria-label="Hapus langkah">${I('x')}</button></div>`).join('');
+  const body = kind === 'todos' ? '' : kind === 'tasks'
+    ? `<div class="divider"></div><textarea class="body-in" data-f="desc" style="min-height:48px" placeholder="Tambahkan deskripsi…">${esc(x.desc)}</textarea>
+       <div class="label">Langkah-langkah</div><div id="subs">${subsHtml()}</div>
+       <div class="add-row">${I('plus')}<input id="sub-new" placeholder="Tambah langkah, tekan Enter" maxlength="100" enterkeyhint="done"></div>`
+    : `<div class="divider"></div><textarea class="body-in" data-f="body" placeholder="Mulai menulis…">${esc(x.body)}</textarea>`;
+
+  openSheet(`${sbar(esc(label), `<button class="ib" data-act="del" data-kind="${kind}" data-id="${x.id}" aria-label="Hapus" ${inserted?'':'hidden'}>${I('trash')}</button><button class="txtbtn" data-act="close">Selesai</button>`)}
+    <div class="sbody">
+      ${kind !== 'todos' ? `<button class="icon-pick" id="icon-pick" aria-label="Ganti ikon">${esc(x.icon)}</button><div class="emoji-row" id="emoji-row" hidden>${EMOJIS.map(e=>`<button type="button" data-emoji="${e}">${e}</button>`).join('')}</div>` : '<div style="height:12px"></div>'}
+      <textarea class="title-in" data-f="title" rows="1" maxlength="160" placeholder="Tanpa judul" enterkeyhint="done">${esc(x.title)}</textarea>
+      <div class="props">${props}</div>
+      ${body}
+    </div>`, {full:true, onClose: () => {
+      if (inserted && !hasContent()) { const i = arr.indexOf(x); if (i >= 0) { arr.splice(i, 1); save(); render(); } }
+      else if (!existing && inserted) toast(`${label} ditambahkan`);
+    }, onMount: root => {
+      const title = root.querySelector('.title-in');
+      requestAnimationFrame(() => { autosize(title); root.querySelectorAll('.body-in').forEach(autosize); });
+      if (!existing) setTimeout(() => title.focus(), 120);
+      const catTag = root.querySelector('#cat-tag');
+      const drawCat = () => { if (catTag) catTag.innerHTML = x.cat ? tag(x.cat, catColor(x.cat)) : ''; };
+      drawCat();
+
+      root.addEventListener('input', e => {
+        const f = e.target.dataset.f;
+        if (f) {
+          x[f] = (f === 'title' || f === 'cat') ? e.target.value.replace(/\n/g, ' ') : e.target.value;
+          if (e.target.tagName === 'TEXTAREA') autosize(e.target);
+          if (f === 'cat') drawCat();
+          persist(root);
+        }
+        if (e.target.dataset.sub === 'text') { x.subs.find(s => s.id === e.target.closest('[data-sid]').dataset.sid).t = e.target.value; persist(root); }
       });
-    }});
-}
-function taskForm(id) {
-  const x = S.tasks.find(t => t.id === id) || {title:'', desc:'', date:addDays(today(),1), time:'', prio:'sedang', pinned:false, done:false, subs:[]};
-  let subs = x.subs.map(s => ({...s}));
-  const subsHtml = () => subs.map(s => `<div class="sub-row ${s.done?'done':''}" data-sid="${s.id}">
-      <button type="button" class="check" data-sub="toggle">${I('check')}</button>
-      <input value="${esc(s.t)}" data-sub="text" maxlength="100" aria-label="Langkah">
-      <button type="button" class="x" data-sub="del" aria-label="Hapus langkah">${I('x')}</button></div>`).join('');
-  openSheet(`${head(id?'Edit Tugas':'Tugas Baru')}
-    <form id="f">
-      <label class="field"><span>Judul</span><input class="input" name="title" required maxlength="120" value="${esc(x.title)}" placeholder="Mis. Rekap penjualan bulanan"></label>
-      <label class="field"><span>Deskripsi</span><textarea class="input" name="desc" style="min-height:80px" maxlength="1000" placeholder="Opsional">${esc(x.desc)}</textarea></label>
-      <div class="row2">
-        <label class="field"><span>Deadline</span><input class="input" type="date" name="date" value="${esc(x.date)}"></label>
-        <label class="field"><span>Jam</span><input class="input" type="time" name="time" value="${esc(x.time)}"></label>
-      </div>
-      ${prioPicker(x.prio)}
-      <div class="field"><span>Langkah-langkah</span><div class="subs" id="subs">${subsHtml()}</div>
-        <div class="add-sub"><input class="input" id="sub-new" placeholder="Tambah langkah…" maxlength="100"><button type="button" id="sub-add" aria-label="Tambah langkah">${I('plus')}</button></div></div>
-      <button type="button" class="toggle ${x.pinned?'on':''}" data-t="pinned"><span>📌 Pin ke Home (Tugas Penting)</span><span class="sw"></span></button>
-      ${id?`<button type="button" class="toggle ${x.done?'on':''}" data-t="done"><span>✅ Tandai tugas selesai</span><span class="sw"></span></button>`:''}
-      <div class="btns">${id?`<button type="button" class="btn danger" data-act="del-task" data-id="${id}" aria-label="Hapus">${I('trash')}</button>`:''}<button class="btn primary">${I('check')}Simpan</button></div>
-    </form>`, {onMount: root => {
-      bindOpts(root);
-      const f = root.querySelector('#f'), box = root.querySelector('#subs'), inp = root.querySelector('#sub-new');
-      const addSub = () => { const v = inp.value.trim(); if (!v) return; subs.push({id:uid(), t:v, done:false}); box.innerHTML = subsHtml(); inp.value = ''; inp.focus(); };
-      root.querySelector('#sub-add').addEventListener('click', addSub);
-      inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addSub(); } });
-      box.addEventListener('click', e => {
-        const b = e.target.closest('[data-sub]'); if (!b || b.dataset.sub === 'text') return;
-        const s = subs.find(s => s.id === b.closest('[data-sid]').dataset.sid);
-        if (b.dataset.sub === 'toggle') s.done = !s.done; else subs = subs.filter(z => z !== s);
-        box.innerHTML = subsHtml();
+      title.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); title.blur(); } });
+
+      root.addEventListener('click', e => {
+        const g = e.target.closest('[data-group] [data-v]');
+        if (g) {
+          const group = g.parentElement.dataset.group;
+          g.parentElement.querySelectorAll('[data-v]').forEach(b => b.classList.toggle('on', b === g));
+          if (group === 'prio') x.prio = g.dataset.v;
+          if (group === 'color') x.color = g.dataset.v;
+          if (group === 'status') { x.status = g.dataset.v; x.done = x.status === 'selesai'; }
+          persist(root); return;
+        }
+        const cb = e.target.closest('.cb[data-f]');
+        if (cb) { const f = cb.dataset.f; x[f] = !x[f]; cb.classList.toggle('on', x[f]); persist(root); return; }
+        if (e.target.closest('#icon-pick')) { const r = root.querySelector('#emoji-row'); r.hidden = !r.hidden; return; }
+        const em = e.target.closest('[data-emoji]');
+        if (em) { x.icon = em.dataset.emoji; root.querySelector('#icon-pick').textContent = x.icon; root.querySelector('#emoji-row').hidden = true; persist(root); return; }
+        const sb = e.target.closest('[data-sub]');
+        if (sb && sb.dataset.sub !== 'text') {
+          const s = x.subs.find(s => s.id === sb.closest('[data-sid]').dataset.sid);
+          if (sb.dataset.sub === 'toggle') s.done = !s.done; else x.subs.splice(x.subs.indexOf(s), 1);
+          if (x.status === 'belum' && x.subs.some(s => s.done)) { x.status = 'proses'; root.querySelectorAll('[data-group="status"] [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === 'proses')); }
+          root.querySelector('#subs').innerHTML = subsHtml(); persist(root);
+        }
       });
-      box.addEventListener('input', e => { if (e.target.dataset.sub === 'text') subs.find(s => s.id === e.target.closest('[data-sid]').dataset.sid).t = e.target.value; });
-      if (!id) setTimeout(() => f.title.focus(), 150);
-      f.addEventListener('submit', e => {
+      const subNew = root.querySelector('#sub-new');
+      if (subNew) subNew.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
         e.preventDefault();
-        if (inp.value.trim()) addSub();
-        const data = {title:f.title.value.trim(), desc:f.desc.value.trim(), date:f.date.value, time:f.time.value, prio:groupVal(root,'prio')||'sedang',
-          pinned:root.querySelector('[data-t="pinned"]').classList.contains('on'),
-          done:id ? root.querySelector('[data-t="done"]').classList.contains('on') : false,
-          subs:subs.filter(s => s.t.trim())};
-        if (!data.title) return f.title.focus();
-        if (id) Object.assign(x, data); else S.tasks.push(Object.assign({id:uid(), created:new Date().toISOString()}, data));
-        commit(id ? 'Tugas diperbarui' : 'Tugas ditambahkan'); closeTop();
-      });
-    }});
-}
-function noteForm(id) {
-  const x = S.notes.find(t => t.id === id) || {title:'', body:'', color:'yellow', pinned:false};
-  openSheet(`${head(id?'Edit Catatan':'Catatan Baru')}
-    <form id="f">
-      <label class="field"><span>Judul</span><input class="input" name="title" maxlength="120" value="${esc(x.title)}" placeholder="Judul catatan"></label>
-      <label class="field"><span>Isi</span><textarea class="input" name="body" style="min-height:180px" placeholder="Tulis sesuatu…">${esc(x.body)}</textarea></label>
-      <div class="field"><span>Warna</span><div class="opts" data-group="color">${COLORS.map(c=>`<button type="button" class="swatch c-${c} ${x.color===c?'on':''}" data-v="${c}" aria-label="${c}"></button>`).join('')}</div></div>
-      <button type="button" class="toggle ${x.pinned?'on':''}" data-t="pinned"><span>📌 Sematkan di atas</span><span class="sw"></span></button>
-      <div class="btns">${id?`<button type="button" class="btn danger" data-act="del-note" data-id="${id}" aria-label="Hapus">${I('trash')}</button>`:''}<button class="btn primary">${I('check')}Simpan</button></div>
-    </form>`, {onMount: root => {
-      bindOpts(root);
-      const f = root.querySelector('#f');
-      if (!id) setTimeout(() => f.title.focus(), 150);
-      f.addEventListener('submit', e => {
-        e.preventDefault();
-        const data = {title:f.title.value.trim(), body:f.body.value, color:groupVal(root,'color')||'yellow', pinned:root.querySelector('[data-t="pinned"]').classList.contains('on'), updated:new Date().toISOString()};
-        if (!data.title && !data.body.trim()) return f.title.focus();
-        if (id) Object.assign(x, data); else S.notes.push(Object.assign({id:uid()}, data));
-        commit(id ? 'Catatan diperbarui' : 'Catatan disimpan'); closeTop();
+        const v = subNew.value.trim(); if (!v) return;
+        x.subs.push({id:uid(), t:v, done:false}); subNew.value = '';
+        root.querySelector('#subs').innerHTML = subsHtml(); persist(root);
       });
     }});
 }
 function chooser() {
-  openSheet(`${head('Tambah baru')}<div class="chooser">
-    <button data-act="new-todo"><span class="ic" style="background:var(--green-soft);color:var(--green)">${I('checksq')}</span><span><b>To Do</b><small>Pekerjaan singkat dengan jam</small></span></button>
-    <button data-act="new-task"><span class="ic" style="background:var(--blue-soft);color:var(--blue)">${I('pin')}</span><span><b>Tugas</b><small>Pekerjaan dengan deadline & langkah</small></span></button>
-    <button data-act="new-note"><span class="ic" style="background:var(--orange-soft);color:var(--orange)">${I('notes')}</span><span><b>Notes</b><small>Catatan bebas & ide</small></span></button>
-  </div>`);
+  openSheet(`<div class="menu-h">Buat baru</div>
+    <button class="mrow" data-act="new-todo"><span class="ico bg-blue tx-blue">${I('checksq')}</span><span class="tx"><b>To Do</b><small>Pekerjaan singkat dengan jam</small></span></button>
+    <button class="mrow" data-act="new-task"><span class="ico bg-purple tx-purple">${I('board')}</span><span class="tx"><b>Tugas</b><small>Deadline, status & langkah-langkah</small></span></button>
+    <button class="mrow" data-act="new-note"><span class="ico bg-orange tx-orange">${I('notes')}</span><span class="tx"><b>Notes</b><small>Catatan bebas & ide</small></span></button>`);
 }
 
 /* ---------- Hapus + urungkan ---------- */
@@ -670,30 +788,36 @@ function removeItem(kind, id) {
   const arr = S[kind], idx = arr.findIndex(x => x.id === id);
   if (idx < 0) return;
   const [item] = arr.splice(idx, 1);
-  commit();
+  save(); render();
+  if (stack.length) stack[stack.length-1]._onClose = null;
   closeTop();
-  toast('Item dihapus', 'Urungkan', () => { arr.splice(idx, 0, item); commit('Dipulihkan'); });
+  toast('Dihapus', 'Urungkan', () => { arr.splice(idx, 0, item); commit('Dipulihkan'); });
 }
 
 /* ---------- Cari ---------- */
 function searchSheet() {
-  openSheet(`${head('Cari')}<div class="search-box">${I('search')}<input id="q" placeholder="Cari To Do, Tugas, Notes…" autocomplete="off"></div><div id="res"></div>`, {full:true, onMount: root => {
+  openSheet(`${sbar('Cari')}<div class="search-in">${I('search')}<input id="q" placeholder="Cari di KerjaKu…" autocomplete="off" enterkeyhint="search"></div><div id="res"></div>`, {full:true, onMount: root => {
     const q = root.querySelector('#q'), res = root.querySelector('#res');
+    const row = (act, id, ico, title, sub) => `<button class="mrow" data-act="${act}" data-id="${id}"><span class="ico">${ico}</span><span class="tx"><b>${esc(title||'Tanpa judul')}</b><small>${sub}</small></span></button>`;
     const run = () => {
       const s = q.value.trim().toLowerCase();
-      if (!s) { res.innerHTML = empty('Ketik untuk mencari', 'Pencarian mencakup judul, kategori, deskripsi, dan isi catatan.'); return; }
+      if (!s) {
+        const recent = [...S.notes.map(n => ({t:n.updated||'', h:row('edit-note', n.id, esc(n.icon), n.title, 'Notes')})),
+          ...S.tasks.map(n => ({t:n.created||'', h:row('edit-task', n.id, esc(n.icon), n.title, 'Tugas · ' + STATUS[n.status].l)}))].sort((a,b)=>b.t.localeCompare(a.t)).slice(0, 6);
+        res.innerHTML = recent.length ? `<div class="menu-h">Terbaru</div>${recent.map(r=>r.h).join('')}` : '';
+        return;
+      }
       const has = (...f) => f.some(v => String(v||'').toLowerCase().includes(s));
       const td = sortTodos(S.todos.filter(x => has(x.title, x.cat)));
       const tk = sortTasks(S.tasks.filter(x => has(x.title, x.desc, ...x.subs.map(z=>z.t))));
       const nt = sortNotes(S.notes.filter(x => has(x.title, x.body)));
-      res.innerHTML = (td.length||tk.length||nt.length)
-        ? (td.length?`<div class="group-label">To Do · ${td.length}</div><div class="list">${td.map(x=>todoItem(x,true)).join('')}</div>`:'')
-          + (tk.length?`<div class="group-label">Tugas · ${tk.length}</div><div class="list">${tk.map(taskCard).join('')}</div>`:'')
-          + (nt.length?`<div class="group-label">Notes · ${nt.length}</div><div class="notes">${nt.map(noteCard).join('')}</div>`:'')
-        : empty('Tidak ditemukan', `Tidak ada hasil untuk “${esc(q.value)}”.`);
+      const list = (td.length?`<div class="menu-h">To Do</div>${td.map(x=>row('edit-todo', x.id, x.done?'☑️':'⬜', x.title, `To Do${x.cat?' · '+esc(x.cat):''}${x.date?' · '+esc(fmtShort(x.date)):''}`)).join('')}`:'')
+        + (tk.length?`<div class="menu-h">Tugas</div>${tk.map(x=>row('edit-task', x.id, esc(x.icon), x.title, 'Tugas · ' + STATUS[x.status].l)).join('')}`:'')
+        + (nt.length?`<div class="menu-h">Notes</div>${nt.map(x=>row('edit-note', x.id, esc(x.icon), x.title, esc(x.body.slice(0,60)))).join('')}`:'');
+      res.innerHTML = list || emptyBig('🔍','Tidak ditemukan',`Tidak ada hasil untuk “${esc(q.value)}”.`);
     };
     q.addEventListener('input', run); run();
-    setTimeout(() => q.focus(), 150);
+    setTimeout(() => q.focus(), 120);
     root._refresh = run;
   }});
 }
@@ -702,37 +826,38 @@ function searchSheet() {
 function calendarSheet() {
   let cur = new Date(); cur.setDate(1);
   let sel = today();
-  openSheet(`${head('Kalender')}<div id="cal"></div><div id="cal-list"></div>`, {full:true, onMount: root => {
+  openSheet(`${sbar('Kalender')}<div class="cal" id="cal"></div><div id="cal-list" class="page"></div>`, {full:true, onMount: root => {
     const draw = () => {
       const y = cur.getFullYear(), m = cur.getMonth();
-      const start = new Date(y, m, 1); const off = (start.getDay() + 6) % 7; // Senin pertama
+      const off = (new Date(y, m, 1).getDay() + 6) % 7;
       const first = new Date(y, m, 1 - off);
       let cells = '';
       for (let i = 0; i < 42; i++) {
         const d = new Date(first); d.setDate(first.getDate() + i);
         const s = ymd(d);
         const hasT = S.todos.some(x => x.date === s && !x.done), hasK = S.tasks.some(x => x.date === s && !x.done);
-        cells += `<button class="day ${d.getMonth()!==m?'out':''} ${s===today()?'today':''} ${s===sel?'sel':''}" data-day="${s}">${d.getDate()}<span class="dots">${hasT?'<i></i>':''}${hasK?'<i class="b"></i>':''}</span></button>`;
+        cells += `<button class="day ${d.getMonth()!==m?'out':''} ${s===today()?'today':''} ${s===sel?'sel':''}" data-day="${s}"><span class="num">${d.getDate()}</span><span class="dots">${hasT?'<i class="dot-blue"></i>':''}${hasK?'<i class="dot-purple"></i>':''}</span></button>`;
       }
-      root.querySelector('#cal').innerHTML = `<div class="card" style="padding:16px">
-        <div class="cal-head"><button class="icon-btn" data-nav="-1" aria-label="Bulan sebelumnya">${I('chevL')}</button><b>${start.toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</b><button class="icon-btn" data-nav="1" aria-label="Bulan berikutnya">${I('chevR')}</button></div>
-        <div class="cal-grid">${['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(d=>`<div class="dow">${d}</div>`).join('')}${cells}</div></div>`;
+      root.querySelector('#cal').innerHTML = `<div class="cal-h"><b>${new Date(y, m, 1).toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</b>
+        <button class="chip-btn" data-nav="0">Hari ini</button><button class="ib" data-nav="-1" aria-label="Bulan sebelumnya">${I('chevL')}</button><button class="ib" data-nav="1" aria-label="Bulan berikutnya">${I('chevR')}</button></div>
+        <div class="cal-grid">${['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(d=>`<div class="dow">${d}</div>`).join('')}${cells}</div>`;
       const td = sortTodos(S.todos.filter(x => x.date === sel)), tk = sortTasks(S.tasks.filter(x => x.date === sel));
-      root.querySelector('#cal-list').innerHTML = `<div class="card-head"><h2 style="font-size:17px">${esc(fmtDay(sel))}</h2><button class="link" data-act="new-todo" data-date="${sel}">+ To Do</button></div>
-        ${td.length||tk.length ? `${td.length?`<div class="list">${td.map(x=>todoItem(x,false)).join('')}</div>`:''}${tk.length?`<div class="group-label">Deadline tugas</div><div class="list">${tk.map(taskCard).join('')}</div>`:''}` : empty('Kosong','Tidak ada To Do atau deadline di tanggal ini.')}`;
+      root.querySelector('#cal-list').innerHTML = `<div class="h2" style="margin-left:0">${esc(fmtDay(sel))}<button class="more" data-act="new-todo" data-date="${sel}">+ To Do</button></div>
+        ${td.map(x=>todoBlock(x,false)).join('')}${tk.length?`<div class="grp">${tag('Deadline tugas','purple')}</div>${tk.map(taskRow).join('')}`:''}${!td.length&&!tk.length?'<div class="empty">Tidak ada To Do atau deadline di tanggal ini.</div>':''}`;
     };
     root.addEventListener('click', e => {
-      const n = e.target.closest('[data-nav]'); if (n) { cur.setMonth(cur.getMonth() + Number(n.dataset.nav)); draw(); }
-      const d = e.target.closest('[data-day]'); if (d) { sel = d.dataset.day; const dd = parseD(sel); if (dd.getMonth() !== cur.getMonth()) { cur = new Date(dd.getFullYear(), dd.getMonth(), 1); } draw(); }
+      const n = e.target.closest('[data-nav]');
+      if (n) { const v = Number(n.dataset.nav); if (v === 0) { cur = new Date(); cur.setDate(1); sel = today(); } else cur.setMonth(cur.getMonth() + v); draw(); }
+      const d = e.target.closest('[data-day]');
+      if (d) { sel = d.dataset.day; const dd = parseD(sel); if (dd.getMonth() !== cur.getMonth()) cur = new Date(dd.getFullYear(), dd.getMonth(), 1); draw(); }
     });
-    draw();
-    root._refresh = draw;
+    draw(); root._refresh = draw;
   }});
 }
 
-/* ---------- Notifikasi ---------- */
+/* ---------- Inbox ---------- */
 function notifications() {
-  const t = today(), now = nowHM(), out = [];
+  const t = today(), out = [];
   for (const x of S.todos) {
     if (x.done || !x.date) continue;
     if (isLateTodo(x)) out.push({kind:'late', id:x.id, type:'todo', title:x.title, sub:`Terlambat · ${x.date===t?'hari ini '+x.time:fmtShort(x.date)+(x.time?' '+x.time:'')}`});
@@ -750,11 +875,11 @@ const notifSignature = () => notifications().map(n => n.kind + n.id).join('|');
 function notifSheet() {
   const list = notifications();
   S.settings.seenNotif = notifSignature(); save(); render();
-  const style = {late:['var(--red-soft)','var(--red)','alert'], soon:['var(--green-soft)','var(--green)','clock'], task:['var(--blue-soft)','var(--blue)','calendar']};
-  openSheet(`${head('Notifikasi')}<div class="list">${list.length ? list.map(n => {
-      const [bg, fg, ic] = style[n.kind];
-      return `<button class="notif" data-act="edit-${n.type}" data-id="${n.id}"><span class="ic" style="background:${bg};color:${fg}">${I(ic)}</span><span><b>${esc(n.title)}</b><small>${esc(n.sub)}</small></span></button>`;
-    }).join('') : empty('Tidak ada pemberitahuan','Pengingat To Do hari ini dan deadline tugas akan muncul di sini.')}</div>`);
+  const style = {late:['red','⏰'], soon:['blue','🔔'], task:['purple','📅']};
+  openSheet(`<div class="menu-h">Inbox</div>${list.length ? list.map(n => {
+      const [c, e] = style[n.kind];
+      return `<button class="mrow" data-act="edit-${n.type}" data-id="${n.id}"><span class="ico bg-${c}">${e}</span><span class="tx"><b>${esc(n.title)}</b><small ${n.kind==='late'?'class="tx-red"':''}>${esc(n.sub)}</small></span></button>`;
+    }).join('') : emptyBig('📭','Inbox kosong','Pengingat To Do hari ini dan deadline tugas muncul di sini.')}`);
 }
 function sysNotify(title, body) {
   if (isAndroid) { try { window.AndroidBridge.notify(title, body); } catch (e) {} return; }
@@ -772,42 +897,46 @@ function checkReminders() {
     const key = x.id + '@' + x.date + x.time;
     if (S.fired[key]) continue;
     S.fired[key] = 1; changed = true;
-    sysNotify('⏰ ' + x.title, `Waktunya sekarang (${x.time}) · ${x.cat || 'To Do'}`);
+    sysNotify('⏰ ' + (x.title || 'To Do'), `Waktunya sekarang (${x.time}) · ${x.cat || 'To Do'}`);
   }
-  // bersihkan catatan lama
-  for (const k of Object.keys(S.fired)) if (k.split('@')[1]?.slice(0,10) < addDays(t,-7)) { delete S.fired[k]; changed = true; }
+  for (const k of Object.keys(S.fired)) if ((k.split('@')[1] || '').slice(0,10) < addDays(t,-7)) { delete S.fired[k]; changed = true; }
   if (changed) save();
 }
 
 /* ---------- Pengaturan ---------- */
 function settingsSheet() {
   const s = S.settings;
-  openSheet(`${head('Pengaturan')}
-    <label class="field"><span>Nama panggilan (untuk sapaan)</span><input class="input" id="name" maxlength="30" value="${esc(s.name)}" placeholder="Opsional"></label>
-    <div class="field"><span>Tema</span><div class="opts" data-group="theme">${[['system','Ikuti sistem'],['light','Terang'],['dark','Gelap']].map(([k,l])=>`<button type="button" class="opt ${s.theme===k?'on':''}" data-v="${k}">${l}</button>`).join('')}</div></div>
-    <button type="button" class="toggle ${s.remind?'on':''}" id="remind"><span>🔔 Pengingat To Do sesuai jam<br><small style="color:var(--muted);font-weight:400">Muncul saat aplikasi sedang terbuka</small></span><span class="sw"></span></button>
-    <div class="field"><span>Data</span></div>
-    <button class="set-row" data-act="export">${I('download')}Ekspor cadangan (JSON)</button>
-    <button class="set-row" data-act="import">${I('upload')}Impor dari cadangan</button>
-    <button class="set-row red" data-act="reset">${I('trash')}Hapus semua data</button>
-    <div class="about">KerjaKu v1.0 · Data tersimpan di perangkat ini dan berjalan tanpa internet.</div>`, {onMount: root => {
-      bindOpts(root);
+  const themes = {system:{l:'Ikuti sistem', c:'default'}, light:{l:'Terang', c:'default'}, dark:{l:'Gelap', c:'default'}};
+  openSheet(`${sbar('Pengaturan')}<div class="sbody">
+    <div class="props">
+      <div class="prop"><span class="pk">${I('user')}Nama panggilan</span><span class="pv edit"><input id="name" maxlength="30" value="${esc(s.name)}" placeholder="Kosong"></span></div>
+      ${selectRow('palette','Tema','theme',themes,s.theme)}
+      <div class="prop"><span class="pk">${I('bell')}Pengingat</span><span class="pv"><button type="button" class="cb ${s.remind?'on':''}" id="remind" aria-label="Pengingat">${I('check')}</button><span style="color:var(--text2);font-size:13px">Notifikasi saat jam To Do tiba</span></span></div>
+    </div></div>
+    <div class="menu-h">Data</div>
+    <button class="mrow" data-act="export"><span class="ico bg-gray">${I('download')}</span><span class="tx"><b>Ekspor cadangan</b><small>Simpan semua data sebagai berkas JSON</small></span></button>
+    <button class="mrow" data-act="import"><span class="ico bg-gray">${I('upload')}</span><span class="tx"><b>Impor dari cadangan</b><small>Ganti data dengan berkas JSON</small></span></button>
+    <button class="mrow red" data-act="reset"><span class="ico bg-red">${I('trash')}</span><span class="tx"><b>Hapus semua data</b><small>Tidak bisa dibatalkan</small></span></button>
+    <div class="menu-h" style="font-weight:400;padding-top:20px">KerjaKu v2.0 · Data tersimpan di perangkat ini dan berjalan tanpa internet.</div>`, {full:true, onMount: root => {
       root.querySelector('#name').addEventListener('input', e => { s.name = e.target.value; save(); render(); });
-      root.querySelector('[data-group="theme"]').addEventListener('click', () => { s.theme = groupVal(root,'theme'); save(); applyTheme(); });
+      root.querySelector('[data-group="theme"]').addEventListener('click', e => {
+        const b = e.target.closest('[data-v]'); if (!b) return;
+        root.querySelectorAll('[data-group="theme"] [data-v]').forEach(x => x.classList.toggle('on', x === b));
+        s.theme = b.dataset.v; save(); applyTheme();
+      });
       root.querySelector('#remind').addEventListener('click', async e => {
-        const on = e.currentTarget.classList.contains('on');
-        s.remind = on;
-        if (on && !isAndroid && 'Notification' in window && Notification.permission === 'default') {
+        s.remind = !s.remind; e.currentTarget.classList.toggle('on', s.remind);
+        if (s.remind && !isAndroid && 'Notification' in window && Notification.permission === 'default') {
           const p = await Notification.requestPermission();
-          if (p !== 'granted') toast('Izin notifikasi ditolak; pengingat hanya tampil di dalam aplikasi');
+          if (p !== 'granted') toast('Izin notifikasi ditolak; pengingat hanya tampil di Inbox');
         }
-        if (on && isAndroid) { try { window.AndroidBridge.requestNotifyPermission(); } catch (err) {} }
+        if (s.remind && isAndroid) { try { window.AndroidBridge.requestNotifyPermission(); } catch (err) {} }
         save(); checkReminders();
       });
     }});
 }
 function exportData() {
-  const data = JSON.stringify({app:'KerjaKu', version:1, exported:new Date().toISOString(), todos:S.todos, tasks:S.tasks, notes:S.notes}, null, 2);
+  const data = JSON.stringify({app:'KerjaKu', version:2, exported:new Date().toISOString(), todos:S.todos, tasks:S.tasks, notes:S.notes}, null, 2);
   const name = `kerjaku-cadangan-${today()}.json`;
   if (isAndroid) { try { window.AndroidBridge.saveFile(name, data); return; } catch (e) {} }
   const a = document.createElement('a');
@@ -816,16 +945,19 @@ function exportData() {
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   toast('Cadangan diunduh');
 }
-$('#import-file').addEventListener('change', async e => {
-  const file = e.target.files[0]; e.target.value = '';
-  if (!file) return;
+function importJson(text) {
   try {
-    const d = JSON.parse(await file.text());
+    const d = JSON.parse(text);
     if (!Array.isArray(d.todos) || !Array.isArray(d.tasks) || !Array.isArray(d.notes)) throw 0;
     if (!confirm(`Ganti data sekarang dengan cadangan ini?\n${d.todos.length} To Do, ${d.tasks.length} Tugas, ${d.notes.length} Notes.`)) return;
-    S.todos = d.todos; S.tasks = d.tasks.map(t => ({subs:[], ...t})); S.notes = d.notes;
+    migrate(d);
+    S.todos = d.todos; S.tasks = d.tasks; S.notes = d.notes;
     commit('Data berhasil dipulihkan'); closeAll();
   } catch (err) { toast('Berkas cadangan tidak valid'); }
+}
+$('#import-file').addEventListener('change', async e => {
+  const file = e.target.files[0]; e.target.value = '';
+  if (file) importJson(await file.text());
 });
 
 /* ---------- Simpan + render ---------- */
@@ -840,7 +972,7 @@ function toast(msg, actLabel, act) {
   t.innerHTML = `<span>${esc(msg)}</span>${actLabel?`<button>${esc(actLabel)}</button>`:''}`;
   if (act) t.querySelector('button').onclick = () => { t.classList.remove('show'); act(); };
   t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), actLabel ? 5000 : 2200);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), actLabel ? 5000 : 2000);
 }
 
 /* ---------- Event ---------- */
@@ -849,29 +981,27 @@ document.addEventListener('click', e => {
   if (tabBtn && !e.target.closest('.sheet')) { setTab(tabBtn.dataset.tab); return; }
   const el = e.target.closest('[data-act]'); if (!el) return;
   const id = el.dataset.id, act = el.dataset.act;
+  const fromMenu = () => !!el.closest('.sheet:not(.full)');
   switch (act) {
     case 'toggle-todo': {
-      e.stopPropagation();
       const x = S.todos.find(t => t.id === id); x.done = !x.done;
-      commit(x.done ? 'Mantap, satu selesai ✓' : null); break;
+      commit(x.done ? 'Selesai ✓' : null); break;
     }
     case 'pin-task': {
-      e.stopPropagation();
       const x = S.tasks.find(t => t.id === id); x.pinned = !x.pinned;
       commit(x.pinned ? 'Disematkan ke Home' : 'Pin dilepas'); break;
     }
-    case 'edit-todo': todoForm(id); break;
-    case 'edit-task': taskForm(id); break;
-    case 'edit-note': noteForm(id); break;
-    case 'new-todo': replaceNext = !!el.closest('.chooser'); todoForm(null, el.dataset.date ? {date:el.dataset.date} : {}); break;
-    case 'new-task': replaceNext = !!el.closest('.chooser'); taskForm(null); break;
-    case 'new-note': replaceNext = !!el.closest('.chooser'); noteForm(null); break;
-    case 'fab': tab === 'todo' ? todoForm(null) : tab === 'tugas' ? taskForm(null) : tab === 'notes' ? noteForm(null) : chooser(); break;
-    case 'del-todo': removeItem('todos', id); break;
-    case 'del-task': removeItem('tasks', id); break;
-    case 'del-note': removeItem('notes', id); break;
+    case 'collapse': { const k = el.dataset.k; S.settings.collapsed[k] = !S.settings.collapsed[k]; save(); render(); break; }
+    case 'edit-todo': replaceNext = fromMenu(); editor('todos', id); break;
+    case 'edit-task': replaceNext = fromMenu(); editor('tasks', id); break;
+    case 'edit-note': replaceNext = fromMenu(); editor('notes', id); break;
+    case 'new-todo': replaceNext = fromMenu(); editor('todos', null, el.dataset.date ? {date:el.dataset.date} : {}); break;
+    case 'new-task': replaceNext = fromMenu(); editor('tasks', null, el.dataset.status ? {status:el.dataset.status} : {}); break;
+    case 'new-note': replaceNext = fromMenu(); editor('notes', null); break;
+    case 'fab': tab === 'todo' ? editor('todos', null) : tab === 'tugas' ? editor('tasks', null) : tab === 'notes' ? editor('notes', null) : chooser(); break;
+    case 'del': removeItem(el.dataset.kind, id); break;
     case 'todo-filter': view.todoFilter = el.dataset.v; render(); break;
-    case 'task-filter': view.taskFilter = el.dataset.v; render(); break;
+    case 'task-view': S.settings.taskView = el.dataset.v; save(); render(); break;
     case 'show-done': view.todoFilter = 'selesai'; setTab('todo'); break;
     case 'close': closeTop(); break;
     case 'search': searchSheet(); break;
@@ -889,7 +1019,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && stack.length) closeTop();
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.item[role=button],.task[role=button]') ) { e.preventDefault(); e.target.click(); }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[role=button]')) { e.preventDefault(); e.target.click(); }
 });
 
 /* Dipanggil tombol Back Android: true = sudah ditangani */
@@ -899,41 +1029,25 @@ window.KerjaKu = {
     if (tab !== 'home') { setTab('home'); return true; }
     return false;
   },
-  importJson(text) {
-    try {
-      const d = JSON.parse(text);
-      if (!Array.isArray(d.todos) || !Array.isArray(d.tasks) || !Array.isArray(d.notes)) throw 0;
-      S.todos = d.todos; S.tasks = d.tasks.map(t => ({subs:[], ...t})); S.notes = d.notes;
-      commit('Data berhasil dipulihkan'); closeAll();
-    } catch (e) { toast('Berkas cadangan tidak valid'); }
-  },
-  toast,
+  importJson, toast,
 };
 
-/* ---------- Status online/offline ---------- */
-function updateStatus() {
-  const s = $('#status');
-  const on = navigator.onLine;
-  s.textContent = on ? 'Offline Ready' : 'Mode Offline';
-  s.classList.toggle('off', !on);
-}
-window.addEventListener('online', updateStatus);
-window.addEventListener('offline', updateStatus);
+window.addEventListener('online', () => { if (!stack.length) render(); });
+window.addEventListener('offline', () => { if (!stack.length) render(); });
 
 /* ---------- Isi ikon & mulai ---------- */
-document.querySelector('.logo').innerHTML = I('leaf');
-document.querySelector('[data-act="search"]').insertAdjacentHTML('afterbegin', I('search'));
-document.querySelector('[data-act="calendar"]').insertAdjacentHTML('afterbegin', I('calendar'));
-document.querySelector('[data-act="notif"]').insertAdjacentHTML('afterbegin', I('bell'));
-document.querySelector('[data-act="settings"]').insertAdjacentHTML('afterbegin', I('gear'));
-document.querySelector('.fab').innerHTML = I('plus');
+$('#mark').innerHTML = I('leaf');
+$('[data-act="search"]').insertAdjacentHTML('afterbegin', I('search'));
+$('[data-act="calendar"]').insertAdjacentHTML('afterbegin', I('calendar'));
+$('[data-act="notif"]').insertAdjacentHTML('afterbegin', I('inbox'));
+$('[data-act="settings"]').insertAdjacentHTML('afterbegin', I('gear'));
+$('.compose').innerHTML = I('compose');
 document.querySelectorAll('[data-ic]').forEach(s => s.outerHTML = I(s.dataset.ic));
 
-updateStatus();
 render();
 checkReminders();
 setInterval(() => { checkReminders(); if (!stack.length) render(); }, 60000);
-document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); checkReminders(); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { if (!stack.length) render(); checkReminders(); } });
 window.addEventListener('storage', e => { if (e.key === KEY) { S = load(); render(); } });
 
 if ('serviceWorker' in navigator && !isAndroid && location.protocol.startsWith('http')) {

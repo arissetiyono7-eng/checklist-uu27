@@ -1,5 +1,5 @@
 // Service worker KerjaKu: simpan aplikasi di cache agar bisa dibuka tanpa internet.
-const CACHE = 'kerjaku-v1';
+const CACHE = 'kerjaku-v2';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

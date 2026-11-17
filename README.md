@@ -7,7 +7,24 @@
 
 ## KerjaKu
 
-Aplikasi produktivitas offline: **To Do** (dengan jam, kategori, prioritas), **Tugas** (deadline, langkah-langkah + progres, pin ke Home), dan **Notes** (warna, sematkan). Dilengkapi pencarian, kalender bulanan, notifikasi deadline, pengingat sesuai jam, tema gelap, serta ekspor/impor cadangan JSON. Semua data tersimpan di perangkat, tanpa akun dan tanpa server.
+Aplikasi produktivitas offline bergaya Notion: **To Do** (dengan jam, kategori, prioritas), **Tugas** (deadline, langkah-langkah + progres, pin ke Home), dan **Notes** (warna, sematkan). Dilengkapi pencarian, kalender bulanan, notifikasi deadline, pengingat sesuai jam, tema gelap, serta ekspor/impor cadangan JSON. Semua data tersimpan di perangkat, tanpa akun dan tanpa server.
+
+### Desain (v2): konsep Notion + color theory
+
+**Pola Notion yang dipakai**
+- Setiap menu adalah *halaman*: cover, ikon emoji besar, judul, lalu baris **properti** (Tanggal, Progres, Status).
+- *Callout* 💡, heading yang bisa dilipat (toggle), dan **blok to-do** dengan checkbox persegi.
+- **Database view**: To Do (tab Hari ini / Semua / Selesai, dikelompokkan per tanggal), Tugas (**Board** per status atau **List**), Notes (**Gallery**).
+- Membuka item = *page peek*: judul besar, properti berupa **tag** berwarna, ikon emoji bisa diganti, dan **tersimpan otomatis** (tanpa tombol Simpan).
+- Breadcrumb `KerjaKu / Halaman`, ikon garis tipis monokrom, sudut kecil (3–6 px), garis tipis dan bukan bayangan tebal.
+
+**Color theory**
+- **60-30-10**: 60% netral hangat (`#ffffff` dan teks `#37352f`, hue ±45° yang terasa hangat, bukan abu-abu dingin), 30% permukaan abu-abu lembut (blok, tag, hover), 10% aksen biru `#2383e2` hanya untuk interaksi (checkbox, tombol Selesai, tanggal terpilih).
+- **Skema split-complementary** untuk tiga jenis konten: To Do = **biru** (aksi, satu keluarga dengan aksen), Tugas = **ungu** (analog dengan biru, masih "kerja"), Notes = **oranye** (komplementer, hangat untuk "ide").
+- **Warna semantik konsisten** di semua layar: merah = prioritas Tinggi atau terlambat, kuning = Sedang, abu-abu = Rendah (sengaja diredam agar tidak bersaing), hijau = selesai.
+- **Palet 9 warna Notion** (gray, brown, orange, yellow, green, blue, purple, pink, red), masing-masing punya varian teks, latar blok, dan tag untuk mode terang & gelap. Semua token ada di objek `PALETTE` di bagian atas `kerjaku/index.html`.
+- **Cover Home** memakai gradasi warna *analog* yang berubah mengikuti waktu: pagi kuning→oranye, siang biru→toska, sore oranye→merah muda, malam indigo→ungu.
+- Teks sekunder `#73726e` di atas putih memiliki kontras ±4,8:1 (lolos WCAG AA).
 
 ### Versi HTML (web / PWA)
 

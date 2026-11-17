@@ -9,11 +9,15 @@ import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.view.View;
+import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -104,6 +108,8 @@ public class MainActivity extends Activity {
         });
 
         createChannel();
+        boolean night = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        applyBars(night);
 
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
         else web.loadUrl(APP_URL);
@@ -149,6 +155,25 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** Samakan warna status bar & navigation bar dengan tema aplikasi (terang/gelap). */
+    @SuppressWarnings("deprecation")
+    private void applyBars(boolean dark) {
+        Window w = getWindow();
+        int bg = dark ? Color.parseColor("#191919") : Color.WHITE;
+        w.setStatusBarColor(bg);
+        web.setBackgroundColor(bg);
+        View decor = w.getDecorView();
+        int flags = decor.getSystemUiVisibility();
+        flags = dark ? flags & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR : flags | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        if (Build.VERSION.SDK_INT >= 27) {
+            w.setNavigationBarColor(bg);
+            flags = dark ? flags & ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR : flags | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        } else {
+            w.setNavigationBarColor(Color.BLACK); // ikon navigasi selalu putih di Android < 8.1
+        }
+        decor.setSystemUiVisibility(flags);
+    }
+
     private void toastJs(String msg) {
         runOnUiThread(() -> web.evaluateJavascript("window.KerjaKu && KerjaKu.toast(" + JSONObject.quote(msg) + ")", null));
     }
@@ -173,6 +198,11 @@ public class MainActivity extends Activity {
                     .setAutoCancel(true)
                     .setContentIntent(pi);
             getSystemService(NotificationManager.class).notify(notifId++, b.build());
+        }
+
+        @JavascriptInterface
+        public void setTheme(boolean dark) {
+            runOnUiThread(() -> applyBars(dark));
         }
 
         @JavascriptInterface
