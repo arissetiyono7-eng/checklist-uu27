@@ -1,0 +1,46 @@
+name: Build APK KerjaKu
+
+on:
+  push:
+    paths:
+      - 'kerjaku/**'
+      - 'android/**'
+      - '.github/workflows/kerjaku-android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk ../KerjaKu.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: KerjaKu-apk
+          path: KerjaKu.apk
+
+      - name: Terbitkan di halaman Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: kerjaku-latest
+          name: KerjaKu (APK terbaru)
+          body: |
+            APK Android KerjaKu, dibangun otomatis dari commit ${{ github.sha }}.
+            Unduh `KerjaKu.apk` di bawah, buka di HP, lalu izinkan "Instal dari sumber tidak dikenal".
+          files: KerjaKu.apk
+          make_latest: true
