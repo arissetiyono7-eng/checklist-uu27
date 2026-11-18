@@ -60,6 +60,7 @@ Butuh JDK 17+ dan Android SDK (atau cukup buka folder `android/` di Android Stud
 
 - `kerjaku/index.html` — seluruh aplikasi (HTML + CSS + JS, satu file).
 - `kerjaku/sw.js`, `manifest.webmanifest`, ikon — dukungan offline & instal PWA.
+- `kerjaku/fonts/` — font Inter (SIL Open Font License) yang disertakan agar tampilan sama di semua HP dan tetap offline.
 - `android/` — proyek Android (Java, WebView + jembatan notifikasi/berkas).
 - `.github/workflows/kerjaku-android.yml` — build APK otomatis.
 

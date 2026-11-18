@@ -9,6 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <script>
 /* =====================================================================
    SISTEM WARNA (color theory)
@@ -66,9 +67,11 @@ const PALETTE = {
 })();
 </script>
 <style>
+/* Inter (variable, SIL OFL) disertakan di aplikasi: tampilan sama di semua HP & tetap offline */
+@font-face{font-family:"Inter";src:url("fonts/inter.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%}
-body{background:var(--bg);color:var(--text);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI",Roboto,Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:"Inter",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI",Roboto,Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:15px;line-height:1.5;letter-spacing:-.006em;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0;padding:0;text-align:inherit}
 svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
@@ -90,20 +93,20 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 
 /* ---------- Tata letak halaman ---------- */
 main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
-.cover{height:120px;position:relative;overflow:hidden}
+.cover{height:112px;position:relative;overflow:hidden}
 .cover i{position:absolute;inset:0;filter:var(--cover-filter)}
 .page{padding:0 20px}
-.page-icon{font-size:56px;line-height:1;margin:-34px 0 6px;position:relative;z-index:1;width:max-content}
-.page-icon.solo{margin-top:22px;font-size:44px}
-h1.title{font-size:32px;font-weight:700;letter-spacing:-.4px;line-height:1.2;margin:0 0 6px}
-.desc{color:var(--text2);font-size:14.5px;margin:0 0 10px}
+.page-icon{font-size:52px;line-height:1;margin:-30px 0 10px;position:relative;z-index:1;width:max-content}
+.page-icon.solo{margin-top:22px;font-size:42px}
+h1.title{font-size:30px;font-weight:700;letter-spacing:-.025em;line-height:1.15;margin:0 0 10px}
+.desc{color:var(--text2);font-size:14px;line-height:1.5;margin:-4px 0 12px}
 
 /* Properti halaman */
-.props{margin:6px 0 14px}
-.prop{display:flex;align-items:center;min-height:34px;gap:6px}
-.pk{display:flex;align-items:center;gap:7px;width:124px;flex:none;color:var(--text2);font-size:14px;padding:4px 6px 4px 0}
-.pk svg.i{width:16px;height:16px}
-.pv{flex:1;min-width:0;font-size:14px;padding:4px 6px;border-radius:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.props{margin:2px 0 16px}
+.prop{display:flex;align-items:center;min-height:34px;gap:4px}
+.pk{display:flex;align-items:center;gap:8px;width:116px;flex:none;color:var(--text2);font-size:13.5px;padding:4px 6px 4px 0;white-space:nowrap}
+.pk svg.i{width:16px;height:16px;stroke-width:1.6}
+.pv{flex:1;min-width:0;font-size:14px;font-variant-numeric:tabular-nums;padding:4px 6px;border-radius:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .pv input{border:0;background:none;outline:none;padding:0;width:100%;font-size:14px;min-height:24px}
 .pv input[type=date],.pv input[type=time]{width:auto;color:var(--text)}
 .pv input::placeholder{color:var(--text3)}
@@ -113,49 +116,49 @@ h1.title{font-size:32px;font-weight:700;letter-spacing:-.4px;line-height:1.2;mar
 .bar{flex:1;max-width:160px;height:6px;border-radius:3px;background:var(--hover);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--tx-green);border-radius:3px}
 
-.callout{display:flex;gap:10px;padding:14px 16px;border-radius:6px;margin:4px 0 18px;font-size:14.5px}
-.callout .emo{font-size:19px;line-height:1.3;width:auto}
+.callout{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:6px;margin:0 0 16px;font-size:14px;line-height:1.5}
+.callout .emo{font-size:18px;line-height:1.25;width:auto}
 
 .stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:6px;margin-bottom:14px;overflow:hidden}
-.stat{padding:12px 10px;display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--line)}
+.stat{padding:10px 10px 11px;display:flex;flex-direction:column;gap:3px;border-left:1px solid var(--line);min-width:0}
 .stat:first-child{border-left:0}
 .stat:active,.stat:hover{background:var(--hover)}
-.stat b{font-size:24px;font-weight:700;line-height:1.2}
-.stat span{font-size:12.5px;color:var(--text2);display:flex;align-items:center;gap:5px}
+.stat b{font-size:22px;font-weight:650;line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat span{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stat span::before{content:"";width:8px;height:8px;border-radius:2px}
 .stat.k-todo span::before{background:var(--tx-blue)} .stat.k-task span::before{background:var(--tx-purple)}
 .stat.k-note span::before{background:var(--tx-orange)} .stat.k-done span::before{background:var(--tx-green)}
 
 .newrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.newbtn{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:6px;font-size:14px;font-weight:500;color:var(--text2);border:1px solid var(--line)}
+.newbtn{display:flex;align-items:center;gap:6px;padding:6px 11px 6px 9px;border-radius:6px;font-size:13.5px;font-weight:500;color:var(--text2);border:1px solid var(--line)}
 .newbtn:hover,.newbtn:active{background:var(--hover)}
 .newbtn svg.i{width:16px;height:16px;stroke-width:2}
 .newbtn.k-todo svg.i{color:var(--tx-blue)} .newbtn.k-task svg.i{color:var(--tx-purple)} .newbtn.k-note svg.i{color:var(--tx-orange)}
 
-.h2{display:flex;align-items:center;gap:6px;margin:22px 0 6px -4px;font-size:20px;font-weight:650;letter-spacing:-.2px;width:calc(100% + 4px)}
+.h2{display:flex;align-items:center;gap:6px;margin:24px 0 6px -4px;font-size:18px;font-weight:650;letter-spacing:-.015em;width:calc(100% + 4px)}
 .h2 .caret{width:22px;height:22px;border-radius:4px;display:grid;place-items:center;color:var(--text2);transition:transform .15s}
 .h2 .caret svg.i{width:14px;height:14px;fill:currentColor;stroke:none}
 .h2.closed .caret{transform:rotate(-90deg)}
-.h2 .cnt{color:var(--text3);font-size:14px;font-weight:500;margin-left:2px}
-.h2 .more{margin-left:auto;color:var(--text2);font-size:13.5px;font-weight:500;padding:3px 6px;border-radius:4px}
+.h2 .cnt{color:var(--text3);font-size:13.5px;font-weight:500;margin-left:2px}
+.h2 .more{margin-left:auto;color:var(--text2);font-size:13px;font-weight:500;padding:3px 6px;border-radius:4px}
 .h2 .more:hover{background:var(--hover)}
 .sec.closed{display:none}
 
-.tag{display:inline-flex;align-items:center;height:21px;padding:0 7px;border-radius:3px;font-size:12.5px;font-weight:500;white-space:nowrap;line-height:1;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.tag{display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:3px;font-size:12px;font-weight:500;letter-spacing:0;white-space:nowrap;line-height:1;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .tag.dot::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:5px;opacity:.7;flex:none}
 
 /* Blok to-do */
-.blk{display:flex;align-items:flex-start;gap:10px;padding:7px 6px;border-radius:5px;width:100%;cursor:pointer}
+.blk{display:flex;align-items:flex-start;gap:11px;padding:8px 6px;border-radius:5px;width:100%;cursor:pointer}
 .blk:hover,.blk:active{background:var(--hover)}
-.cb{width:18px;height:18px;border:1.5px solid var(--text2);border-radius:3px;flex:none;display:grid;place-items:center;margin-top:3px;color:#fff;background:var(--bg)}
+.cb{width:18px;height:18px;border:1.5px solid var(--text2);border-radius:3px;flex:none;display:grid;place-items:center;margin-top:2px;color:#fff;background:var(--bg)}
 .cb svg.i{width:13px;height:13px;stroke-width:3;opacity:0}
 .done>.cb,.cb.on{background:var(--accent);border-color:var(--accent)}
 .done>.cb svg.i,.cb.on svg.i{opacity:1}
 .blk-main{flex:1;min-width:0}
-.blk-title{font-size:15.5px;word-break:break-word}
+.blk-title{font-size:15px;line-height:1.4;word-break:break-word}
 .done .blk-title{text-decoration:line-through;text-decoration-color:var(--text3);color:var(--text3)}
-.pline{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px;font-size:12.5px;color:var(--text2)}
-.pi{display:inline-flex;align-items:center;gap:4px}
+.pline{display:flex;align-items:center;gap:5px 8px;flex-wrap:wrap;margin-top:4px;font-size:12.5px;color:var(--text2)}
+.pi{display:inline-flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
 .pi svg.i{width:13px;height:13px}
 .late{color:var(--tx-red);font-weight:500}
 .blk>.tag{margin-top:2px}
@@ -221,7 +224,7 @@ h1.title{font-size:32px;font-weight:700;letter-spacing:-.4px;line-height:1.2;mar
 .stats.three{grid-template-columns:repeat(3,1fr);margin-bottom:10px}
 .stats.three span::before{display:none}
 .stats.three .tag{align-self:flex-start;margin:4px 0 3px}
-.delta{font-size:11.5px;color:var(--text3);line-height:1.35;margin-top:2px}
+.stat .delta{font-size:11.5px;color:var(--text3);line-height:1.35;margin-top:1px;white-space:normal}
 .chart{margin:0 0 6px;padding:12px 10px 8px;border:1px solid var(--line);border-radius:6px}
 .chart-h{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--text2);padding:0 2px 10px}
 .bars{display:grid;grid-template-columns:repeat(7,1fr);height:100px;align-items:end;border-bottom:1px solid var(--line2)}
@@ -244,12 +247,12 @@ h1.title{font-size:32px;font-weight:700;letter-spacing:-.4px;line-height:1.2;mar
 /* ---------- Nav bawah & tombol tulis ---------- */
 .nav{position:fixed;z-index:24;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 .nav .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
-.nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 10px;color:var(--text3);font-size:11.5px;font-weight:500}
-.nav button svg.i{width:23px;height:23px}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 9px;color:var(--text3);font-size:11px;font-weight:500}
+.nav button svg.i{width:22px;height:22px}
 .nav button.on{color:var(--text)}
 .nav button.on svg.i{stroke-width:2.2}
-.compose{position:fixed;z-index:25;right:max(16px,calc(50% - 340px + 16px));bottom:calc(80px + env(safe-area-inset-bottom));width:54px;height:54px;border-radius:50%;background:var(--bg);color:var(--text);display:grid;place-items:center;box-shadow:var(--shadow)}
-.compose svg.i{width:23px;height:23px}
+.compose{position:fixed;z-index:25;right:max(16px,calc(50% - 340px + 16px));bottom:calc(76px + env(safe-area-inset-bottom));width:50px;height:50px;border-radius:50%;background:var(--bg);color:var(--text);display:grid;place-items:center;box-shadow:var(--shadow)}
+.compose svg.i{width:21px;height:21px}
 .compose:active{transform:scale(.95)}
 
 /* ---------- Sheet / page peek ---------- */
@@ -274,7 +277,7 @@ h1.title{font-size:32px;font-weight:700;letter-spacing:-.4px;line-height:1.2;mar
 .emoji-row[hidden]{display:none}
 .emoji-row button{font-size:22px;width:38px;height:38px;border-radius:5px;text-align:center}
 .emoji-row button:hover{background:var(--hover)}
-.title-in{width:100%;border:0;outline:none;background:none;font-size:30px;font-weight:700;letter-spacing:-.3px;line-height:1.2;resize:none;padding:8px 0 4px;overflow:hidden;display:block}
+.title-in{width:100%;border:0;outline:none;background:none;font-size:28px;font-weight:700;letter-spacing:-.025em;line-height:1.2;resize:none;padding:8px 0 4px;overflow:hidden;display:block}
 .title-in::placeholder{color:var(--text3)}
 .opts{display:flex;gap:4px;flex-wrap:wrap}
 .opt{opacity:.5}
@@ -283,7 +286,7 @@ h1.title{font-size:32px;font-weight:700;letter-spacing:-.4px;line-height:1.2;mar
 .swatch{width:24px;height:24px;border-radius:5px;border:1px solid var(--line2)}
 .swatch.on{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--accent)}
 .divider{height:1px;background:var(--line);margin:10px 0 12px}
-.body-in{width:100%;border:0;outline:none;background:none;font-size:15.5px;line-height:1.6;resize:none;min-height:200px;padding:0;display:block}
+.body-in{width:100%;border:0;outline:none;background:none;font-size:15px;line-height:1.65;resize:none;min-height:200px;padding:0;display:block}
 .body-in::placeholder{color:var(--text3)}
 .label{color:var(--text2);font-size:13px;font-weight:600;margin:14px 0 4px}
 .sub{display:flex;align-items:flex-start;gap:10px;padding:4px 6px;border-radius:4px}
@@ -330,7 +333,11 @@ h1.title{font-size:32px;font-weight:700;letter-spacing:-.4px;line-height:1.2;mar
 .toast.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
 .toast button{color:#62aef0;font-weight:600}
 
-@media (max-width:360px){ .pk{width:112px} h1.title{font-size:28px} .stat b{font-size:21px} }
+@media (max-width:380px){
+  .page{padding:0 16px} .sbody{padding:0 16px} .board{padding:2px 16px 12px;margin:0 -16px}
+  h1.title{font-size:27px} .page-icon{font-size:46px} .pk{width:104px} .stat{padding:9px 8px 10px} .stat b{font-size:20px}
+  .title-in{font-size:25px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -542,11 +549,11 @@ function todoBlock(x, showDate) {
   if (x.time) bits.push(`<span class="pi">${I('clock')}${esc(x.time)}</span>`);
   if (x.repeat && x.repeat !== 'none') bits.push(`<span class="pi">${I('repeat')}${REPEAT[x.repeat].s}</span>`);
   if (x.cat) bits.push(tag(x.cat, catColor(x.cat)));
+  if (!x.done) bits.push(prioTag(x.prio));
   if (late) bits.push('<span class="late">Terlambat</span>');
   return `<div class="blk ${x.done?'done':''}" data-act="edit-todo" data-id="${x.id}" role="button" tabindex="0">
     <button class="cb" data-act="toggle-todo" data-id="${x.id}" aria-label="${x.done?'Tandai belum selesai':'Tandai selesai'}">${I('check')}</button>
-    <div class="blk-main"><div class="blk-title">${esc(x.title || 'Tanpa judul')}</div>${bits.length?`<div class="pline">${bits.join('')}</div>`:''}</div>
-    ${x.done ? '' : prioTag(x.prio)}</div>`;
+    <div class="blk-main"><div class="blk-title">${esc(x.title || 'Tanpa judul')}</div>${bits.length?`<div class="pline">${bits.join('')}</div>`:''}</div></div>`;
 }
 function dueText(x) {
   if (!x.date) return '';
@@ -616,7 +623,7 @@ function renderWeek() {
   const dn = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
   const tipOf = d => `<b>${esc(fmtDay(d.d))}</b><br><small>${d.d > t ? 'Belum terjadi' : d.total ? `${d.total} selesai · ${d.todo} To Do, ${d.task} Tugas` : 'Belum ada yang selesai'}</small>`;
   return `<div class="stats three">
-      <div class="stat"><b>${w.total}</b><span>Selesai</span><span class="delta">${diff === 0 ? '= minggu lalu' : `${diff > 0 ? '▲' : '▼'} ${Math.abs(diff)} vs minggu lalu`}</span></div>
+      <div class="stat"><b>${w.total}</b><span>Selesai</span><span class="delta">${diff === 0 ? '= minggu lalu' : `${diff > 0 ? '▲' : '▼'} ${Math.abs(diff)} dari minggu lalu`}</span></div>
       <div class="stat"><b>${w.streak}</b><span>Hari beruntun</span><span class="delta">${w.streak ? '🔥 pertahankan' : 'mulai hari ini'}</span></div>
       <div class="stat">${w.top ? tag(w.top[0], catColor(w.top[0])) : '<b>—</b>'}<span>Teratas</span>${w.top ? `<span class="delta">${w.top[1]} To Do</span>` : ''}</div>
     </div>
@@ -678,7 +685,7 @@ function renderHome() {
     <h1 class="title">${tod.g}${name?`, ${esc(name)}`:''}</h1>
     <div class="props">
       <div class="prop"><span class="pk">${I('calendar')}Tanggal</span><span class="pv">${esc(fmtLong(new Date()))}</span></div>
-      <div class="prop"><span class="pk">${I('progress')}Progres hari ini</span><span class="pv"><span class="bar"><i style="width:${pct}%"></i></span>${todaysDone}/${todays.length} selesai</span></div>
+      <div class="prop"><span class="pk">${I('progress')}Progres</span><span class="pv"><span class="bar"><i style="width:${pct}%"></i></span>${todaysDone}/${todays.length} hari ini</span></div>
       <div class="prop"><span class="pk">${I('wifi')}Status</span><span class="pv"><span class="live ${on?'':'off'}"></span>${on?'Offline Ready':'Mode Offline'}</span></div>
     </div>
     <div class="callout bg-gray"><span class="emo">💡</span><div>Siap menyelesaikan target pekerjaanmu hari ini?</div></div>
@@ -829,7 +836,7 @@ function editor(kind, id, preset={}) {
       <div class="prop"><span class="pk">${I('checksq')}Selesai</span><span class="pv"><button type="button" class="cb ${x.done?'on':''}" data-f="done" aria-label="Selesai">${I('check')}</button></span></div>
       <div class="prop"><span class="pk">${I('calendar')}Tanggal</span><span class="pv edit"><input type="date" data-f="date" value="${esc(x.date)}"></span></div>
       <div class="prop"><span class="pk">${I('clock')}Jam</span><span class="pv edit"><input type="time" data-f="time" value="${esc(x.time)}"></span></div>
-      <div class="prop"><span class="pk">${I('tag')}Kategori</span><span class="pv edit"><span id="cat-tag"></span><input data-f="cat" list="cats" value="${esc(x.cat)}" maxlength="30" placeholder="Kosong" style="width:auto;flex:1;min-width:60px"><datalist id="cats">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></span></div>
+      <div class="prop"><span class="pk">${I('tag')}Kategori</span><span class="pv edit"><input data-f="cat" list="cats" value="${esc(x.cat)}" maxlength="30" placeholder="Kosong" style="width:auto;flex:1;min-width:60px"><datalist id="cats">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></span></div>
       ${selectRow('flag','Prioritas','prio',PRIO,x.prio)}
       ${selectRow('repeat','Ulangi','repeat',REPEAT,x.repeat || 'none')}`;
   } else if (kind === 'tasks') {
@@ -842,7 +849,7 @@ function editor(kind, id, preset={}) {
   } else {
     const folders = [...new Set(S.notes.map(n => n.folder).filter(Boolean))];
     props = `
-      <div class="prop"><span class="pk">${I('folder')}Folder</span><span class="pv edit"><span id="folder-tag"></span><input data-f="folder" list="folders" value="${esc(x.folder)}" maxlength="30" placeholder="Kosong" style="width:auto;flex:1;min-width:60px"><datalist id="folders">${folders.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></span></div>
+      <div class="prop"><span class="pk">${I('folder')}Folder</span><span class="pv edit"><input data-f="folder" list="folders" value="${esc(x.folder)}" maxlength="30" placeholder="Kosong" style="width:auto;flex:1;min-width:60px"><datalist id="folders">${folders.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></span></div>
       <div class="prop"><span class="pk">${I('palette')}Warna</span><span class="pv"><span class="opts" data-group="color">${NOTE_COLORS.map(c=>`<button type="button" class="swatch bg-${c} ${x.color===c?'on':''}" data-v="${c}" aria-label="${c}"></button>`).join('')}</span></span></div>
       <div class="prop"><span class="pk">${I('pin')}Sematkan</span><span class="pv"><button type="button" class="cb ${x.pinned?'on':''}" data-f="pinned" aria-label="Sematkan">${I('check')}</button></span></div>`;
   }
@@ -1086,7 +1093,7 @@ function settingsSheet() {
     <button class="mrow" data-act="export"><span class="ico bg-gray">${I('download')}</span><span class="tx"><b>Ekspor cadangan</b><small>Simpan semua data sebagai berkas JSON</small></span></button>
     <button class="mrow" data-act="import"><span class="ico bg-gray">${I('upload')}</span><span class="tx"><b>Impor dari cadangan</b><small>Ganti data dengan berkas JSON</small></span></button>
     <button class="mrow red" data-act="reset"><span class="ico bg-red">${I('trash')}</span><span class="tx"><b>Hapus semua data</b><small>Tidak bisa dibatalkan</small></span></button>
-    <div class="menu-h" style="font-weight:400;padding-top:20px">KerjaKu v2.1 · Data tersimpan di perangkat ini dan berjalan tanpa internet.</div>`, {full:true, onMount: root => {
+    <div class="menu-h" style="font-weight:400;padding-top:20px">KerjaKu v2.2 · Data tersimpan di perangkat ini dan berjalan tanpa internet.</div>`, {full:true, onMount: root => {
       root.querySelector('#name').addEventListener('input', e => { s.name = e.target.value; save(); render(); });
       root.querySelector('[data-group="theme"]').addEventListener('click', e => {
         const b = e.target.closest('[data-v]'); if (!b) return;
