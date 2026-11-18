@@ -88,7 +88,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 .ib .badge-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--today);display:none}
 .ib .badge-dot.on{display:block}
 
-/* ---------- Halaman ---------- */
+/* ---------- Tata letak halaman ---------- */
 main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
 .cover{height:120px;position:relative;overflow:hidden}
 .cover i{position:absolute;inset:0;filter:var(--cover-filter)}
@@ -217,6 +217,25 @@ h1.title{font-size:32px;font-weight:700;letter-spacing:-.4px;line-height:1.2;mar
   :root:not([data-theme="light"]) .bcard,:root:not([data-theme="light"]) .compose{background:var(--bg2)}
 }
 
+/* Statistik mingguan */
+.stats.three{grid-template-columns:repeat(3,1fr);margin-bottom:10px}
+.stats.three span::before{display:none}
+.stats.three .tag{align-self:flex-start;margin:4px 0 3px}
+.delta{font-size:11.5px;color:var(--text3);line-height:1.35;margin-top:2px}
+.chart{margin:0 0 6px;padding:12px 10px 8px;border:1px solid var(--line);border-radius:6px}
+.chart-h{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--text2);padding:0 2px 10px}
+.bars{display:grid;grid-template-columns:repeat(7,1fr);height:100px;align-items:end;border-bottom:1px solid var(--line2)}
+.bc{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:0 2px;cursor:pointer}
+.bc i{display:block;width:62%;max-width:28px;background:var(--tx-green);border-radius:4px 4px 0 0}
+.bc .v{font-size:12px;color:var(--text2);margin-bottom:3px;font-variant-numeric:tabular-nums;min-height:16px}
+@media (hover:hover){.bars:hover .bc:not(:hover) i{opacity:.5}}
+.bars.touched .bc:not(.act) i{opacity:.5}
+.xl{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;color:var(--text3);padding-top:5px}
+.xl .now{color:var(--text);font-weight:600}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#tip{position:fixed;z-index:60;background:var(--bg);color:var(--text);box-shadow:var(--shadow);border-radius:6px;padding:7px 10px;font-size:12.5px;line-height:1.45;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap}
+#tip.on{opacity:1}
+#tip small{color:var(--text2);font-size:12px}
 .empty{color:var(--text3);font-size:14px;padding:8px 6px}
 .empty-big{text-align:center;color:var(--text2);padding:40px 16px;font-size:14px}
 .empty-big .e{font-size:40px;display:block;margin-bottom:8px}
@@ -332,6 +351,7 @@ h1.title{font-size:32px;font-weight:700;letter-spacing:-.4px;line-height:1.2;mar
   <button data-tab="notes"><span data-ic="notes"></span>Notes</button>
 </div></nav>
 <div class="toast" id="toast" role="status"></div>
+<div id="tip" role="tooltip"></div>
 <input type="file" id="import-file" accept="application/json,.json" hidden>
 
 <script>
@@ -369,6 +389,8 @@ const P = {
   user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
   progress:'<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',
+  repeat:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
 };
 const I = n => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
 
@@ -392,6 +414,7 @@ const isAndroid = typeof window.AndroidBridge !== 'undefined';
 const PRIO = {tinggi:{l:'Tinggi', c:'red'}, sedang:{l:'Sedang', c:'yellow'}, rendah:{l:'Rendah', c:'gray'}};
 const PRIO_RANK = {tinggi:0, sedang:1, rendah:2};
 const STATUS = {belum:{l:'Belum mulai', c:'gray'}, proses:{l:'Dikerjakan', c:'blue'}, selesai:{l:'Selesai', c:'green'}};
+const REPEAT = {none:{l:'Tidak', s:'', c:'default'}, daily:{l:'Harian', s:'Harian', c:'default'}, weekdays:{l:'Hari kerja', s:'Hari kerja', c:'default'}, weekly:{l:'Mingguan', s:'Mingguan', c:'default'}, monthly:{l:'Bulanan', s:'Bulanan', c:'default'}};
 const NOTE_COLORS = ['default','gray','brown','orange','yellow','green','blue','purple','pink','red'];
 const CAT_COLORS = ['blue','purple','orange','green','pink','brown','yellow','red','gray'];
 const CATS = ['Kerja','Pribadi','Belanja','Kuliah','Lainnya'];
@@ -406,11 +429,11 @@ function seed() {
   const t = today(), now = new Date().toISOString();
   return {
     todos: [
-      {id:uid(), title:'Buat laporan kasir', date:t, time:'16:00', cat:'Kerja', prio:'tinggi', done:false, created:now},
-      {id:uid(), title:'Cek laporan keuangan', date:t, time:'19:30', cat:'Kerja', prio:'sedang', done:false, created:now},
-      {id:uid(), title:'Kirim dokumen', date:t, time:'14:00', cat:'Kerja', prio:'tinggi', done:false, created:now},
-      {id:uid(), title:'Belanja kebutuhan kantor', date:addDays(t,1), time:'10:00', cat:'Belanja', prio:'rendah', done:false, created:now},
-      {id:uid(), title:'Rapat mingguan tim', date:t, time:'09:00', cat:'Kerja', prio:'sedang', done:true, created:now},
+      {id:uid(), title:'Buat laporan kasir', date:t, time:'16:00', cat:'Kerja', prio:'tinggi', done:false, repeat:'none', created:now},
+      {id:uid(), title:'Cek laporan keuangan', date:t, time:'19:30', cat:'Kerja', prio:'sedang', done:false, repeat:'daily', created:now},
+      {id:uid(), title:'Kirim dokumen', date:t, time:'14:00', cat:'Kerja', prio:'tinggi', done:false, repeat:'none', created:now},
+      {id:uid(), title:'Belanja kebutuhan kantor', date:addDays(t,1), time:'10:00', cat:'Belanja', prio:'rendah', done:false, repeat:'none', created:now},
+      {id:uid(), title:'Rapat mingguan tim', date:t, time:'09:00', cat:'Kerja', prio:'sedang', done:true, doneAt:now, repeat:'weekly', created:now},
     ],
     tasks: [
       {id:uid(), icon:'📊', title:'Rekap penjualan bulanan', desc:'Gabungkan data kasir semua cabang lalu kirim ke manajer.', date:addDays(t,3), time:'17:00', prio:'tinggi', pinned:true, status:'proses', done:false,
@@ -419,8 +442,8 @@ function seed() {
         subs:[{id:uid(),t:'Draft slide',done:false},{id:uid(),t:'Simulasi harga',done:false}], created:now},
     ],
     notes: [
-      {id:uid(), icon:'💡', title:'Ide promo akhir tahun', body:'• Diskon 20% member\n• Bundling produk terlaris\n• Voucher belanja berikutnya', color:'yellow', pinned:true, updated:now},
-      {id:uid(), icon:'📝', title:'Catatan rapat', body:'Target bulan depan naik 10%.\nFollow up vendor kemasan hari Kamis.', color:'blue', pinned:false, updated:now},
+      {id:uid(), icon:'💡', title:'Ide promo akhir tahun', body:'• Diskon 20% member\n• Bundling produk terlaris\n• Voucher belanja berikutnya', color:'yellow', pinned:true, folder:'Ide', updated:now},
+      {id:uid(), icon:'📝', title:'Catatan rapat', body:'Target bulan depan naik 10%.\nFollow up vendor kemasan hari Kamis.', color:'blue', pinned:false, folder:'Rapat', updated:now},
     ],
     settings: {theme:'system', name:'', remind:false, seenNotif:'', collapsed:{}, taskView:'board'},
     fired: {},
@@ -433,8 +456,8 @@ function migrate(d) {
     if (!STATUS[t.status]) t.status = t.done ? 'selesai' : t.subs.some(s => s.done) ? 'proses' : 'belum';
     t.done = t.status === 'selesai';
   }
-  for (const n of d.notes) { n.icon ||= '📝'; n.title ||= ''; n.body ||= ''; if (!NOTE_COLORS.includes(n.color)) n.color = 'default'; n.updated ||= new Date().toISOString(); }
-  for (const t of d.todos) { t.title ||= ''; if (!PRIO[t.prio]) t.prio = 'sedang'; }
+  for (const n of d.notes) { n.icon ||= '📝'; n.title ||= ''; n.body ||= ''; n.folder ||= ''; if (!NOTE_COLORS.includes(n.color)) n.color = 'default'; n.updated ||= new Date().toISOString(); }
+  for (const t of d.todos) { t.title ||= ''; if (!PRIO[t.prio]) t.prio = 'sedang'; if (!REPEAT[t.repeat]) t.repeat = 'none'; }
   return d;
 }
 function load() {
@@ -447,7 +470,10 @@ function load() {
   } catch (e) {}
   return seed();
 }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Gagal menyimpan data di perangkat'); } }
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Gagal menyimpan data di perangkat'); }
+  clearTimeout(save._t); save._t = setTimeout(syncAlarms, 400);
+}
 S = load();
 
 /* ---------- Tema ---------- */
@@ -466,7 +492,7 @@ applyTheme();
 
 /* ---------- State tampilan ---------- */
 let tab = 'home';
-const view = { todoFilter:'aktif' };
+const view = { todoFilter:'aktif', noteFolder:'' };
 try { const t = sessionStorage.getItem('kerjaku.tab'); if (t) tab = t; } catch (e) {}
 
 /* ---------- Komponen ---------- */
@@ -476,10 +502,45 @@ const sortNotes = arr => arr.slice().sort((a,b) => (b.pinned-a.pinned) || b.upda
 const isLateTodo = x => !x.done && x.date && (x.date < today() || (x.date === today() && x.time && x.time < nowHM()));
 const prioTag = p => tag(PRIO[p].l, PRIO[p].c, true);
 
+/* ---------- To Do berulang ---------- */
+function nextDate(from, rule) {
+  const d = parseD(from);
+  if (rule === 'daily') d.setDate(d.getDate() + 1);
+  else if (rule === 'weekdays') { do d.setDate(d.getDate() + 1); while (d.getDay() === 0 || d.getDay() === 6); }
+  else if (rule === 'weekly') d.setDate(d.getDate() + 7);
+  else if (rule === 'monthly') { const day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + 1); d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); }
+  return ymd(d);
+}
+/* Mencentang To Do berulang membuat jadwal berikutnya; membatalkan centang menariknya kembali. */
+function setTodoDone(x, done) {
+  x.done = done;
+  x.doneAt = done ? new Date().toISOString() : null;
+  let msg = done ? 'Selesai ✓' : null;
+  if (done && x.repeat && x.repeat !== 'none' && !x.spawned) {
+    let nd = nextDate(x.date || today(), x.repeat);
+    while (nd < today()) nd = nextDate(nd, x.repeat);
+    const copy = {...x, id:uid(), date:nd, done:false, doneAt:null, spawned:null, created:new Date().toISOString()};
+    S.todos.push(copy); x.spawned = copy.id;
+    msg = `Selesai ✓ · berikutnya ${fmtShort(nd)}`;
+  } else if (!done && x.spawned) {
+    const i = S.todos.findIndex(t => t.id === x.spawned && !t.done);
+    if (i >= 0) S.todos.splice(i, 1);
+    x.spawned = null;
+  }
+  return msg;
+}
+function setTaskStatus(x, st) {
+  const wasDone = x.status === 'selesai';
+  x.status = st; x.done = st === 'selesai';
+  if (x.done && !wasDone) x.doneAt = new Date().toISOString();
+  if (!x.done) x.doneAt = null;
+}
+
 function todoBlock(x, showDate) {
   const late = isLateTodo(x), bits = [];
   if (showDate && x.date && x.date !== today()) bits.push(`<span class="pi">${I('calendar')}${esc(fmtShort(x.date))}</span>`);
   if (x.time) bits.push(`<span class="pi">${I('clock')}${esc(x.time)}</span>`);
+  if (x.repeat && x.repeat !== 'none') bits.push(`<span class="pi">${I('repeat')}${REPEAT[x.repeat].s}</span>`);
   if (x.cat) bits.push(tag(x.cat, catColor(x.cat)));
   if (late) bits.push('<span class="late">Terlambat</span>');
   return `<div class="blk ${x.done?'done':''}" data-act="edit-todo" data-id="${x.id}" role="button" tabindex="0">
@@ -515,7 +576,7 @@ function noteCard(x) {
   return `<button class="gcard" data-act="edit-note" data-id="${x.id}">
     <div class="gprev bg-${x.color}" style="--fade:var(--bg-${x.color})">${esc(x.body)}</div>
     <div class="gfoot"><div class="t"><span class="emo">${esc(x.icon)}</span>${esc(x.title || 'Tanpa judul')}</div>
-    <small>${x.pinned?I('pin'):''}${new Date(x.updated).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</small></div></button>`;
+    <small>${x.folder?tag(x.folder, catColor(x.folder)):''}${x.pinned?I('pin'):''}${new Date(x.updated).toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</small></div></button>`;
 }
 const emptyBig = (e, title, sub) => `<div class="empty-big"><span class="e">${e}</span><b>${title}</b>${sub}</div>`;
 function h2(key, emoji, title, count, more) {
@@ -523,6 +584,74 @@ function h2(key, emoji, title, count, more) {
   return `<button class="h2 ${closed?'closed':''}" data-act="collapse" data-k="${key}" aria-expanded="${!closed}"><span class="caret">${I('caret')}</span>${emoji} ${esc(title)}${count!=null?`<span class="cnt">${count}</span>`:''}${more?`<span class="more" data-tab="${more}">Lihat semua</span>`:''}</button>`;
 }
 const sec = (key, html) => `<div class="sec ${S.settings.collapsed[key]?'closed':''}">${html}</div>`;
+
+/* ---------- Statistik mingguan ---------- */
+function weekStats() {
+  const t = today(), now = parseD(t);
+  const mon = addDays(t, -((now.getDay() + 6) % 7));
+  const done = [
+    ...S.todos.filter(x => x.doneAt).map(x => ({d:ymd(new Date(x.doneAt)), k:'todo', cat:x.cat})),
+    ...S.tasks.filter(x => x.doneAt).map(x => ({d:ymd(new Date(x.doneAt)), k:'task'})),
+  ];
+  const days = [...Array(7)].map((_, i) => {
+    const d = addDays(mon, i), list = done.filter(c => c.d === d);
+    return {d, todo:list.filter(c => c.k === 'todo').length, task:list.filter(c => c.k === 'task').length, total:list.length};
+  });
+  const total = days.reduce((a, b) => a + b.total, 0);
+  const lastMon = addDays(mon, -7);
+  const last = done.filter(c => c.d >= lastMon && c.d < mon).length;
+  const daySet = new Set(done.map(c => c.d));
+  let streak = 0, cur = daySet.has(t) ? t : addDays(t, -1);
+  while (daySet.has(cur)) { streak++; cur = addDays(cur, -1); }
+  const cats = {};
+  for (const c of done) if (c.k === 'todo' && c.cat && c.d >= mon) cats[c.cat] = (cats[c.cat] || 0) + 1;
+  const top = Object.entries(cats).sort((a, b) => b[1] - a[1])[0];
+  return {days, total, last, streak, top, mon};
+}
+function renderWeek() {
+  const w = weekStats(), t = today();
+  const max = Math.max(...w.days.map(d => d.total), 1);
+  const peak = w.days.reduce((a, b) => b.total > a.total ? b : a, w.days[0]);
+  const diff = w.total - w.last;
+  const dn = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  const tipOf = d => `<b>${esc(fmtDay(d.d))}</b><br><small>${d.d > t ? 'Belum terjadi' : d.total ? `${d.total} selesai · ${d.todo} To Do, ${d.task} Tugas` : 'Belum ada yang selesai'}</small>`;
+  return `<div class="stats three">
+      <div class="stat"><b>${w.total}</b><span>Selesai</span><span class="delta">${diff === 0 ? '= minggu lalu' : `${diff > 0 ? '▲' : '▼'} ${Math.abs(diff)} vs minggu lalu`}</span></div>
+      <div class="stat"><b>${w.streak}</b><span>Hari beruntun</span><span class="delta">${w.streak ? '🔥 pertahankan' : 'mulai hari ini'}</span></div>
+      <div class="stat">${w.top ? tag(w.top[0], catColor(w.top[0])) : '<b>—</b>'}<span>Teratas</span>${w.top ? `<span class="delta">${w.top[1]} To Do</span>` : ''}</div>
+    </div>
+    <figure class="chart">
+      <div class="chart-h"><span>Pekerjaan selesai per hari</span><span>${esc(fmtShort(w.mon))} – ${esc(fmtShort(addDays(w.mon, 6)))}</span></div>
+      <div class="bars" aria-hidden="true">${w.days.map(d => `<div class="bc" data-tip="${esc(tipOf(d))}"><span class="v">${d === peak && d.total ? d.total : ''}</span><i style="height:${d.total ? Math.max(4, d.total / max * 80) : 0}px"></i></div>`).join('')}</div>
+      <div class="xl" aria-hidden="true">${w.days.map((d, i) => `<span class="${d.d === t ? 'now' : ''}">${dn[i]}</span>`).join('')}</div>
+      <table class="sr-only"><caption>Pekerjaan selesai per hari minggu ini</caption><tr><th>Hari</th><th>To Do</th><th>Tugas</th><th>Total</th></tr>${w.days.map(d => `<tr><td>${esc(fmtDay(d.d))}</td><td>${d.todo}</td><td>${d.task}</td><td>${d.total}</td></tr>`).join('')}</table>
+    </figure>`;
+}
+/* Tooltip grafik: hover di desktop, ketuk di layar sentuh */
+function showTip(bar) {
+  const tip = $('#tip');
+  tip.innerHTML = bar.dataset.tip;
+  const r = bar.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
+  const bx = bar.querySelector('i').getBoundingClientRect();
+  const x = Math.max(8, Math.min(r.left + r.width / 2 - tw / 2, innerWidth - tw - 8));
+  const top = (bx.height ? bx.top : r.bottom) - th - 8;
+  tip.style.left = x + 'px'; tip.style.top = Math.max(8, top) + 'px';
+  tip.classList.add('on');
+  document.querySelectorAll('.bc.act').forEach(b => b.classList.remove('act'));
+  bar.classList.add('act');
+}
+function hideTip() {
+  $('#tip').classList.remove('on');
+  document.querySelectorAll('.bc.act').forEach(b => b.classList.remove('act'));
+  document.querySelectorAll('.bars.touched').forEach(b => b.classList.remove('touched'));
+}
+document.addEventListener('pointerover', e => { const b = e.target.closest?.('.bc'); if (b && e.pointerType === 'mouse') showTip(b); });
+document.addEventListener('pointerout', e => { if (e.pointerType === 'mouse' && e.target.closest?.('.bars') && !e.relatedTarget?.closest?.('.bars')) hideTip(); });
+document.addEventListener('click', e => {
+  const b = e.target.closest('.bc');
+  if (b) { b.parentElement.classList.add('touched'); showTip(b); } else hideTip();
+}, true);
+addEventListener('scroll', hideTip, {passive:true});
 
 /* ---------- Halaman ---------- */
 /* Cover memakai gradasi warna analog sesuai waktu: pagi kuning→oranye, siang biru→toska,
@@ -568,6 +697,8 @@ function renderHome() {
     ${sec('focus', focus.length ? focus.map(x=>todoBlock(x, true)).join('') : '<div class="empty">Semua beres 🎉 Tidak ada To Do untuk hari ini.</div>')}
     ${h2('pinned','📌','Tugas Penting',pinned.length,'tugas')}
     ${sec('pinned', pinned.length ? pinned.map(taskRow).join('') : '<div class="empty">Belum ada tugas yang di-pin. Ketuk ikon pin pada tugas.</div>')}
+    ${h2('week','📈','Minggu Ini',null)}
+    ${sec('week', renderWeek())}
     ${h2('notes','📝','Notes Terbaru',null,'notes')}
     ${sec('notes', notes.length ? `<div class="gallery">${notes.map(noteCard).join('')}</div>` : '<div class="empty">Belum ada catatan.</div>')}
   </div>`;
@@ -610,9 +741,14 @@ function renderTugas() {
   return pageHead('📌', 'Tugas', 'Deadline, status, dan langkah-langkah. Pin yang penting ke Home.') + views + body + '</div>';
 }
 function renderNotes() {
-  const items = sortNotes(S.notes);
-  return pageHead('📝', 'Notes', 'Catatan bebas, ide, dan hasil rapat.') + `
-    <div class="views"><button class="on">${I('board')}Gallery</button></div>
+  const folders = [...new Set(S.notes.map(n => n.folder).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'id'));
+  if (view.noteFolder && view.noteFolder !== '-' && !folders.includes(view.noteFolder)) view.noteFolder = '';
+  const f = view.noteFolder;
+  const items = sortNotes(S.notes.filter(n => !f ? true : f === '-' ? !n.folder : n.folder === f));
+  const loose = folders.length && S.notes.some(n => !n.folder);
+  const tabs = [['', 'Semua', S.notes.length], ...folders.map(n => [n, n, S.notes.filter(x => x.folder === n).length]), ...(loose ? [['-', 'Tanpa folder', S.notes.filter(n => !n.folder).length]] : [])];
+  return pageHead('📝', 'Notes', 'Catatan bebas, ide, dan hasil rapat. Kelompokkan dengan folder.') + `
+    <div class="views">${tabs.map(([k,l,n]) => `<button class="${f===k?'on':''}" data-act="note-folder" data-v="${esc(k)}">${I(k && k !== '-' ? 'folder' : 'board')}${esc(l)}<span style="color:var(--text3);font-weight:400">${n}</span></button>`).join('')}</div>
     ${items.length ? `<div class="gallery">${items.map(noteCard).join('')}</div>` : emptyBig('💭','Belum ada catatan','Ketuk tombol pena untuk menulis.')}</div>`;
 }
 const TAB_NAME = {home:'Home', todo:'To Do', tugas:'Tugas', notes:'Notes'};
@@ -667,9 +803,9 @@ function editor(kind, id, preset={}) {
   const arr = S[kind];
   const existing = arr.find(x => x.id === id);
   const defaults = {
-    todos: {title:'', date:today(), time:'', cat:'Kerja', prio:'sedang', done:false},
+    todos: {title:'', date:today(), time:'', cat:'Kerja', prio:'sedang', done:false, repeat:'none'},
     tasks: {icon:'📋', title:'', desc:'', date:addDays(today(),1), time:'', prio:'sedang', pinned:false, status:'belum', done:false, subs:[]},
-    notes: {icon:'📝', title:'', body:'', color:'default', pinned:false},
+    notes: {icon:'📝', title:'', body:'', color:'default', pinned:false, folder:''},
   }[kind];
   const x = existing || Object.assign({id:uid(), created:new Date().toISOString(), updated:new Date().toISOString()}, JSON.parse(JSON.stringify(defaults)), preset);
   if (kind === 'tasks') x.done = x.status === 'selesai';
@@ -694,7 +830,8 @@ function editor(kind, id, preset={}) {
       <div class="prop"><span class="pk">${I('calendar')}Tanggal</span><span class="pv edit"><input type="date" data-f="date" value="${esc(x.date)}"></span></div>
       <div class="prop"><span class="pk">${I('clock')}Jam</span><span class="pv edit"><input type="time" data-f="time" value="${esc(x.time)}"></span></div>
       <div class="prop"><span class="pk">${I('tag')}Kategori</span><span class="pv edit"><span id="cat-tag"></span><input data-f="cat" list="cats" value="${esc(x.cat)}" maxlength="30" placeholder="Kosong" style="width:auto;flex:1;min-width:60px"><datalist id="cats">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></span></div>
-      ${selectRow('flag','Prioritas','prio',PRIO,x.prio)}`;
+      ${selectRow('flag','Prioritas','prio',PRIO,x.prio)}
+      ${selectRow('repeat','Ulangi','repeat',REPEAT,x.repeat || 'none')}`;
   } else if (kind === 'tasks') {
     props = `
       ${selectRow('status','Status','status',STATUS,x.status)}
@@ -703,7 +840,9 @@ function editor(kind, id, preset={}) {
       <div class="prop"><span class="pk">${I('clock')}Jam</span><span class="pv edit"><input type="time" data-f="time" value="${esc(x.time)}"></span></div>
       <div class="prop"><span class="pk">${I('pin')}Pin ke Home</span><span class="pv"><button type="button" class="cb ${x.pinned?'on':''}" data-f="pinned" aria-label="Pin ke Home">${I('check')}</button></span></div>`;
   } else {
+    const folders = [...new Set(S.notes.map(n => n.folder).filter(Boolean))];
     props = `
+      <div class="prop"><span class="pk">${I('folder')}Folder</span><span class="pv edit"><span id="folder-tag"></span><input data-f="folder" list="folders" value="${esc(x.folder)}" maxlength="30" placeholder="Kosong" style="width:auto;flex:1;min-width:60px"><datalist id="folders">${folders.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></span></div>
       <div class="prop"><span class="pk">${I('palette')}Warna</span><span class="pv"><span class="opts" data-group="color">${NOTE_COLORS.map(c=>`<button type="button" class="swatch bg-${c} ${x.color===c?'on':''}" data-v="${c}" aria-label="${c}"></button>`).join('')}</span></span></div>
       <div class="prop"><span class="pk">${I('pin')}Sematkan</span><span class="pv"><button type="button" class="cb ${x.pinned?'on':''}" data-f="pinned" aria-label="Sematkan">${I('check')}</button></span></div>`;
   }
@@ -722,21 +861,24 @@ function editor(kind, id, preset={}) {
       ${body}
     </div>`, {full:true, onClose: () => {
       if (inserted && !hasContent()) { const i = arr.indexOf(x); if (i >= 0) { arr.splice(i, 1); save(); render(); } }
-      else if (!existing && inserted) toast(`${label} ditambahkan`);
+      else if (!existing && inserted) toast(`${kind === 'notes' ? 'Catatan' : label} ditambahkan`);
     }, onMount: root => {
       const title = root.querySelector('.title-in');
       requestAnimationFrame(() => { autosize(title); root.querySelectorAll('.body-in').forEach(autosize); });
       if (!existing) setTimeout(() => title.focus(), 120);
-      const catTag = root.querySelector('#cat-tag');
-      const drawCat = () => { if (catTag) catTag.innerHTML = x.cat ? tag(x.cat, catColor(x.cat)) : ''; };
+      const catTag = root.querySelector('#cat-tag'), folderTag = root.querySelector('#folder-tag');
+      const drawCat = () => {
+        if (catTag) catTag.innerHTML = x.cat ? tag(x.cat, catColor(x.cat)) : '';
+        if (folderTag) folderTag.innerHTML = x.folder ? tag(x.folder, catColor(x.folder)) : '';
+      };
       drawCat();
 
       root.addEventListener('input', e => {
         const f = e.target.dataset.f;
         if (f) {
-          x[f] = (f === 'title' || f === 'cat') ? e.target.value.replace(/\n/g, ' ') : e.target.value;
+          x[f] = (f === 'title' || f === 'cat' || f === 'folder') ? e.target.value.replace(/\n/g, ' ') : e.target.value;
           if (e.target.tagName === 'TEXTAREA') autosize(e.target);
-          if (f === 'cat') drawCat();
+          if (f === 'cat' || f === 'folder') drawCat();
           persist(root);
         }
         if (e.target.dataset.sub === 'text') { x.subs.find(s => s.id === e.target.closest('[data-sid]').dataset.sid).t = e.target.value; persist(root); }
@@ -750,11 +892,17 @@ function editor(kind, id, preset={}) {
           g.parentElement.querySelectorAll('[data-v]').forEach(b => b.classList.toggle('on', b === g));
           if (group === 'prio') x.prio = g.dataset.v;
           if (group === 'color') x.color = g.dataset.v;
-          if (group === 'status') { x.status = g.dataset.v; x.done = x.status === 'selesai'; }
+          if (group === 'status') setTaskStatus(x, g.dataset.v);
+          if (group === 'repeat') x.repeat = g.dataset.v;
           persist(root); return;
         }
         const cb = e.target.closest('.cb[data-f]');
-        if (cb) { const f = cb.dataset.f; x[f] = !x[f]; cb.classList.toggle('on', x[f]); persist(root); return; }
+        if (cb) {
+          const f = cb.dataset.f;
+          if (kind === 'todos' && f === 'done') { const m = setTodoDone(x, !x.done); if (m && x.spawned) toast(m); }
+          else x[f] = !x[f];
+          cb.classList.toggle('on', x[f]); persist(root); return;
+        }
         if (e.target.closest('#icon-pick')) { const r = root.querySelector('#emoji-row'); r.hidden = !r.hidden; return; }
         const em = e.target.closest('[data-emoji]');
         if (em) { x.icon = em.dataset.emoji; root.querySelector('#icon-pick').textContent = x.icon; root.querySelector('#emoji-row').hidden = true; persist(root); return; }
@@ -762,7 +910,7 @@ function editor(kind, id, preset={}) {
         if (sb && sb.dataset.sub !== 'text') {
           const s = x.subs.find(s => s.id === sb.closest('[data-sid]').dataset.sid);
           if (sb.dataset.sub === 'toggle') s.done = !s.done; else x.subs.splice(x.subs.indexOf(s), 1);
-          if (x.status === 'belum' && x.subs.some(s => s.done)) { x.status = 'proses'; root.querySelectorAll('[data-group="status"] [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === 'proses')); }
+          if (x.status === 'belum' && x.subs.some(s => s.done)) { setTaskStatus(x, 'proses'); root.querySelectorAll('[data-group="status"] [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === 'proses')); }
           root.querySelector('#subs').innerHTML = subsHtml(); persist(root);
         }
       });
@@ -810,7 +958,7 @@ function searchSheet() {
       const has = (...f) => f.some(v => String(v||'').toLowerCase().includes(s));
       const td = sortTodos(S.todos.filter(x => has(x.title, x.cat)));
       const tk = sortTasks(S.tasks.filter(x => has(x.title, x.desc, ...x.subs.map(z=>z.t))));
-      const nt = sortNotes(S.notes.filter(x => has(x.title, x.body)));
+      const nt = sortNotes(S.notes.filter(x => has(x.title, x.body, x.folder)));
       const list = (td.length?`<div class="menu-h">To Do</div>${td.map(x=>row('edit-todo', x.id, x.done?'☑️':'⬜', x.title, `To Do${x.cat?' · '+esc(x.cat):''}${x.date?' · '+esc(fmtShort(x.date)):''}`)).join('')}`:'')
         + (tk.length?`<div class="menu-h">Tugas</div>${tk.map(x=>row('edit-task', x.id, esc(x.icon), x.title, 'Tugas · ' + STATUS[x.status].l)).join('')}`:'')
         + (nt.length?`<div class="menu-h">Notes</div>${nt.map(x=>row('edit-note', x.id, esc(x.icon), x.title, esc(x.body.slice(0,60)))).join('')}`:'');
@@ -888,8 +1036,29 @@ function sysNotify(title, body) {
       .catch(() => { try { new Notification(title, {body}); } catch (e) {} });
   }
 }
+/* Android: jadwalkan alarm sistem agar pengingat muncul walau aplikasi ditutup. */
+const canAlarm = () => isAndroid && typeof window.AndroidBridge.scheduleReminders === 'function';
+function upcomingReminders() {
+  const now = Date.now(), limit = now + 60 * 864e5, out = [];
+  const at = (d, t) => { const [y,m,dd] = d.split('-').map(Number), [h,mi] = t.split(':').map(Number); return new Date(y, m-1, dd, h, mi).getTime(); };
+  for (const x of S.todos) {
+    if (x.done || !x.date || !x.time) continue;
+    const ts = at(x.date, x.time);
+    if (ts > now && ts < limit) out.push({key:'t:' + x.id, at:ts, title:'⏰ ' + (x.title || 'To Do'), body:`Waktunya sekarang (${x.time}) · ${x.cat || 'To Do'}`});
+  }
+  for (const x of S.tasks) {
+    if (x.done || !x.date) continue;
+    const ts = at(x.date, x.time || '09:00');
+    if (ts > now && ts < limit) out.push({key:'k:' + x.id, at:ts, title:'📌 Deadline: ' + (x.title || 'Tugas'), body:`Deadline ${x.time ? 'pukul ' + x.time : 'hari ini'} · ${STATUS[x.status].l}`});
+  }
+  return out.sort((a, b) => a.at - b.at).slice(0, 60);
+}
+function syncAlarms() {
+  if (!canAlarm()) return;
+  try { window.AndroidBridge.scheduleReminders(JSON.stringify(S.settings.remind ? upcomingReminders() : [])); } catch (e) {}
+}
 function checkReminders() {
-  if (!S.settings.remind) return;
+  if (!S.settings.remind || canAlarm()) return;
   const t = today(), now = nowHM();
   let changed = false;
   for (const x of S.todos) {
@@ -911,13 +1080,13 @@ function settingsSheet() {
     <div class="props">
       <div class="prop"><span class="pk">${I('user')}Nama panggilan</span><span class="pv edit"><input id="name" maxlength="30" value="${esc(s.name)}" placeholder="Kosong"></span></div>
       ${selectRow('palette','Tema','theme',themes,s.theme)}
-      <div class="prop"><span class="pk">${I('bell')}Pengingat</span><span class="pv"><button type="button" class="cb ${s.remind?'on':''}" id="remind" aria-label="Pengingat">${I('check')}</button><span style="color:var(--text2);font-size:13px">Notifikasi saat jam To Do tiba</span></span></div>
+      <div class="prop"><span class="pk">${I('bell')}Pengingat</span><span class="pv"><button type="button" class="cb ${s.remind?'on':''}" id="remind" aria-label="Pengingat">${I('check')}</button><span style="color:var(--text2);font-size:13px">${canAlarm() ? 'Notifikasi saat jam To Do & deadline tiba, walau aplikasi ditutup' : 'Notifikasi saat jam To Do tiba (selama aplikasi terbuka)'}</span></span></div>
     </div></div>
     <div class="menu-h">Data</div>
     <button class="mrow" data-act="export"><span class="ico bg-gray">${I('download')}</span><span class="tx"><b>Ekspor cadangan</b><small>Simpan semua data sebagai berkas JSON</small></span></button>
     <button class="mrow" data-act="import"><span class="ico bg-gray">${I('upload')}</span><span class="tx"><b>Impor dari cadangan</b><small>Ganti data dengan berkas JSON</small></span></button>
     <button class="mrow red" data-act="reset"><span class="ico bg-red">${I('trash')}</span><span class="tx"><b>Hapus semua data</b><small>Tidak bisa dibatalkan</small></span></button>
-    <div class="menu-h" style="font-weight:400;padding-top:20px">KerjaKu v2.0 · Data tersimpan di perangkat ini dan berjalan tanpa internet.</div>`, {full:true, onMount: root => {
+    <div class="menu-h" style="font-weight:400;padding-top:20px">KerjaKu v2.1 · Data tersimpan di perangkat ini dan berjalan tanpa internet.</div>`, {full:true, onMount: root => {
       root.querySelector('#name').addEventListener('input', e => { s.name = e.target.value; save(); render(); });
       root.querySelector('[data-group="theme"]').addEventListener('click', e => {
         const b = e.target.closest('[data-v]'); if (!b) return;
@@ -931,7 +1100,7 @@ function settingsSheet() {
           if (p !== 'granted') toast('Izin notifikasi ditolak; pengingat hanya tampil di Inbox');
         }
         if (s.remind && isAndroid) { try { window.AndroidBridge.requestNotifyPermission(); } catch (err) {} }
-        save(); checkReminders();
+        save(); syncAlarms(); checkReminders();
       });
     }});
 }
@@ -984,8 +1153,8 @@ document.addEventListener('click', e => {
   const fromMenu = () => !!el.closest('.sheet:not(.full)');
   switch (act) {
     case 'toggle-todo': {
-      const x = S.todos.find(t => t.id === id); x.done = !x.done;
-      commit(x.done ? 'Selesai ✓' : null); break;
+      const x = S.todos.find(t => t.id === id);
+      commit(setTodoDone(x, !x.done)); break;
     }
     case 'pin-task': {
       const x = S.tasks.find(t => t.id === id); x.pinned = !x.pinned;
@@ -997,8 +1166,9 @@ document.addEventListener('click', e => {
     case 'edit-note': replaceNext = fromMenu(); editor('notes', id); break;
     case 'new-todo': replaceNext = fromMenu(); editor('todos', null, el.dataset.date ? {date:el.dataset.date} : {}); break;
     case 'new-task': replaceNext = fromMenu(); editor('tasks', null, el.dataset.status ? {status:el.dataset.status} : {}); break;
-    case 'new-note': replaceNext = fromMenu(); editor('notes', null); break;
-    case 'fab': tab === 'todo' ? editor('todos', null) : tab === 'tugas' ? editor('tasks', null) : tab === 'notes' ? editor('notes', null) : chooser(); break;
+    case 'new-note': replaceNext = fromMenu(); editor('notes', null, tab === 'notes' && view.noteFolder && view.noteFolder !== '-' ? {folder:view.noteFolder} : {}); break;
+    case 'note-folder': view.noteFolder = el.dataset.v; render(); break;
+    case 'fab': tab === 'todo' ? editor('todos', null) : tab === 'tugas' ? editor('tasks', null) : tab === 'notes' ? editor('notes', null, view.noteFolder && view.noteFolder !== '-' ? {folder:view.noteFolder} : {}) : chooser(); break;
     case 'del': removeItem(el.dataset.kind, id); break;
     case 'todo-filter': view.todoFilter = el.dataset.v; render(); break;
     case 'task-view': S.settings.taskView = el.dataset.v; save(); render(); break;
@@ -1046,6 +1216,7 @@ document.querySelectorAll('[data-ic]').forEach(s => s.outerHTML = I(s.dataset.ic
 
 render();
 checkReminders();
+syncAlarms();
 setInterval(() => { checkReminders(); if (!stack.length) render(); }, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { if (!stack.length) render(); checkReminders(); } });
 window.addEventListener('storage', e => { if (e.key === KEY) { S = load(); render(); } });

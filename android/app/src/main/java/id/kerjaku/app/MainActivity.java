@@ -148,11 +148,7 @@ public class MainActivity extends Activity {
     }
 
     private void createChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel ch = new NotificationChannel(CHANNEL_ID, "Pengingat To Do", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("Pengingat saat jam To Do tiba");
-            getSystemService(NotificationManager.class).createNotificationChannel(ch);
-        }
+        Reminders.createChannel(this);
     }
 
     /** Samakan warna status bar & navigation bar dengan tema aplikasi (terang/gelap). */
@@ -183,21 +179,13 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void notify(String title, String body) {
-            if (Build.VERSION.SDK_INT >= 33
-                    && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            Intent open = new Intent(MainActivity.this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent pi = PendingIntent.getActivity(MainActivity.this, 0, open, PendingIntent.FLAG_IMMUTABLE);
-            android.app.Notification.Builder b = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                    ? new android.app.Notification.Builder(MainActivity.this, CHANNEL_ID)
-                    : new android.app.Notification.Builder(MainActivity.this);
-            b.setSmallIcon(R.drawable.ic_launcher_foreground)
-                    .setContentTitle(title)
-                    .setContentText(body)
-                    .setAutoCancel(true)
-                    .setContentIntent(pi);
-            getSystemService(NotificationManager.class).notify(notifId++, b.build());
+            Reminders.show(MainActivity.this, 100000 + notifId++, title, body);
+        }
+
+        /** Jadwalkan pengingat lewat AlarmManager (tetap jalan walau aplikasi ditutup). */
+        @JavascriptInterface
+        public void scheduleReminders(String json) {
+            Reminders.schedule(getApplicationContext(), json);
         }
 
         @JavascriptInterface

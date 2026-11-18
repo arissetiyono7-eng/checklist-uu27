@@ -26,6 +26,13 @@ Aplikasi produktivitas offline bergaya Notion: **To Do** (dengan jam, kategori, 
 - **Cover Home** memakai gradasi warna *analog* yang berubah mengikuti waktu: pagi kuning→oranye, siang biru→toska, sore oranye→merah muda, malam indigo→ungu.
 - Teks sekunder `#73726e` di atas putih memiliki kontras ±4,8:1 (lolos WCAG AA).
 
+### Fitur tambahan (v2.1)
+
+- **To Do berulang** — properti *Ulangi*: Harian, Hari kerja, Mingguan, Bulanan. Saat dicentang, To Do berikutnya otomatis dibuat di tanggal selanjutnya (ditandai 🔁); membatalkan centang menariknya kembali.
+- **Folder untuk Notes** — properti *Folder* di setiap catatan; halaman Notes punya tab per folder (ala view Notion), plus tab *Tanpa folder*.
+- **Statistik mingguan** — bagian *📈 Minggu Ini* di Home: jumlah selesai (dibanding minggu lalu), hari beruntun, kategori teratas, dan grafik batang Senin–Minggu (ketuk batang untuk detail).
+- **Pengingat di Android walau aplikasi ditutup** — To Do berjam dan deadline tugas dijadwalkan lewat alarm sistem, dan dijadwalkan ulang otomatis setelah HP dinyalakan ulang. Aktifkan di *Pengaturan → Pengingat*. Di Android 13+ alarm bisa meleset beberapa menit kecuali izin *Alarm & pengingat* diberikan di pengaturan aplikasi. Versi web/browser tetap hanya mengingatkan selama aplikasi terbuka.
+
 ### Versi HTML (web / PWA)
 
 - Buka `kerjaku/index.html` langsung di browser, atau lewat GitHub Pages:
