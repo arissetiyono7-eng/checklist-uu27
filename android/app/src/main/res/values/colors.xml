@@ -1,0 +1,7 @@
+<resources>
+    <!-- Netral hangat ala Notion; aksen biru dipakai untuk interaksi. -->
+    <color name="bg">#FFFFFF</color>
+    <color name="text">#37352F</color>
+    <color name="accent">#2383E2</color>
+    <color name="bg_dark">#191919</color>
+</resources>
